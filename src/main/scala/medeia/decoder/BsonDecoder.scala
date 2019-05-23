@@ -4,23 +4,27 @@ import java.time.Instant
 import java.util.Date
 
 import cats.data.EitherNec
+import cats.instances.parallel._
 import cats.syntax.either._
+import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.TypeMismatch
 import org.bson.BsonType
 import org.mongodb.scala.bson.BsonValue
 
+import scala.collection.generic.CanBuildFrom
+
 trait BsonDecoder[A] { self =>
 
-  def decodeFromBson(a: BsonValue): EitherNec[BsonDecoderError, A]
+  def decode(a: BsonValue): EitherNec[BsonDecoderError, A]
 
-  def map[B](f: A => B): BsonDecoder[B] = x => self.decodeFromBson(x).map(f(_))
+  def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
 }
 
-object BsonDecoder {
+object BsonDecoder extends DefaultBsonDecoderInstances {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
   def decode[A: BsonDecoder](a: BsonValue): EitherNec[BsonDecoderError, A] = {
-    BsonDecoder[A].decodeFromBson(a)
+    BsonDecoder[A].decode(a)
   }
 
 }
@@ -78,4 +82,22 @@ trait DefaultBsonDecoderInstances extends BsonDecoderLowPriorityInstances {
   }
 }
 
-trait BsonDecoderLowPriorityInstances {}
+trait BsonDecoderLowPriorityInstances {
+  implicit def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](
+      implicit canBuildFrom: CanBuildFrom[Nothing, A, C[A]])
+    : BsonDecoder[C[A]] =
+    bson =>
+      bson.getBsonType match {
+        case BsonType.ARRAY =>
+          val builder = canBuildFrom()
+          var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
+
+          bson.asArray.getValues.forEach { b =>
+            val decoded = BsonDecoder[A].decode(b)
+            elems = (elems, decoded).parMapN((builder, dec) => builder += dec)
+          }
+
+          elems.map(_.result())
+        case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
+    }
+}
