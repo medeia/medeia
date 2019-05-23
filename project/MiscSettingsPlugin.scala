@@ -24,7 +24,8 @@ object MiscSettingsPlugin extends AutoPlugin {
       "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
       "-Ywarn-value-discard", // Warn when non-Unit expression results are unused
       "-Ywarn-inaccessible",
-      "-language:reflectiveCalls"
+      "-language:reflectiveCalls",
+      "-Ypartial-unification"
     ),
     scalafmtOnCompile := true
   )
