@@ -1,4 +1,17 @@
-import ReleaseTransformations._
+inThisBuild(
+  List(
+    organization := "de.megaera",
+    homepage := Some(url("https://github.com/medeia/medeia")),
+    licenses := Seq(
+      "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer("froth",
+                "Frederick Roth",
+                "f-roth@megaera.de",
+                url("https://derfred.org"))
+    )
+  ))
+
 import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
@@ -9,20 +22,11 @@ lazy val root = (project in file("."))
 
 lazy val publishSettings = Seq(
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  homepage := Some(url("https://github.com/medeia/medeia")),
   licenses := Seq(
     "Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ =>
     false
-  },
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   scmInfo := Some(
     ScmInfo(
@@ -30,13 +34,7 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:medeia/medeia.git"
     )
   ),
-  developers := List(
-    Developer("froth",
-              "Frederick Roth",
-              "f-roth@megaera.de",
-              url("https://derfred.org"))
-  ),
-  pomPostProcess := { (node: XmlNode) =>
+  pomPostProcess := { node: XmlNode =>
     new RuleTransformer(
       new RewriteRule {
         private def isTestScope(elem: Elem): Boolean =
