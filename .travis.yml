@@ -14,8 +14,6 @@ stages:
 
 jobs:
   include:
-    - env: TEST="scalafmt"
-      script: ./bin/scalafmt --test
     - env: TEST="compile"
       script: sbt compile
     - stage: release
