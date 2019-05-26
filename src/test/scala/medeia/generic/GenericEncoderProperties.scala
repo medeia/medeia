@@ -11,8 +11,7 @@ import org.mongodb.scala.bson.{
 import org.scalacheck.Prop.{BooleanOperators, all}
 import org.scalacheck.{Gen, Prop, Properties}
 
-class GenericBsonDocumentEncoderProperties
-    extends Properties("GenericEncoding") {
+class GenericEncoderProperties extends Properties("GenericEncoding") {
   import medeia.generic.GenericEncoder._
 
   propertyWithSeed("decode simple case class", None) = {

@@ -17,7 +17,7 @@ trait BsonDocumentEncoder[-A] extends BsonEncoder[A] {
 }
 
 object BsonEncoder extends DefaultBsonEncoderInstances {
-  def apply[A](implicit enc: BsonEncoder[A]): BsonEncoder[A] = implicitly
+  def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
     new Contravariant[BsonEncoder] {
