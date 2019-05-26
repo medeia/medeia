@@ -12,13 +12,12 @@ trait BsonEncoder[-A] { self =>
   def contramap[B](f: B => A): BsonEncoder[B] = b => self.encode(f(b))
 }
 
-trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
+trait BsonDocumentEncoder[-A] extends BsonEncoder[A] {
   override def encode(a: A): BsonDocument
 }
 
 object BsonEncoder extends DefaultBsonEncoderInstances {
-  def apply[A](implicit enc: BsonEncoder[A]): BsonEncoder[A] =
-    enc
+  def apply[A](implicit enc: BsonEncoder[A]): BsonEncoder[A] = implicitly
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
     new Contravariant[BsonEncoder] {

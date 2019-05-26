@@ -8,12 +8,12 @@ import org.mongodb.scala.bson.{
   BsonNull,
   BsonString
 }
-import org.scalacheck.Prop.BooleanOperators
-import org.scalacheck.Prop.all
+import org.scalacheck.Prop.{BooleanOperators, all}
 import org.scalacheck.{Gen, Prop, Properties}
 
-class SemiautoProperties extends Properties("SemiAutoEncoding") {
-  import HListEncoder._
+class GenericBsonDocumentEncoderProperties
+    extends Properties("GenericEncoding") {
+  import medeia.generic.GenericEncoder._
 
   propertyWithSeed("decode simple case class", None) = {
     case class Simple(int: Int, string: String)

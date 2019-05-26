@@ -5,25 +5,26 @@ import org.mongodb.scala.bson.BsonDocument
 import shapeless.labelled.FieldType
 import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
-object Semiauto {}
+trait GenericEncoder[-A] extends BsonDocumentEncoder[A]
 
-object HListEncoder {
+object GenericEncoder extends GenericEncoderInstances
+
+trait GenericEncoderInstances {
   implicit def genericObjectEncoder[A, H](
       implicit
       generic: LabelledGeneric.Aux[A, H],
-      hEncoder: Lazy[BsonDocumentEncoder[H]]
-  ): BsonEncoder[A] =
+      hEncoder: Lazy[GenericEncoder[H]]
+  ): GenericEncoder[A] =
     value => hEncoder.value.encode(generic.to(value))
 
-  implicit val hnilEncoder: BsonDocumentEncoder[HNil] =
+  implicit val hnilEncoder: GenericEncoder[HNil] =
     hnil => BsonDocument()
 
   implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
       implicit
       witness: Witness.Aux[K],
       hEncoder: Lazy[BsonEncoder[H]],
-      tEncoder: BsonDocumentEncoder[T])
-    : BsonDocumentEncoder[FieldType[K, H] :: T] = {
+      tEncoder: GenericEncoder[T]): GenericEncoder[FieldType[K, H] :: T] = {
     val fieldName: String = witness.value.name
     hlist =>
       {
