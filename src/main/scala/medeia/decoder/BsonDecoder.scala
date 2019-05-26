@@ -15,7 +15,7 @@ import scala.collection.generic.CanBuildFrom
 
 trait BsonDecoder[A] { self =>
 
-  def decode(a: BsonValue): EitherNec[BsonDecoderError, A]
+  def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
 
   def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
 }
@@ -23,10 +23,10 @@ trait BsonDecoder[A] { self =>
 object BsonDecoder extends DefaultBsonDecoderInstances {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
-  def decode[A: BsonDecoder](a: BsonValue): EitherNec[BsonDecoderError, A] = {
-    BsonDecoder[A].decode(a)
+  def decode[A: BsonDecoder](
+      bson: BsonValue): EitherNec[BsonDecoderError, A] = {
+    BsonDecoder[A].decode(bson)
   }
-
 }
 
 trait DefaultBsonDecoderInstances extends BsonDecoderLowPriorityInstances {

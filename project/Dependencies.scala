@@ -6,6 +6,7 @@ object Dependencies {
     val scalaTest = "3.0.5"
     val mongoScalaBson = "2.6.0"
     val cats = "1.6.0"
+    val scalaCheck = "1.14.0"
   }
 
   lazy val Libraries = libraryDependencies ++= Vector(
@@ -15,5 +16,6 @@ object Dependencies {
 
   lazy val TestLibraries = libraryDependencies ++= Vector(
     "org.scalatest" %% "scalatest" % Versions.scalaTest,
+    "org.scalacheck" %% "scalacheck" % Versions.scalaCheck
   ).map(_ % Test)
 }
