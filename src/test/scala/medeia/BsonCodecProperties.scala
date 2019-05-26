@@ -7,7 +7,7 @@ import medeia.decoder.BsonDecoder
 import medeia.syntax._
 import org.scalacheck.{Arbitrary, Prop, Properties}
 
-class BsonCodecProperties extends Properties("BsonEncoder") with Arbitraries {
+class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   propertyWithSeed("decode after encode === id (boolean)", None) = {
     codecProperty[Boolean]
   }

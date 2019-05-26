@@ -6,14 +6,19 @@ import java.util.Date
 import cats.Contravariant
 import org.mongodb.scala.bson._
 
-trait BsonEncoder[A] { self =>
+trait BsonEncoder[-A] { self =>
   def encode(a: A): BsonValue
 
   def contramap[B](f: B => A): BsonEncoder[B] = b => self.encode(f(b))
 }
 
+trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
+  override def encode(a: A): BsonDocument
+}
+
 object BsonEncoder extends DefaultBsonEncoderInstances {
-  def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
+  def apply[A](implicit enc: BsonEncoder[A]): BsonEncoder[A] =
+    enc
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
     new Contravariant[BsonEncoder] {
@@ -41,6 +46,9 @@ trait DefaultBsonEncoderInstances extends BsonEncoderLowPriorityInstances {
   implicit val binaryEncoder: BsonEncoder[Array[Byte]] = x => BsonBinary(x)
 
   implicit val symbolEncoder: BsonEncoder[Symbol] = x => BsonSymbol(x)
+
+  implicit def optionEncoder[A: BsonEncoder]: BsonEncoder[Option[A]] =
+    x => x.map(BsonEncoder[A].encode).getOrElse(BsonNull())
 }
 
 trait BsonEncoderLowPriorityInstances {
