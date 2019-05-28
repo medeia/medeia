@@ -13,7 +13,7 @@ import org.mongodb.scala.bson.BsonValue
 
 import scala.collection.generic.CanBuildFrom
 
-trait BsonDecoder[A] { self =>
+trait BsonDecoder[+A] { self =>
 
   def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
 
@@ -80,6 +80,13 @@ trait DefaultBsonDecoderInstances extends BsonDecoderLowPriorityInstances {
       case BsonType.SYMBOL => Right(Symbol(bson.asSymbol().getSymbol))
       case t               => Either.leftNec(TypeMismatch(t, BsonType.SYMBOL))
   }
+
+  implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
+    bson =>
+      bson.getBsonType match {
+        case BsonType.NULL => Right(None)
+        case _             => BsonDecoder[A].decode(bson).map(Some(_))
+    }
 }
 
 trait BsonDecoderLowPriorityInstances {
