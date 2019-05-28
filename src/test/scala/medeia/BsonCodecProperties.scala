@@ -5,7 +5,7 @@ import java.util.Date
 
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
-import org.scalacheck.{Arbitrary, Gen, Prop, Properties}
+import org.scalacheck.{Arbitrary, Prop, Properties}
 
 class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   propertyWithSeed("decode after encode === id (boolean)", None) = {
@@ -41,14 +41,10 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   }
 
   propertyWithSeed("decode after encode === id (option)", None) = {
-    implicit val arbitraryList: Arbitrary[Option[String]] = Arbitrary(
-      Gen.option(Gen.alphaStr))
     codecProperty[Option[String]]
   }
 
   propertyWithSeed("decode after encode === id (list)", None) = {
-    implicit val arbitraryList: Arbitrary[List[String]] = Arbitrary(
-      Gen.listOf(Gen.alphaStr))
     codecProperty[List[String]]
   }
 

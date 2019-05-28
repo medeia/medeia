@@ -7,7 +7,7 @@ import cats.Contravariant
 import org.mongodb.scala.bson._
 
 trait BsonEncoder[-A] { self =>
-  def encode(a: A): BsonValue
+  def encode(value: A): BsonValue
 
   def contramap[B](f: B => A): BsonEncoder[B] = b => self.encode(f(b))
 }
