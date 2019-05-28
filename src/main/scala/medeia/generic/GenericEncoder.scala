@@ -5,7 +5,7 @@ import org.mongodb.scala.bson.BsonDocument
 import shapeless.labelled.FieldType
 import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
-trait GenericEncoder[-A] extends BsonDocumentEncoder[A]
+trait GenericEncoder[A] extends BsonDocumentEncoder[A]
 
 object GenericEncoder extends GenericEncoderInstances
 
