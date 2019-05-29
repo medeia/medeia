@@ -13,14 +13,12 @@ trait Arbitraries {
     Gen.asciiStr.map(Symbol(_))
   }
 
-  implicit def arbitraryOption[A](
-      implicit arbitraryA: Arbitrary[A]): Arbitrary[Option[A]] =
+  implicit def arbitraryOption[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[Option[A]] =
     Arbitrary[Option[A]] {
       Gen.option(arbitraryA.arbitrary)
     }
 
-  implicit def arbitraryList[A](
-      implicit arbitraryA: Arbitrary[A]): Arbitrary[List[A]] =
+  implicit def arbitraryList[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[List[A]] =
     Arbitrary[List[A]] {
       Gen.listOf(arbitraryA.arbitrary)
     }

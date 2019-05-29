@@ -1,13 +1,7 @@
 package medeia.generic
 
 import medeia.encoder.BsonEncoder
-import org.mongodb.scala.bson.{
-  BsonArray,
-  BsonDocument,
-  BsonInt32,
-  BsonNull,
-  BsonString
-}
+import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonInt32, BsonNull, BsonString}
 import org.scalacheck.Prop.{BooleanOperators, all}
 import org.scalacheck.{Gen, Prop, Properties}
 
