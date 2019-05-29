@@ -1,7 +1,7 @@
 package medeia.encoder
 
 import java.time.Instant
-import java.util.Date
+import java.util.{Date, UUID}
 
 import cats.Contravariant
 import org.mongodb.scala.bson._
@@ -21,8 +21,7 @@ object BsonEncoder extends DefaultBsonEncoderInstances {
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
     new Contravariant[BsonEncoder] {
-      override def contramap[A, B](fa: BsonEncoder[A])(
-          f: B => A): BsonEncoder[B] = fa.contramap(f).encode
+      override def contramap[A, B](fa: BsonEncoder[A])(f: B => A): BsonEncoder[B] = fa.contramap(f).encode
     }
 }
 
@@ -37,8 +36,7 @@ trait DefaultBsonEncoderInstances extends BsonEncoderLowPriorityInstances {
 
   implicit val doubleEncoder: BsonEncoder[Double] = x => BsonDouble(x)
 
-  implicit val instantEncoder: BsonEncoder[Instant] = x =>
-    BsonDateTime(x.toEpochMilli)
+  implicit val instantEncoder: BsonEncoder[Instant] = x => BsonDateTime(x.toEpochMilli)
 
   implicit val dateEncoder: BsonEncoder[Date] = x => BsonDateTime(x)
 
@@ -48,6 +46,8 @@ trait DefaultBsonEncoderInstances extends BsonEncoderLowPriorityInstances {
 
   implicit def optionEncoder[A: BsonEncoder]: BsonEncoder[Option[A]] =
     x => x.map(BsonEncoder[A].encode).getOrElse(BsonNull())
+
+  implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
 }
 
 trait BsonEncoderLowPriorityInstances {

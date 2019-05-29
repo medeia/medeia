@@ -20,11 +20,10 @@ trait GenericEncoderInstances {
   implicit val hnilEncoder: GenericEncoder[HNil] =
     hnil => BsonDocument()
 
-  implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
-      implicit
-      witness: Witness.Aux[K],
-      hEncoder: Lazy[BsonEncoder[H]],
-      tEncoder: GenericEncoder[T]): GenericEncoder[FieldType[K, H] :: T] = {
+  implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](implicit
+                                                              witness: Witness.Aux[K],
+                                                              hEncoder: Lazy[BsonEncoder[H]],
+                                                              tEncoder: GenericEncoder[T]): GenericEncoder[FieldType[K, H] :: T] = {
     val fieldName: String = witness.value.name
     hlist =>
       {

@@ -1,7 +1,7 @@
 package medeia
 
 import java.time.Instant
-import java.util.Date
+import java.util.{Date, UUID}
 
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
@@ -46,6 +46,10 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
 
   propertyWithSeed("decode after encode === id (list)", None) = {
     codecProperty[List[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (uuid)", None) = {
+    codecProperty[UUID]
   }
 
   private[this] def codecProperty[A: Arbitrary: BsonCodec]: Prop =
