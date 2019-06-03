@@ -14,7 +14,6 @@ object Dependencies {
     "org.mongodb.scala" %% "mongo-scala-bson" % Versions.mongoScalaBson,
     "org.typelevel" %% "cats-core" % Versions.cats,
     "com.chuusai" %% "shapeless" % Versions.shapeless
-    
   )
 
   lazy val TestLibraries = libraryDependencies ++= Vector(

@@ -13,9 +13,10 @@ import org.mongodb.scala.bson.BsonValue
 
 import scala.collection.generic.CanBuildFrom
 
-trait BsonDecoder[+A] { self =>
+trait BsonDecoder[A] { self =>
 
   def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
+  def defaultValue: Option[A] = None
 
   def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
 }
@@ -28,7 +29,7 @@ object BsonDecoder extends DefaultBsonDecoderInstances {
   }
 }
 
-trait DefaultBsonDecoderInstances extends BsonDecoderLowPriorityInstances {
+trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit val booleanDecoder: BsonDecoder[Boolean] = bson =>
     bson.getBsonType match {
       case BsonType.BOOLEAN => Right(bson.asBoolean().getValue)
@@ -81,20 +82,25 @@ trait DefaultBsonDecoderInstances extends BsonDecoderLowPriorityInstances {
   }
 
   implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
-    bson =>
-      bson.getBsonType match {
+    new BsonDecoder[Option[A]] {
+      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] = bson.getBsonType match {
         case BsonType.NULL => Right(None)
         case _             => BsonDecoder[A].decode(bson).map(Some(_))
+      }
+
+      override def defaultValue: Option[Option[A]] = Some(None)
     }
 
   implicit val uuidDecoder: BsonDecoder[UUID] = bson =>
     stringDecoder.decode(bson).flatMap { string =>
       Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError(_)).toEitherNec
   }
+
+  implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder
 }
 
-trait BsonDecoderLowPriorityInstances {
-  implicit def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit canBuildFrom: CanBuildFrom[Nothing, A, C[A]]): BsonDecoder[C[A]] =
+trait BsonIterableDecoder {
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit canBuildFrom: CanBuildFrom[Nothing, A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>

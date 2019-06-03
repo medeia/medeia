@@ -6,13 +6,13 @@ import java.util.{Date, UUID}
 import cats.Contravariant
 import org.mongodb.scala.bson._
 
-trait BsonEncoder[-A] { self =>
+trait BsonEncoder[A] { self =>
   def encode(value: A): BsonValue
 
   def contramap[B](f: B => A): BsonEncoder[B] = b => self.encode(f(b))
 }
 
-trait BsonDocumentEncoder[-A] extends BsonEncoder[A] {
+trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
   override def encode(a: A): BsonDocument
 }
 
@@ -25,7 +25,7 @@ object BsonEncoder extends DefaultBsonEncoderInstances {
     }
 }
 
-trait DefaultBsonEncoderInstances extends BsonEncoderLowPriorityInstances {
+trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit val booleanEncoder: BsonEncoder[Boolean] = x => BsonBoolean(x)
 
   implicit val stringEncoder: BsonEncoder[String] = x => BsonString(x)
@@ -48,9 +48,11 @@ trait DefaultBsonEncoderInstances extends BsonEncoderLowPriorityInstances {
     x => x.map(BsonEncoder[A].encode).getOrElse(BsonNull())
 
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
+
+  implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toIterable)
 }
 
-trait BsonEncoderLowPriorityInstances {
-  implicit def iterableEncoder[A: BsonEncoder]: BsonEncoder[Iterable[A]] =
+trait BsonIterableEncoder {
+  def iterableEncoder[A: BsonEncoder]: BsonEncoder[Iterable[A]] =
     xs => BsonArray(xs.map(BsonEncoder[A].encode))
 }
