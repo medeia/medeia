@@ -16,6 +16,7 @@ import scala.collection.generic.CanBuildFrom
 trait BsonDecoder[A] { self =>
 
   def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
+  def defaultValue: Option[A] = None
 
   def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
 }
@@ -81,10 +82,13 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   }
 
   implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
-    bson =>
-      bson.getBsonType match {
+    new BsonDecoder[Option[A]] {
+      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] = bson.getBsonType match {
         case BsonType.NULL => Right(None)
         case _             => BsonDecoder[A].decode(bson).map(Some(_))
+      }
+
+      override def defaultValue: Option[Option[A]] = Some(None)
     }
 
   implicit val uuidDecoder: BsonDecoder[UUID] = bson =>
