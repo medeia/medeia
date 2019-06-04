@@ -2,12 +2,12 @@ package medeia.generic.semiauto
 
 import medeia.BsonCodec
 import medeia.decoder.BsonDecoder
-import medeia.encoder.BsonEncoder
+import medeia.encoder.BsonDocumentEncoder
 import medeia.generic.{GenericDecoder, GenericEncoder, ShapelessDecoder}
 import shapeless.{LabelledGeneric, Lazy}
 
 trait Semiauto {
-  def deriveEncoder[A](implicit encoder: GenericEncoder[A]): BsonEncoder[A] =
+  def deriveEncoder[A](implicit encoder: GenericEncoder[A]): BsonDocumentEncoder[A] =
     encoder
 
   def deriveDecoder[A, H](implicit
