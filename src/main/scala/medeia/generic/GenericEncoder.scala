@@ -13,7 +13,7 @@ trait GenericEncoderInstances {
   implicit def genericEncoder[A, H](
       implicit
       generic: LabelledGeneric.Aux[A, H],
-      hEncoder: Lazy[GenericEncoder[H]]
+      hEncoder: Lazy[GenericEncoder[H]],
   ): GenericEncoder[A] =
     value => hEncoder.value.encode(generic.to(value))
 

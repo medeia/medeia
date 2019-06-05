@@ -10,7 +10,11 @@ object BsonDecoderError {
 
   }
 
-  case class KeyNotFound(keyName: String) extends BsonDecoderError
+  case class KeyNotFound(keyName: String) extends BsonDecoderError {
+    override def toString: String = s"Key not found: $keyName"
+  }
 
-  case class FieldParseError(error: Exception) extends BsonDecoderError
+  case class FieldParseError(error: Exception) extends BsonDecoderError {
+    override def toString: String = s"Field parse Error: ${error.getMessage}"
+  }
 }

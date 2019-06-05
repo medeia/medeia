@@ -13,8 +13,8 @@ import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait GenericDecoder[A] extends BsonDecoder[A]
 
-trait ShapelessDecoder[Base, A] {
-  def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, A]
+trait ShapelessDecoder[Base, HList] {
+  def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, HList]
 }
 
 object GenericDecoder extends GenericDecoderInstances
@@ -22,6 +22,7 @@ object GenericDecoder extends GenericDecoderInstances
 trait GenericDecoderInstances {
   implicit def genericDecoder[A, H](
       implicit
+      decoderOptions: GenericDecoderOptions[A] = GenericDecoderOptions[A](),
       generic: LabelledGeneric.Aux[A, H],
       hDecoder: Lazy[ShapelessDecoder[A, H]]
   ): BsonDecoder[A] = { bson =>
@@ -32,13 +33,15 @@ trait GenericDecoderInstances {
   }
 }
 object ShapelessDecoder {
-  implicit def hnilDecoder[A]: ShapelessDecoder[A, HNil] = _ => Right(HNil)
+  implicit def hnilDecoder[Base]: ShapelessDecoder[Base, HNil] = _ => Right(HNil)
 
-  implicit def hlistObjectDecoder[A, K <: Symbol, H, T <: HList](implicit
-                                                                 witness: Witness.Aux[K],
-                                                                 hDecoder: Lazy[BsonDecoder[H]],
-                                                                 tDecoder: ShapelessDecoder[A, T]): ShapelessDecoder[A, FieldType[K, H] :: T] = {
-    val fieldName: String = witness.value.name
+  implicit def hlistObjectDecoder[Base, K <: Symbol, H, T <: HList](
+      implicit
+      witness: Witness.Aux[K],
+      hDecoder: Lazy[BsonDecoder[H]],
+      tDecoder: ShapelessDecoder[Base, T],
+      decoderOptions: GenericDecoderOptions[Base] = GenericDecoderOptions[Base]()): ShapelessDecoder[Base, FieldType[K, H] :: T] = {
+    val fieldName: String = decoderOptions.transformKeys(witness.value.name)
     bsonDocument: BsonDocument =>
       {
         val head: EitherNec[BsonDecoderError, FieldType[K, H]] = Option(bsonDocument.get(fieldName)) match {
