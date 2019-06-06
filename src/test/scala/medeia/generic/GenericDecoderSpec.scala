@@ -36,7 +36,7 @@ class GenericDecoderSpec extends FlatSpec with Matchers with EitherValues with T
       "intA" -> 1,
       "string" -> "string"
     )
-    implicit val decoderOptions: GenericDecoderOptions[Simple] = GenericDecoderOptions { case "int" => "intA" }
+    implicit val decoderOptions: GenericEncodingOptions[Simple] = GenericEncodingOptions { case "int" => "intA" }
     doc.fromBson[Simple].right.value should ===(Simple(1, "string"))
   }
 

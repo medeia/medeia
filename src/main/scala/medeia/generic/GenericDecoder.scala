@@ -13,19 +13,19 @@ import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait GenericDecoder[A] extends BsonDecoder[A]
 
-trait ShapelessDecoder[Base, HList] {
-  def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, HList]
+trait ShapelessDecoder[Base, H] {
+  def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, H]
 }
 
 object GenericDecoder extends GenericDecoderInstances
 
 trait GenericDecoderInstances {
-  implicit def genericDecoder[A, H](
+  implicit def genericDecoder[Base, H](
       implicit
-      decoderOptions: GenericDecoderOptions[A] = GenericDecoderOptions[A](),
-      generic: LabelledGeneric.Aux[A, H],
-      hDecoder: Lazy[ShapelessDecoder[A, H]]
-  ): BsonDecoder[A] = { bson =>
+      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base](),
+      generic: LabelledGeneric.Aux[Base, H],
+      hDecoder: Lazy[ShapelessDecoder[Base, H]]
+  ): BsonDecoder[Base] = { bson =>
     bson.getBsonType match {
       case BsonType.DOCUMENT => hDecoder.value.decode(bson.asDocument()).map(generic.from)
       case t                 => Either.leftNec(TypeMismatch(t, BsonType.DOCUMENT))
@@ -40,8 +40,8 @@ object ShapelessDecoder {
       witness: Witness.Aux[K],
       hDecoder: Lazy[BsonDecoder[H]],
       tDecoder: ShapelessDecoder[Base, T],
-      decoderOptions: GenericDecoderOptions[Base] = GenericDecoderOptions[Base]()): ShapelessDecoder[Base, FieldType[K, H] :: T] = {
-    val fieldName: String = decoderOptions.transformKeys(witness.value.name)
+      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base]()): ShapelessDecoder[Base, FieldType[K, H] :: T] = {
+    val fieldName: String = options.transformKeys(witness.value.name)
     bsonDocument: BsonDocument =>
       {
         val head: EitherNec[BsonDecoderError, FieldType[K, H]] = Option(bsonDocument.get(fieldName)) match {

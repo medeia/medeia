@@ -7,24 +7,34 @@ import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait GenericEncoder[A] extends BsonDocumentEncoder[A]
 
+trait ShapelessEncoder[Base, H] {
+  def encode(a: H): BsonDocument
+}
+
 object GenericEncoder extends GenericEncoderInstances
 
 trait GenericEncoderInstances {
-  implicit def genericEncoder[A, H](
+  implicit def genericEncoder[Base, H](
       implicit
-      generic: LabelledGeneric.Aux[A, H],
-      hEncoder: Lazy[GenericEncoder[H]],
-  ): GenericEncoder[A] =
+      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base](),
+      generic: LabelledGeneric.Aux[Base, H],
+      hEncoder: Lazy[ShapelessEncoder[Base, H]]
+  ): GenericEncoder[Base] =
     value => hEncoder.value.encode(generic.to(value))
+}
 
-  implicit val hnilEncoder: GenericEncoder[HNil] =
+object ShapelessEncoder {
+  implicit def hnilEncoder[Base]: ShapelessEncoder[Base, HNil] =
     hnil => BsonDocument()
 
-  implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](implicit
-                                                              witness: Witness.Aux[K],
-                                                              hEncoder: Lazy[BsonEncoder[H]],
-                                                              tEncoder: GenericEncoder[T]): GenericEncoder[FieldType[K, H] :: T] = {
-    val fieldName: String = witness.value.name
+  implicit def hlistObjectEncoder[Base, K <: Symbol, H, T <: HList](
+      implicit
+      witness: Witness.Aux[K],
+      hEncoder: Lazy[BsonEncoder[H]],
+      tEncoder: ShapelessEncoder[Base, T],
+      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base]()
+  ): ShapelessEncoder[Base, FieldType[K, H] :: T] = {
+    val fieldName: String = options.transformKeys(witness.value.name)
     hlist =>
       {
         val head = hEncoder.value.encode(hlist.head)
