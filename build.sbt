@@ -4,7 +4,8 @@ inThisBuild(
     homepage := Some(url("https://github.com/medeia/medeia")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
-      Developer("froth", "Frederick Roth", "f-roth@megaera.de", url("https://derfred.org"))
+      Developer("froth", "Frederick Roth", "f-roth@megaera.de", url("https://derfred.org")),
+      Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
     )
   ))
 

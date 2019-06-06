@@ -30,4 +30,14 @@ class GenericDecoderSpec extends FlatSpec with Matchers with EitherValues with T
     doc.fromBson[Outer].left.value should ===(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT)))
   }
 
+  it should "allow for key transformation" in {
+    case class Simple(int: Int, string: String)
+    val doc = BsonDocument(
+      "intA" -> 1,
+      "string" -> "string"
+    )
+    implicit val decoderOptions: GenericEncodingOptions[Simple] = GenericEncodingOptions { case "int" => "intA" }
+    doc.fromBson[Simple].right.value should ===(Simple(1, "string"))
+  }
+
 }
