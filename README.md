@@ -50,16 +50,17 @@ medeia includes decoders and encoders for common data structures as well as auto
 A transformation function for keynames can be provided as follows:
 
 ```scala
-    import medeia.generic.GenericDerivationOptions
-    import medeia.encoder.BsonEncoder
-    import medeia.generic.semiauto._
-    import medeia.syntax._
+  import medeia.generic.GenericDerivationOptions
+  import medeia.encoder.BsonEncoder
+  import medeia.generic.semiauto._
+  import medeia.syntax._
 
-    case class Simple(fieldInScala: Int)
-    implicit val genericDerivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
-    implicit val simpleEncoder: BsonEncoder[Simple] = deriveEncoder
-    val encoded = Simple(1).toBson
-    // {"fieldInBson": 1}
+  case class Simple(fieldInScala: Int)
+  implicit val genericDerivationOptions: GenericDerivationOptions[Simple] =
+    GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
+  implicit val simpleEncoder: BsonEncoder[Simple] = deriveEncoder
+  val encoded = Simple(1).toBson
+  // {"fieldInBson": 1}
 ```
 
 GenericDerivationOptions works for encoding and decoding.
