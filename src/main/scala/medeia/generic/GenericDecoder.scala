@@ -39,7 +39,7 @@ object ShapelessDecoder {
       witness: Witness.Aux[K],
       hDecoder: Lazy[BsonDecoder[H]],
       tDecoder: ShapelessDecoder[Base, T],
-      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base]()): ShapelessDecoder[Base, FieldType[K, H] :: T] = {
+      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()): ShapelessDecoder[Base, FieldType[K, H] :: T] = {
     val fieldName: String = options.transformKeys(witness.value.name)
     bsonDocument: BsonDocument =>
       {

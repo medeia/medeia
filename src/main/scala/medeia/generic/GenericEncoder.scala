@@ -31,7 +31,7 @@ object ShapelessEncoder {
       witness: Witness.Aux[K],
       hEncoder: Lazy[BsonEncoder[H]],
       tEncoder: ShapelessEncoder[Base, T],
-      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base]()
+      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()
   ): ShapelessEncoder[Base, FieldType[K, H] :: T] = {
     val fieldName: String = options.transformKeys(witness.value.name)
     hlist =>
