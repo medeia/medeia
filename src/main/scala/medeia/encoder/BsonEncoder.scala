@@ -4,6 +4,7 @@ import java.time.Instant
 import java.util.{Date, UUID}
 
 import cats.Contravariant
+import cats.data.Chain
 import org.mongodb.scala.bson._
 
 trait BsonEncoder[A] { self =>
@@ -50,6 +51,12 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
 
   implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toIterable)
+
+  implicit def setEncoder[A: BsonEncoder]: BsonEncoder[Set[A]] = iterableEncoder[A].contramap(_.toIterable)
+
+  implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toIterable)
+
+  implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
 }
 
 trait BsonIterableEncoder {

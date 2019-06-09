@@ -3,6 +3,7 @@ package medeia
 import java.time.Instant
 import java.util.{Date, UUID}
 
+import cats.data.Chain
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
 import org.scalacheck.{Arbitrary, Prop, Properties}
@@ -46,6 +47,18 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
 
   propertyWithSeed("decode after encode === id (list)", None) = {
     codecProperty[List[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (set)", None) = {
+    codecProperty[Set[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (vector)", None) = {
+    codecProperty[Vector[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (list)", None) = {
+    codecProperty[Chain[String]]
   }
 
   propertyWithSeed("decode after encode === id (uuid)", None) = {

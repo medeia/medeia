@@ -16,7 +16,6 @@ object GenericEncoder extends GenericEncoderInstances
 trait GenericEncoderInstances {
   implicit def genericEncoder[Base, H](
       implicit
-      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base](),
       generic: LabelledGeneric.Aux[Base, H],
       hEncoder: Lazy[ShapelessEncoder[Base, H]]
   ): GenericEncoder[Base] =

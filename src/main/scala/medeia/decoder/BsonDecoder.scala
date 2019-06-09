@@ -3,7 +3,7 @@ package medeia.decoder
 import java.time.Instant
 import java.util.{Date, UUID}
 
-import cats.data.EitherNec
+import cats.data.{Chain, EitherNec}
 import cats.instances.parallel._
 import cats.syntax.either._
 import cats.syntax.parallel._
@@ -97,6 +97,12 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   }
 
   implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder
+
+  implicit def setDecoder[A: BsonDecoder]: BsonDecoder[Set[A]] = iterableDecoder
+
+  implicit def vectorDecoder[A: BsonDecoder]: BsonDecoder[Vector[A]] = iterableDecoder
+
+  implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
 }
 
 trait BsonIterableDecoder {

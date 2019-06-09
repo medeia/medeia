@@ -22,7 +22,6 @@ object GenericDecoder extends GenericDecoderInstances
 trait GenericDecoderInstances {
   implicit def genericDecoder[Base, H](
       implicit
-      options: GenericEncodingOptions[Base] = GenericEncodingOptions[Base](),
       generic: LabelledGeneric.Aux[Base, H],
       hDecoder: Lazy[ShapelessDecoder[Base, H]]
   ): BsonDecoder[Base] = { bson =>

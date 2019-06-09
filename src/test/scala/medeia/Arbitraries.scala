@@ -2,6 +2,7 @@ package medeia
 
 import java.time.Instant
 
+import cats.data.Chain
 import org.scalacheck.{Arbitrary, Gen}
 
 trait Arbitraries {
@@ -21,6 +22,11 @@ trait Arbitraries {
   implicit def arbitraryList[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[List[A]] =
     Arbitrary[List[A]] {
       Gen.listOf(arbitraryA.arbitrary)
+    }
+
+  implicit def arbitrartChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[Chain[A]] =
+    Arbitrary[Chain[A]] {
+      Gen.listOf(arbitraryA.arbitrary).map(Chain.fromSeq)
     }
 }
 
