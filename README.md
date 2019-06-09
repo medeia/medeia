@@ -1,5 +1,6 @@
 # medeia
 [![Build status](https://img.shields.io/travis/medeia/medeia/master.svg)](https://travis-ci.com/medeia/medeia)
+[![Maven Central](https://img.shields.io/maven-central/v/de.megaera/medeia_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22de.megaera%22%20AND%20a:%22medeia_2.12%22)
 
 medeia is a BSON library for Scala.
 
