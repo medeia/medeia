@@ -4,18 +4,18 @@
 
 medeia is a BSON library for Scala.
 
-## Goal / Motivation
+## Goal / Scope
 
 The goal of medeia is to make bson decoding / encoding as easy and fun as JSON decoding / encoding is with circe or argonaut.
 
-## Quickstart
-
 medeia includes decoders and encoders for common data structures as well as automatic derivation of decoders and encoders for case classes using shapeless.
+
+## Quickstart
 
 ### Add to sbt
 
 ```sbt
-libraryDependencies += "de.megaera" %% "medeia" % "0.1.2"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.1.2"
 ```
 
 ### decoding and encoding example:
@@ -71,7 +71,7 @@ A transformation function for keynames can be provided as follows:
 ```
 
 GenericDerivationOptions works for encoding and decoding.
-If the provided partial function does not is not defined for a key no tranformation is used.
+If the provided partial function is not defined for a key no tranformation is used.
 
 ## License
 
