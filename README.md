@@ -11,6 +11,12 @@ The goal of medeia is to make bson decoding / encoding as easy and fun as JSON d
 
 medeia includes decoders and encoders for common data structures as well as automatic derivation of decoders and encoders for case classes using shapeless.
 
+### Add to sbt
+
+```sbt
+libraryDependencies += "de.megaera" % "medeia_2.12" % "0.1.2"
+```
+
 ### decoding and encoding example:
 
 ```scala
