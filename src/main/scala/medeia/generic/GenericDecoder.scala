@@ -24,7 +24,7 @@ trait GenericDecoderInstances {
       implicit
       generic: LabelledGeneric.Aux[Base, H],
       hDecoder: Lazy[ShapelessDecoder[Base, H]]
-  ): BsonDecoder[Base] = { bson =>
+  ): GenericDecoder[Base] = { bson =>
     bson.getBsonType match {
       case BsonType.DOCUMENT => hDecoder.value.decode(bson.asDocument()).map(generic.from)
       case t                 => Either.leftNec(TypeMismatch(t, BsonType.DOCUMENT))
