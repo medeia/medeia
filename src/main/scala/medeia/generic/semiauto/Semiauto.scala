@@ -11,9 +11,9 @@ trait Semiauto {
 
   def deriveDecoder[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
 
-  def deriveCodec[A, H](implicit
-                        genericEncoder: GenericEncoder[A],
-                        genericDecoder: GenericDecoder[A]): BsonCodec[A] = {
+  def deriveCodec[A](implicit
+                     genericEncoder: GenericEncoder[A],
+                     genericDecoder: GenericDecoder[A]): BsonCodec[A] = {
     BsonCodec.fromEncoderAndDecoder
   }
 }
