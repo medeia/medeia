@@ -8,8 +8,25 @@ import cats.instances.parallel._
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
-import org.bson.BsonType
-import org.mongodb.scala.bson.BsonValue
+import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
+import org.mongodb.scala.bson.collection.{immutable, mutable}
+import org.mongodb.scala.bson.{
+  BsonArray,
+  BsonBinary,
+  BsonBoolean,
+  BsonDateTime,
+  BsonDecimal128,
+  BsonDouble,
+  BsonInt64,
+  BsonJavaScript,
+  BsonJavaScriptWithScope,
+  BsonObjectId,
+  BsonRegularExpression,
+  BsonString,
+  BsonSymbol,
+  BsonTimestamp,
+  BsonValue
+}
 
 import scala.collection.generic.CanBuildFrom
 
@@ -30,35 +47,15 @@ object BsonDecoder extends DefaultBsonDecoderInstances {
 }
 
 trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
-  implicit val booleanDecoder: BsonDecoder[Boolean] = bson =>
-    bson.getBsonType match {
-      case BsonType.BOOLEAN => Right(bson.asBoolean().getValue)
-      case t                => Either.leftNec(TypeMismatch(t, BsonType.BOOLEAN))
-  }
+  implicit val booleanDecoder: BsonDecoder[Boolean] = withType(BsonType.BOOLEAN)(_.asBoolean.getValue)
 
-  implicit val stringDecoder: BsonDecoder[String] = bson =>
-    bson.getBsonType match {
-      case BsonType.STRING => Right(bson.asString.getValue)
-      case t               => Either.leftNec(TypeMismatch(t, BsonType.STRING))
-  }
+  implicit val stringDecoder: BsonDecoder[String] = withType(BsonType.STRING)(_.asString.getValue)
 
-  implicit val intDecoder: BsonDecoder[Int] = bson =>
-    bson.getBsonType match {
-      case BsonType.INT32 => Right(bson.asInt32.getValue)
-      case t              => Either.leftNec(TypeMismatch(t, BsonType.INT32))
-  }
+  implicit val intDecoder: BsonDecoder[Int] = withType(BsonType.INT32)(_.asInt32.getValue)
 
-  implicit val longDecoder: BsonDecoder[Long] = bson =>
-    bson.getBsonType match {
-      case BsonType.INT64 => Right(bson.asInt64.getValue)
-      case t              => Either.leftNec(TypeMismatch(t, BsonType.INT64))
-  }
+  implicit val longDecoder: BsonDecoder[Long] = withType(BsonType.INT64)(_.asInt64.getValue)
 
-  implicit val doubleDecoder: BsonDecoder[Double] = bson =>
-    bson.getBsonType match {
-      case BsonType.DOUBLE => Right(bson.asDouble().getValue)
-      case t               => Either.leftNec(TypeMismatch(t, BsonType.DOUBLE))
-  }
+  implicit val doubleDecoder: BsonDecoder[Double] = withType(BsonType.DOUBLE)(_.asDouble.getValue)
 
   implicit val instantDecoder: BsonDecoder[Instant] = bson =>
     bson.getBsonType match {
@@ -69,11 +66,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val dateDecoder: BsonDecoder[Date] = instantDecoder.map(Date.from)
 
-  implicit val binaryDecoder: BsonDecoder[Array[Byte]] = bson =>
-    bson.getBsonType match {
-      case BsonType.BINARY => Right(bson.asBinary().getData)
-      case t               => Either.leftNec(TypeMismatch(t, BsonType.BINARY))
-  }
+  implicit val binaryDecoder: BsonDecoder[Array[Byte]] = withType(BsonType.BINARY)(_.asBinary.getData)
 
   implicit val symbolDecoder: BsonDecoder[Symbol] = bson =>
     bson.getBsonType match {
@@ -103,6 +96,51 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit def vectorDecoder[A: BsonDecoder]: BsonDecoder[Vector[A]] = iterableDecoder
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
+
+  implicit val bsonArrayDecoder: BsonDecoder[BsonArray] = withType(BsonType.ARRAY)(_.asArray)
+
+  implicit val bsonBinaryDecoder: BsonDecoder[BsonBinary] = withType(BsonType.BINARY)(_.asBinary)
+
+  implicit val bsonBooleanDecoder: BsonDecoder[BsonBoolean] = withType(BsonType.BOOLEAN)(_.asBoolean)
+
+  implicit val bsonDateTimeDecoder: BsonDecoder[BsonDateTime] = withType(BsonType.DATE_TIME)(_.asDateTime)
+
+  implicit val bsonDbPointerDecoder: BsonDecoder[BsonDbPointer] = withType(BsonType.DB_POINTER)(_.asDBPointer)
+
+  implicit val bsonDecimal128Decoder: BsonDecoder[BsonDecimal128] = withType(BsonType.DECIMAL128)(_.asDecimal128)
+
+  implicit val bsonDocumentDecoder: BsonDecoder[BsonDocument] = withType(BsonType.DOCUMENT)(_.asDocument)
+
+  implicit val bsonDoubleDecoder: BsonDecoder[BsonDouble] = withType(BsonType.DOUBLE)(_.asDouble)
+
+  implicit val bsonInt32Decoder: BsonDecoder[BsonInt32] = withType(BsonType.INT32)(_.asInt32)
+
+  implicit val bsonInt64Decoder: BsonDecoder[BsonInt64] = withType(BsonType.INT64)(_.asInt64)
+
+  implicit val bsonJavaScriptDecoder: BsonDecoder[BsonJavaScript] = withType(BsonType.JAVASCRIPT)(_.asJavaScript)
+
+  implicit val bsonJavaScriptWithScopeDecoder: BsonDecoder[BsonJavaScriptWithScope] =
+    withType(BsonType.JAVASCRIPT_WITH_SCOPE)(_.asJavaScriptWithScope)
+
+  implicit val bsonObjectIdDecoder: BsonDecoder[BsonObjectId] = withType(BsonType.OBJECT_ID)(_.asObjectId)
+
+  implicit val bsonRegularExpressionDecoder: BsonDecoder[BsonRegularExpression] = withType(BsonType.REGULAR_EXPRESSION)(_.asRegularExpression)
+
+  implicit val bsonStringDecoder: BsonDecoder[BsonString] = withType(BsonType.STRING)(_.asString)
+
+  implicit val bsonSymbolDecoder: BsonDecoder[BsonSymbol] = withType(BsonType.SYMBOL)(_.asSymbol)
+
+  implicit val bsonTimestampDecoder: BsonDecoder[BsonTimestamp] = withType(BsonType.TIMESTAMP)(_.asTimestamp)
+
+  implicit val immutableDocumentDecoder: BsonDecoder[immutable.Document] = withType(BsonType.DOCUMENT)(b => immutable.Document(b.asDocument))
+
+  implicit val mutableDocumentDecoder: BsonDecoder[mutable.Document] = withType(BsonType.DOCUMENT)(b => mutable.Document(b.asDocument))
+
+  private[this] def withType[A](expectedType: BsonType)(f: BsonValue => A)(bson: BsonValue): EitherNec[BsonDecoderError, A] = bson.getBsonType match {
+    case `expectedType` => Right(f(bson))
+    case _              => Either.leftNec(TypeMismatch(bson.getBsonType, expectedType))
+
+  }
 }
 
 trait BsonIterableDecoder {
