@@ -97,6 +97,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
 
+  implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
+
   implicit val bsonArrayDecoder: BsonDecoder[BsonArray] = withType(BsonType.ARRAY)(_.asArray)
 
   implicit val bsonBinaryDecoder: BsonDecoder[BsonBinary] = withType(BsonType.BINARY)(_.asBinary)

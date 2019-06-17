@@ -1,8 +1,7 @@
-package medeia
+package medeia.decoder
 
-import medeia.decoder.BsonDecoder
-import org.mongodb.scala.bson.collection.immutable
-import org.mongodb.scala.bson.collection.mutable
+import org.bson.BsonValue
+import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{BsonDocument, BsonElement, BsonInt32, BsonString}
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.{FlatSpec, Matchers}
@@ -28,5 +27,11 @@ class BsonDecoderSpec extends FlatSpec with Matchers with TypeCheckedTripleEqual
     val doc = new BsonDocument(List(new BsonElement("answer", new BsonInt32(42)), new BsonElement("question", new BsonString("???"))).asJava)
 
     BsonDecoder[mutable.Document].decode(doc) should be('right)
+  }
+
+  it should "decode BsonValue into BsonValue" in {
+    val bsonValue: BsonValue = new BsonString("")
+
+    BsonDecoder[BsonValue].decode(bsonValue) should ===(Right(bsonValue))
   }
 }
