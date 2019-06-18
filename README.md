@@ -45,11 +45,11 @@ medeia includes decoders and encoders for common data structures as well as auto
   import medeia.syntax._
 
   case class Simple(int: Int, string: Option[String])
-  implicit val simpleEncoder: BsonEncoder[Simple] = deriveEncoder
+  implicit val simpleEncoder: BsonEncoder[Simple] = deriveBsonEncoder
   val encoded = Simple(1, Some("a")).toBson
   // {"string": "a", "int": 1}
 
-  implicit val simpleDecoder: BsonDecoder[Simple] = deriveDecoder
+  implicit val simpleDecoder: BsonDecoder[Simple] = deriveBsonDecoder
   val doc = BsonDocument("int" -> 1, "string" -> "string")
   val decoded = doc.fromBson[Simple]
   // Right(Simple(1,Some(string)))
@@ -66,7 +66,7 @@ A transformation function for keynames can be provided as follows:
   case class Simple(fieldInScala: Int)
   implicit val genericDerivationOptions: GenericDerivationOptions[Simple] =
     GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
-  implicit val simpleEncoder: BsonEncoder[Simple] = deriveEncoder
+  implicit val simpleEncoder: BsonEncoder[Simple] = deriveBsonEncoder
   val encoded = Simple(1).toBson
   // {"fieldInBson": 1}
 ```

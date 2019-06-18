@@ -6,15 +6,15 @@ class SemiautoSpec extends FlatSpec with Matchers {
   case class Simple(int: String)
 
   "Semiauto" should "be able to derive an encoder from a case class" in {
-    deriveEncoder[Simple]
+    deriveBsonEncoder[Simple]
   }
 
   it should "be able to derive a decoder from a case class" in {
-    val _: medeia.decoder.BsonDecoder[Simple] = deriveDecoder
+    val _: medeia.decoder.BsonDecoder[Simple] = deriveBsonDecoder
   }
 
   it should "be able to derive a codec from a case class" in {
-    val _: medeia.BsonCodec[Simple] = deriveCodec
+    val _: medeia.BsonCodec[Simple] = deriveBsonCodec
   }
 
   "The default summoning method" should "not be able to access GenericEncoders without import" in {
