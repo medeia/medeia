@@ -7,13 +7,13 @@ import medeia.generic.{GenericDecoder, GenericEncoder}
 import shapeless.Lazy
 
 trait Semiauto {
-  def deriveEncoder[A](implicit genericEncoder: Lazy[GenericEncoder[A]]): BsonDocumentEncoder[A] = genericEncoder.value
+  def deriveBsonEncoder[A](implicit genericEncoder: Lazy[GenericEncoder[A]]): BsonDocumentEncoder[A] = genericEncoder.value
 
-  def deriveDecoder[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
+  def deriveBsonDecoder[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
 
-  def deriveCodec[A](implicit
-                     genericEncoder: GenericEncoder[A],
-                     genericDecoder: GenericDecoder[A]): BsonCodec[A] = {
+  def deriveBsonCodec[A](implicit
+                         genericEncoder: GenericEncoder[A],
+                         genericDecoder: GenericDecoder[A]): BsonCodec[A] = {
     BsonCodec.fromEncoderAndDecoder
   }
 }

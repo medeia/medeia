@@ -24,7 +24,7 @@ class BsonEncoderSpec extends FlatSpec with Matchers with TypeCheckedTripleEqual
 
     val input = Foo(new BsonString("string"), new BsonInt32(42))
 
-    implicit val fooCodec: BsonCodec[Foo] = deriveCodec[Foo]
+    implicit val fooCodec: BsonCodec[Foo] = deriveBsonCodec[Foo]
 
     val result = input.toBson.fromBson[Foo]
 
