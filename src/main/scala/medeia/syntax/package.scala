@@ -1,3 +1,3 @@
 package medeia
 
-package object syntax extends BsonEncoderSyntax
+package object syntax extends MedeiaSyntax

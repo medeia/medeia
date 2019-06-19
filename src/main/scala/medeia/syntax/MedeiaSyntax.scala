@@ -2,13 +2,15 @@ package medeia.syntax
 
 import cats.data.EitherNec
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
-import medeia.encoder.BsonEncoder
+import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
+import org.bson.BsonDocument
 import org.mongodb.scala.bson.BsonValue
 import org.mongodb.scala.bson.collection.immutable.Document
 
-trait BsonEncoderSyntax {
-  implicit class BsonEncoderOps[A: BsonEncoder](a: A) {
-    def toBson: BsonValue = BsonEncoder[A].encode(a)
+trait MedeiaSyntax {
+  implicit class MedeiaOps[A](value: A) {
+    def toBson(implicit encoder: BsonEncoder[A]): BsonValue = encoder.encode(value)
+    def toBsonDocument(implicit encoder: BsonDocumentEncoder[A]): BsonDocument = encoder.encode(value)
   }
 
   implicit class BsonDecoderOps(bsonValue: BsonValue) {
