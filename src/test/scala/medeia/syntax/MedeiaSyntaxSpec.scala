@@ -1,11 +1,10 @@
 package medeia.syntax
 
+import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoder
 import medeia.encoder.BsonDocumentEncoder
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{EitherValues, FlatSpec, Matchers, OptionValues}
 
-class MedeiaSyntaxSpec extends FlatSpec with Matchers with TypeCheckedTripleEquals with EitherValues with OptionValues {
+class MedeiaSyntaxSpec extends MedeiaSpec {
   behavior of classOf[MedeiaSyntax].getSimpleName
 
   it should "enrich values that have a bson encoder instance" in {

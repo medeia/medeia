@@ -1,12 +1,11 @@
 package medeia.generic
 
+import medeia.MedeiaSpec
 import medeia.generic.auto._
 import medeia.syntax._
 import org.mongodb.scala.bson.BsonDocument
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 
-class GenericEncoderSpec extends FlatSpec with Matchers with EitherValues with TypeCheckedTripleEquals {
+class GenericEncoderSpec extends MedeiaSpec {
 
   "GenericEncoder" should "allow for key transformation" in {
     case class Simple(int: Int, string: String)
