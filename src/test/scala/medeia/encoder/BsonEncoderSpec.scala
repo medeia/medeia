@@ -1,6 +1,7 @@
 package medeia.encoder
 
-import medeia.{BsonCodec, MedeiaSpec}
+import medeia.MedeiaSpec
+import medeia.codec.BsonDocumentCodec
 import org.mongodb.scala.bson.{BsonInt32, BsonString, BsonValue}
 
 class BsonEncoderSpec extends MedeiaSpec {
@@ -22,7 +23,7 @@ class BsonEncoderSpec extends MedeiaSpec {
 
     val input = Foo(new BsonString("string"), new BsonInt32(42))
 
-    implicit val fooCodec: BsonCodec[Foo] = deriveBsonCodec[Foo]
+    implicit val fooCodec: BsonDocumentCodec[Foo] = deriveBsonCodec[Foo]
 
     val result = input.toBson.fromBson[Foo]
 

@@ -1,6 +1,7 @@
 package medeia.generic.semiauto
 
 import medeia.MedeiaSpec
+import medeia.codec.BsonDocumentCodec
 
 class SemiautoSpec extends MedeiaSpec {
   case class Simple(int: String)
@@ -14,7 +15,7 @@ class SemiautoSpec extends MedeiaSpec {
   }
 
   it should "be able to derive a codec from a case class" in {
-    val _: medeia.BsonCodec[Simple] = deriveBsonCodec
+    val _: BsonDocumentCodec[Simple] = deriveBsonCodec
   }
 
   "The default summoning method" should "not be able to access GenericEncoders without import" in {
@@ -26,6 +27,6 @@ class SemiautoSpec extends MedeiaSpec {
   }
 
   it should "not be able to access GenericCodecs without import" in {
-    "medeia.BsonCodec[Simple]" shouldNot typeCheck
+    "medeia.codec.BsonCodec[Simple]" shouldNot typeCheck
   }
 }
