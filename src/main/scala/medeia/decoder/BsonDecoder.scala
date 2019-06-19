@@ -3,6 +3,7 @@ package medeia.decoder
 import java.time.Instant
 import java.util.{Date, UUID}
 
+import cats.Functor
 import cats.data.{Chain, EitherNec}
 import cats.instances.parallel._
 import cats.syntax.either._
@@ -43,6 +44,10 @@ object BsonDecoder extends DefaultBsonDecoderInstances {
 
   def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {
     BsonDecoder[A].decode(bson)
+  }
+
+  implicit val bsonDecoderFunctor: Functor[BsonDecoder] = new Functor[BsonDecoder] {
+    override def map[A, B](fa: BsonDecoder[A])(f: A => B): BsonDecoder[B] = fa.map(f)
   }
 }
 
