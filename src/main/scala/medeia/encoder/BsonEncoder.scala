@@ -8,6 +8,7 @@ import cats.data.Chain
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
+
 trait BsonEncoder[A] { self =>
   def encode(value: A): BsonValue
 
@@ -58,6 +59,11 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toIterable)
 
   implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
+
+  implicit def mapEncoder[K <: AnyVal, A: BsonEncoder]: BsonEncoder[Map[K,A]] = (value: Map[K, A]) => {
+    val converted: Map[String, BsonValue] = value.map { case (k: K, a: A) => (k.toString, BsonEncoder[A].encode(a)) }
+    BsonDocument(converted)
+  }
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
 
