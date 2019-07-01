@@ -1,6 +1,6 @@
 package medeia.generic.semiauto
 
-import medeia.BsonCodec
+import medeia.codec.BsonDocumentCodec
 import medeia.decoder.BsonDecoder
 import medeia.encoder.BsonDocumentEncoder
 import medeia.generic.{GenericDecoder, GenericEncoder}
@@ -13,7 +13,7 @@ trait Semiauto {
 
   def deriveBsonCodec[A](implicit
                          genericEncoder: GenericEncoder[A],
-                         genericDecoder: GenericDecoder[A]): BsonCodec[A] = {
-    BsonCodec.fromEncoderAndDecoder
+                         genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
+    BsonDocumentCodec.fromEncoderAndDecoder
   }
 }

@@ -1,9 +1,10 @@
-package medeia
+package medeia.codec
 
 import java.time.Instant
 import java.util.{Date, UUID}
 
 import cats.data.Chain
+import medeia.Arbitraries
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
 import org.scalacheck.{Arbitrary, Prop, Properties}

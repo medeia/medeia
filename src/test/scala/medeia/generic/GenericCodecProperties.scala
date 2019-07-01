@@ -1,6 +1,6 @@
 package medeia.generic
 
-import medeia.BsonCodec
+import medeia.codec.BsonCodec
 import org.scalacheck.{Gen, Prop, Properties}
 
 class GenericCodecProperties extends Properties("GenericEncoding") {
