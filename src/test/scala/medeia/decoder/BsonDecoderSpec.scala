@@ -1,14 +1,13 @@
 package medeia.decoder
 
+import medeia.MedeiaSpec
 import org.bson.BsonValue
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{BsonDocument, BsonElement, BsonInt32, BsonString}
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
-class BsonDecoderSpec extends FlatSpec with Matchers with TypeCheckedTripleEquals {
+class BsonDecoderSpec extends MedeiaSpec {
   behavior of "BsonDecoder"
 
   it should "decode BsonValue into BsonDocument" in {

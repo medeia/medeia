@@ -1,8 +1,8 @@
 package medeia.generic.semiauto
 
-import org.scalatest.{FlatSpec, Matchers}
+import medeia.MedeiaSpec
 
-class SemiautoSpec extends FlatSpec with Matchers {
+class SemiautoSpec extends MedeiaSpec {
   case class Simple(int: String)
 
   "Semiauto" should "be able to derive an encoder from a case class" in {

@@ -1,15 +1,14 @@
 package medeia.generic
 
 import cats.data.NonEmptyChain
+import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoderError.{KeyNotFound, TypeMismatch}
 import medeia.generic.auto._
 import medeia.syntax._
 import org.bson.BsonType
 import org.mongodb.scala.bson.{BsonDocument, BsonNull}
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 
-class GenericDecoderSpec extends FlatSpec with Matchers with EitherValues with TypeCheckedTripleEquals {
+class GenericDecoderSpec extends MedeiaSpec {
 
   "GenericDecoder" should "handle errors" in {
     case class Simple(int: Int, string: String)

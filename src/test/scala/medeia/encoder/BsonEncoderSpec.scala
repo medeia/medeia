@@ -1,11 +1,9 @@
 package medeia.encoder
 
-import medeia.BsonCodec
+import medeia.{BsonCodec, MedeiaSpec}
 import org.mongodb.scala.bson.{BsonInt32, BsonString, BsonValue}
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{FlatSpec, Matchers}
 
-class BsonEncoderSpec extends FlatSpec with Matchers with TypeCheckedTripleEquals {
+class BsonEncoderSpec extends MedeiaSpec {
   behavior of "BsonEncoder"
 
   it should "encode BsonValue" in {
