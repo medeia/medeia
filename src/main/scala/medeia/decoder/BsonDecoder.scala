@@ -30,6 +30,7 @@ import org.mongodb.scala.bson.{
 }
 
 import scala.collection.generic.CanBuildFrom
+import scala.collection.JavaConverters._
 
 trait BsonDecoder[A] { self =>
 
@@ -101,6 +102,11 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit def vectorDecoder[A: BsonDecoder]: BsonDecoder[Vector[A]] = iterableDecoder
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
+
+  implicit def mapDecoder[K: BsonKeyDecoder, A: BsonDecoder]: BsonDecoder[Map[K, A]] = bsonDocumentDecoder.map { doc =>
+    val x: List[(String, BsonValue)] = doc.asScala.toList
+    ???
+  }
 
   implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
 

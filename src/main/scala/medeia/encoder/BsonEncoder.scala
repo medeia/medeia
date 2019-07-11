@@ -61,9 +61,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
 
-  implicit def mapEncoder[K <: AnyVal, A: BsonEncoder]: BsonEncoder[Map[K, A]] = (value: Map[K, A]) => {
-    val converted: Map[String, BsonValue] = value.map { case (k: K, a: A) => (k.toString, BsonEncoder[A].encode(a)) }
-    BsonDocument(converted)
+  implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[Map[K, A]] = (value: Map[K, A]) => {
+    BsonDocument(value.map { case (k, a) => (BsonKeyEncoder[K].encode(k), BsonEncoder[A].encode(a)) })
   }
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
