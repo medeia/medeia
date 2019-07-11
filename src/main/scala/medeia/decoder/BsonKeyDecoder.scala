@@ -1,7 +1,11 @@
 package medeia.decoder
 
+import java.util.UUID
+
 import cats.Functor
+import cats.syntax.either._
 import cats.data.EitherNec
+import medeia.decoder.BsonDecoderError.FieldParseError
 
 trait BsonKeyDecoder[A] { self =>
   def decode(string: String): EitherNec[BsonDecoderError, A]
@@ -22,5 +26,17 @@ object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {
 }
 
 trait DefaultBsonKeyDecoderInstances {
-  implicit val stringDecoder: BsonKeyDecoder[String] = (string: String) => Right(string)
+  implicit val stringDecoder: BsonKeyDecoder[String] = string => Right(string)
+
+  implicit val intDecoder: BsonKeyDecoder[Int] = string =>
+    Either.catchOnly[NumberFormatException](string.toInt).leftMap(FieldParseError(_)).toEitherNec
+
+  implicit val longDecoder: BsonKeyDecoder[Long] = string =>
+    Either.catchOnly[NumberFormatException](string.toLong).leftMap(FieldParseError(_)).toEitherNec
+
+  implicit val doubleDecoder: BsonKeyDecoder[Double] = string =>
+    Either.catchOnly[NumberFormatException](string.toDouble).leftMap(FieldParseError(_)).toEitherNec
+
+  implicit val uuidDecoder: BsonKeyDecoder[UUID] = string =>
+    Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError(_)).toEitherNec
 }
