@@ -21,6 +21,8 @@ trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
 object BsonEncoder extends DefaultBsonEncoderInstances {
   def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
+  def encode[A: BsonEncoder](value: A): BsonValue = BsonEncoder[A].encode(value)
+
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
     new Contravariant[BsonEncoder] {
       override def contramap[A, B](fa: BsonEncoder[A])(f: B => A): BsonEncoder[B] = fa.contramap(f).encode
@@ -58,6 +60,10 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toIterable)
 
   implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
+
+  implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[Map[K, A]] = (value: Map[K, A]) => {
+    BsonDocument(value.map { case (k, a) => (BsonKeyEncoder[K].encode(k), BsonEncoder[A].encode(a)) })
+  }
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
 

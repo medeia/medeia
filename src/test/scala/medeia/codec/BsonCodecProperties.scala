@@ -58,8 +58,12 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
     codecProperty[Vector[String]]
   }
 
-  propertyWithSeed("decode after encode === id (list)", None) = {
+  propertyWithSeed("decode after encode === id (chain)", None) = {
     codecProperty[Chain[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (map)", None) = {
+    codecProperty[Map[UUID, String]]
   }
 
   propertyWithSeed("decode after encode === id (uuid)", None) = {

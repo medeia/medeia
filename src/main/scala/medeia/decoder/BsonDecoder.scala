@@ -6,6 +6,8 @@ import java.util.{Date, UUID}
 import cats.Functor
 import cats.data.{Chain, EitherNec}
 import cats.instances.parallel._
+import cats.instances.either._
+import cats.instances.list._
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
@@ -30,6 +32,7 @@ import org.mongodb.scala.bson.{
 }
 
 import scala.collection.generic.CanBuildFrom
+import scala.collection.JavaConverters._
 
 trait BsonDecoder[A] { self =>
 
@@ -101,6 +104,20 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit def vectorDecoder[A: BsonDecoder]: BsonDecoder[Vector[A]] = iterableDecoder
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
+
+  implicit def mapDecoder[K: BsonKeyDecoder, A: BsonDecoder]: BsonDecoder[Map[K, A]] = bson => {
+    val document = bsonDocumentDecoder.decode(bson)
+    document.flatMap { doc: BsonDocument =>
+      doc.asScala.toList
+        .parTraverse {
+          case (k, v) =>
+            val key = BsonKeyDecoder[K].decode(k)
+            val value = BsonDecoder[A].decode(v)
+            (key, value).parMapN((k, v) => k -> v)
+        }
+        .map(_.toMap)
+    }
+  }
 
   implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
 
