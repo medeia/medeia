@@ -8,16 +8,16 @@ import cats.data.EitherNec
 import medeia.decoder.BsonDecoderError.FieldParseError
 
 trait BsonKeyDecoder[A] { self =>
-  def decode(string: String): EitherNec[BsonDecoderError, A]
+  def decode(key: String): EitherNec[BsonDecoderError, A]
 
-  def map[B](f: A => B): BsonKeyDecoder[B] = (string: String) => self.decode(string).map(f)
+  def map[B](f: A => B): BsonKeyDecoder[B] = (key: String) => self.decode(key).map(f)
 }
 
 object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {
   def apply[A: BsonKeyDecoder]: BsonKeyDecoder[A] = implicitly
 
-  def decode[A: BsonKeyDecoder](string: String): EitherNec[BsonDecoderError, A] = {
-    BsonKeyDecoder[A].decode(string)
+  def decode[A: BsonKeyDecoder](key: String): EitherNec[BsonDecoderError, A] = {
+    BsonKeyDecoder[A].decode(key)
   }
 
   implicit val bsonDecoderFunctor: Functor[BsonDecoder] = new Functor[BsonDecoder] {
@@ -26,17 +26,15 @@ object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {
 }
 
 trait DefaultBsonKeyDecoderInstances {
-  implicit val stringDecoder: BsonKeyDecoder[String] = string => Right(string)
+  implicit val stringDecoder: BsonKeyDecoder[String] = key => Right(key)
 
-  implicit val intDecoder: BsonKeyDecoder[Int] = string =>
-    Either.catchOnly[NumberFormatException](string.toInt).leftMap(FieldParseError(_)).toEitherNec
+  implicit val intDecoder: BsonKeyDecoder[Int] = key => Either.catchOnly[NumberFormatException](key.toInt).leftMap(FieldParseError(_)).toEitherNec
 
-  implicit val longDecoder: BsonKeyDecoder[Long] = string =>
-    Either.catchOnly[NumberFormatException](string.toLong).leftMap(FieldParseError(_)).toEitherNec
+  implicit val longDecoder: BsonKeyDecoder[Long] = key => Either.catchOnly[NumberFormatException](key.toLong).leftMap(FieldParseError(_)).toEitherNec
 
-  implicit val doubleDecoder: BsonKeyDecoder[Double] = string =>
-    Either.catchOnly[NumberFormatException](string.toDouble).leftMap(FieldParseError(_)).toEitherNec
+  implicit val doubleDecoder: BsonKeyDecoder[Double] = key =>
+    Either.catchOnly[NumberFormatException](key.toDouble).leftMap(FieldParseError(_)).toEitherNec
 
-  implicit val uuidDecoder: BsonKeyDecoder[UUID] = string =>
-    Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError(_)).toEitherNec
+  implicit val uuidDecoder: BsonKeyDecoder[UUID] = key =>
+    Either.catchOnly[IllegalArgumentException](UUID.fromString(key)).leftMap(FieldParseError(_)).toEitherNec
 }
