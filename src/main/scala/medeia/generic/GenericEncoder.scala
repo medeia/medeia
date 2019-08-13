@@ -1,15 +1,9 @@
 package medeia.generic
 
-import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
-import org.mongodb.scala.bson.BsonDocument
-import shapeless.labelled.FieldType
-import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
+import medeia.encoder.BsonDocumentEncoder
+import shapeless.{LabelledGeneric, Lazy}
 
 trait GenericEncoder[A] extends BsonDocumentEncoder[A]
-
-trait ShapelessEncoder[Base, H] {
-  def encode(a: H): BsonDocument
-}
 
 object GenericEncoder extends GenericEncoderInstances
 
@@ -20,25 +14,4 @@ trait GenericEncoderInstances {
       hEncoder: Lazy[ShapelessEncoder[Base, H]]
   ): GenericEncoder[Base] =
     value => hEncoder.value.encode(generic.to(value))
-}
-
-object ShapelessEncoder {
-  implicit def hnilEncoder[Base]: ShapelessEncoder[Base, HNil] =
-    hnil => BsonDocument()
-
-  implicit def hlistObjectEncoder[Base, K <: Symbol, H, T <: HList](
-      implicit
-      witness: Witness.Aux[K],
-      hEncoder: Lazy[BsonEncoder[H]],
-      tEncoder: ShapelessEncoder[Base, T],
-      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()
-  ): ShapelessEncoder[Base, FieldType[K, H] :: T] = {
-    val fieldName: String = options.transformKeys(witness.value.name)
-    hlist =>
-      {
-        val head = hEncoder.value.encode(hlist.head)
-        val tail: BsonDocument = tEncoder.encode(hlist.tail)
-        tail.append(fieldName, head)
-      }
-  }
 }
