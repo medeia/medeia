@@ -94,7 +94,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val uuidDecoder: BsonDecoder[UUID] = bson =>
     stringDecoder.decode(bson).flatMap { string =>
-      Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError(_)).toEitherNec
+      Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError("Cannot parse UUID",_)).toEitherNec
   }
 
   implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder

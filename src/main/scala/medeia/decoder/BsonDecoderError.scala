@@ -2,19 +2,12 @@ package medeia.decoder
 
 import org.bson.BsonType
 
-sealed abstract class BsonDecoderError extends Exception
+sealed trait BsonDecoderError
 
 object BsonDecoderError {
-  case class TypeMismatch(actual: BsonType, expected: BsonType) extends BsonDecoderError {
-    override def toString: String = s"expected: $expected, actual: $actual"
+  case class TypeMismatch(actual: BsonType, expected: BsonType) extends Exception(s"expected: $expected, actual: $actual") with BsonDecoderError
 
-  }
+  case class KeyNotFound(keyName: String) extends Exception(s"Key not found: $keyName") with BsonDecoderError
 
-  case class KeyNotFound(keyName: String) extends BsonDecoderError {
-    override def toString: String = s"Key not found: $keyName"
-  }
-
-  case class FieldParseError(error: Exception) extends BsonDecoderError {
-    override def toString: String = s"Field parse Error: ${error.getMessage}"
-  }
+  case class FieldParseError(message: String, cause: Exception = None.orNull) extends Exception(message, cause) with BsonDecoderError
 }
