@@ -1,6 +1,8 @@
 package medeia.generic
 
 import medeia.codec.BsonCodec
+import medeia.decoder.BsonDecoder
+import medeia.encoder.BsonEncoder
 import org.scalacheck.{Gen, Prop, Properties}
 
 class GenericCodecProperties extends Properties("GenericEncoding") {
@@ -28,6 +30,24 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     val codec: BsonCodec[Complex] = BsonCodec.fromEncoderAndDecoder
 
     Prop.forAll(complexGen) { origin =>
+      val encoded = codec.encode(origin)
+      val decoded = codec.decode(encoded)
+      decoded == Right(origin)
+    }
+  }
+  propertyWithSeed("decode sealed trait hierarchy", None) = {
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+    val aGen = Gen.alphaStr.map(A.apply)
+    val bGen = Gen.posNum[Int].map(B.apply)
+    val traitGen: Gen[Trait] = Gen.oneOf(aGen, bGen)
+
+    val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
+    val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
+    val codec: BsonCodec[Trait] = BsonCodec.fromEncoderAndDecoder(encoder, decoder)
+
+    Prop.forAll(traitGen) { origin =>
       val encoded = codec.encode(origin)
       val decoded = codec.decode(encoded)
       decoded == Right(origin)

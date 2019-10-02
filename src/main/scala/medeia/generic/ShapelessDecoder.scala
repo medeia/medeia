@@ -7,7 +7,7 @@ import medeia.decoder.BsonDecoderError.KeyNotFound
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import org.mongodb.scala.bson.BsonDocument
 import shapeless.labelled.{FieldType, field}
-import shapeless.{::, HList, HNil, Lazy, Witness}
+import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Lazy, Witness}
 
 trait ShapelessDecoder[Base, H] {
   def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, H]
@@ -33,5 +33,13 @@ object ShapelessDecoder {
         (head, tail).parMapN(_ :: _)
       }
   }
+  implicit def cnilDecoder[Base]: ShapelessDecoder[Base, CNil] = ???
+
+  implicit def coproductDecoder[Base, K <: Symbol, H, T <: Coproduct](
+      implicit
+      witness: Witness.Aux[K],
+      hInstance: Lazy[BsonDecoder[H]],
+      tInstance: ShapelessDecoder[Base, T]
+  ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = ???
 
 }
