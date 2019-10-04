@@ -21,7 +21,6 @@ object MiscSettingsPlugin extends AutoPlugin {
       "-feature", // warning and location for usages of features that should be imported explicitly
       "-unchecked", // additional warnings where generated code depends on assumptions
       "-Xlint", // recommended additional warnings
-      "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
       "-Ywarn-value-discard", // Warn when non-Unit expression results are unused
       "-Ywarn-inaccessible",
       "-language:reflectiveCalls",

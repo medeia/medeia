@@ -74,5 +74,5 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
 trait BsonIterableEncoder {
   def iterableEncoder[A: BsonEncoder]: BsonEncoder[Iterable[A]] =
-    xs => BsonArray(xs.map(BsonEncoder[A].encode))
+    xs => BsonArray.fromIterable(xs.map(BsonEncoder[A].encode))
 }
