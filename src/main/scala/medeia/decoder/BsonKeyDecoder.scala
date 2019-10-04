@@ -28,13 +28,15 @@ object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {
 trait DefaultBsonKeyDecoderInstances {
   implicit val stringDecoder: BsonKeyDecoder[String] = key => Right(key)
 
-  implicit val intDecoder: BsonKeyDecoder[Int] = key => Either.catchOnly[NumberFormatException](key.toInt).leftMap(FieldParseError(_)).toEitherNec
+  implicit val intDecoder: BsonKeyDecoder[Int] = key =>
+    Either.catchOnly[NumberFormatException](key.toInt).leftMap(FieldParseError("Cannot parse int", _)).toEitherNec
 
-  implicit val longDecoder: BsonKeyDecoder[Long] = key => Either.catchOnly[NumberFormatException](key.toLong).leftMap(FieldParseError(_)).toEitherNec
+  implicit val longDecoder: BsonKeyDecoder[Long] = key =>
+    Either.catchOnly[NumberFormatException](key.toLong).leftMap(FieldParseError("Cannot parse long", _)).toEitherNec
 
   implicit val doubleDecoder: BsonKeyDecoder[Double] = key =>
-    Either.catchOnly[NumberFormatException](key.toDouble).leftMap(FieldParseError(_)).toEitherNec
+    Either.catchOnly[NumberFormatException](key.toDouble).leftMap(FieldParseError("Cannot parse double", _)).toEitherNec
 
   implicit val uuidDecoder: BsonKeyDecoder[UUID] = key =>
-    Either.catchOnly[IllegalArgumentException](UUID.fromString(key)).leftMap(FieldParseError(_)).toEitherNec
+    Either.catchOnly[IllegalArgumentException](UUID.fromString(key)).leftMap(FieldParseError("Cannot parse UUID", _)).toEitherNec
 }
