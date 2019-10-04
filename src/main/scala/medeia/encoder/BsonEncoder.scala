@@ -8,6 +8,7 @@ import cats.data.Chain
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
+@FunctionalInterface
 trait BsonEncoder[A] { self =>
   def encode(value: A): BsonValue
 

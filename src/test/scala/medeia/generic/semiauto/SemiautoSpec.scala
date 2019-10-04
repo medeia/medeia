@@ -11,11 +11,11 @@ class SemiautoSpec extends MedeiaSpec {
   }
 
   it should "be able to derive a decoder from a case class" in {
-    val _: medeia.decoder.BsonDecoder[Simple] = deriveBsonDecoder
+    val _: medeia.decoder.BsonDecoder[Simple] = deriveBsonDecoder[Simple]
   }
 
   it should "be able to derive a codec from a case class" in {
-    val _: BsonDocumentCodec[Simple] = deriveBsonCodec
+    val _: BsonDocumentCodec[Simple] = deriveBsonCodec[Simple]
   }
 
   "The default summoning method" should "not be able to access GenericEncoders without import" in {
