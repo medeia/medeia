@@ -9,7 +9,8 @@ trait ShapelessEncoder[Base, H] {
   def encode(a: H): BsonDocument
 }
 
-object ShapelessEncoder {
+object ShapelessEncoder extends HlistEncoderInstances with CoproductEncoderInstances
+trait HlistEncoderInstances {
   implicit def hnilEncoder[Base]: ShapelessEncoder[Base, HNil] =
     _ => BsonDocument()
 
@@ -28,7 +29,9 @@ object ShapelessEncoder {
         tail.append(fieldName, head)
       }
   }
+}
 
+trait CoproductEncoderInstances {
   implicit def cnilEncoder[Base]: ShapelessEncoder[Base, CNil] = _ => throw new Exception("Inconceivable!")
 
   implicit def coproductEncoder[Base, K <: Symbol, H, T <: Coproduct](
