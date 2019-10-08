@@ -20,8 +20,8 @@ object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {
     BsonKeyDecoder[A].decode(key)
   }
 
-  implicit val bsonDecoderFunctor: Functor[BsonDecoder] = new Functor[BsonDecoder] {
-    override def map[A, B](fa: BsonDecoder[A])(f: A => B): BsonDecoder[B] = fa.map(f)
+  implicit val bsonKeyDecoderFunctor: Functor[BsonKeyDecoder] = new Functor[BsonKeyDecoder] {
+    override def map[A, B](fa: BsonKeyDecoder[A])(f: A => B): BsonKeyDecoder[B] = fa.map(f)
   }
 }
 
