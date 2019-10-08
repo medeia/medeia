@@ -13,7 +13,7 @@ import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 lazy val root = (project in file("."))
-  .settings(name := "medeia", organization := "de.megaera")
+  .settings(name := "medeia", organization := "de.megaera", crossScalaVersions := List("2.12.10", "2.13.1"))
   .settings(Dependencies.Libraries, Dependencies.TestLibraries)
   .enablePlugins(MiscSettingsPlugin)
 

@@ -5,9 +5,9 @@ import java.util.{Date, UUID}
 
 import cats.Functor
 import cats.data.{Chain, EitherNec}
-import cats.instances.parallel._
 import cats.instances.either._
 import cats.instances.list._
+import cats.instances.parallel._
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
@@ -31,9 +31,10 @@ import org.mongodb.scala.bson.{
   BsonValue
 }
 
-import scala.collection.generic.CanBuildFrom
-import scala.collection.JavaConverters._
+import scala.collection.compat._
+import scala.jdk.CollectionConverters._
 
+@FunctionalInterface
 trait BsonDecoder[A] { self =>
 
   def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
@@ -168,11 +169,11 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 }
 
 trait BsonIterableDecoder {
-  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit canBuildFrom: CanBuildFrom[Nothing, A, C[A]]): BsonDecoder[C[A]] =
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A], X](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
-          val builder = canBuildFrom()
+          val builder = factory.newBuilder
           var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
 
           bson.asArray.getValues.forEach { b =>
