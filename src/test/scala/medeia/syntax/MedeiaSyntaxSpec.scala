@@ -1,8 +1,12 @@
 package medeia.syntax
 
+import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoder
+import medeia.decoder.BsonDecoderError.KeyNotFound
 import medeia.encoder.BsonDocumentEncoder
+import org.mongodb.scala.bson.{BsonDocument, BsonString}
+import org.mongodb.scala.bson.collection.immutable.Document
 
 class MedeiaSyntaxSpec extends MedeiaSpec {
   behavior of classOf[MedeiaSyntax].getSimpleName
@@ -27,5 +31,15 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
     val result = input.toBson.fromBson[Foo].right.value
 
     result should ===(input)
+  }
+
+  it should "support getSafe for Document" in {
+    Document("existing" -> "foo").getSafe("existing").right.value should ===(BsonString("foo"))
+    Document().getSafe("nonexisting").left.value should ===(NonEmptyChain(KeyNotFound("nonexisting")))
+  }
+
+  it should "support getSafe for BsonDocument" in {
+    BsonDocument("existing" -> "foo").getSafe("existing").right.value should ===(BsonString("foo"))
+    BsonDocument().getSafe("nonexisting").left.value should ===(NonEmptyChain(KeyNotFound("nonexisting")))
   }
 }
