@@ -1,3 +1,8 @@
 package medeia.generic
 
-package object auto extends GenericEncoderInstances with GenericDecoderInstances
+import medeia.decoder.DefaultBsonDecoderInstances
+import medeia.encoder.DefaultBsonEncoderInstances
+
+package object auto extends DefaultBsonDecoderInstances with DefaultBsonEncoderInstances with LowPriorityInstances
+
+trait LowPriorityInstances extends GenericEncoderInstances with GenericDecoderInstances

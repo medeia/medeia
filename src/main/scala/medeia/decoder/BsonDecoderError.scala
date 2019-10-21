@@ -10,4 +10,8 @@ object BsonDecoderError {
   case class KeyNotFound(keyName: String) extends Exception(s"Key not found: $keyName") with BsonDecoderError
 
   case class FieldParseError(message: String, cause: Exception = None.orNull) extends Exception(message, cause) with BsonDecoderError
+
+  case class InvalidTypeTag(typeTag: String)
+      extends Exception(s"Trying to decode sealed trait, but no match found for typetag: $typeTag")
+      with BsonDecoderError
 }

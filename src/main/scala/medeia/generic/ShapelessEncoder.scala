@@ -1,15 +1,16 @@
 package medeia.generic
 
-import medeia.encoder.BsonEncoder
-import org.mongodb.scala.bson.BsonDocument
-import shapeless.{::, HList, HNil, Lazy, Witness}
+import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
+import org.mongodb.scala.bson.{BsonDocument, BsonString}
+import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Lazy, Witness}
 import shapeless.labelled.FieldType
 
 trait ShapelessEncoder[Base, H] {
   def encode(a: H): BsonDocument
 }
 
-object ShapelessEncoder {
+object ShapelessEncoder extends HlistEncoderInstances with CoproductEncoderInstances
+trait HlistEncoderInstances {
   implicit def hnilEncoder[Base]: ShapelessEncoder[Base, HNil] =
     _ => BsonDocument()
 
@@ -28,4 +29,20 @@ object ShapelessEncoder {
         tail.append(fieldName, head)
       }
   }
+}
+
+trait CoproductEncoderInstances {
+  implicit def cnilEncoder[Base]: ShapelessEncoder[Base, CNil] = _ => throw new Exception("Inconceivable!")
+
+  implicit def coproductEncoder[Base, K <: Symbol, H, T <: Coproduct](
+      implicit
+      witness: Witness.Aux[K],
+      hEncoder: Lazy[BsonDocumentEncoder[H]],
+      tEncoder: ShapelessEncoder[Base, T]
+  ): ShapelessEncoder[Base, FieldType[K, H] :+: T] =
+    (a: FieldType[K, H] :+: T) =>
+      a match {
+        case Inl(head) => hEncoder.value.encode(head).append("type", BsonString(witness.value.name))
+        case Inr(tail) => tEncoder.encode(tail)
+    }
 }

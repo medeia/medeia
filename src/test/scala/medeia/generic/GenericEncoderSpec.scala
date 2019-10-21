@@ -13,8 +13,22 @@ class GenericEncoderSpec extends MedeiaSpec {
     val simple = Simple(1, "string")
 
     implicit val decoderOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
-    val document: BsonDocument = simple.toBson.asDocument()
+    val document: BsonDocument = simple.toBsonDocument
     document.get("intA").asInt32().getValue should ===(1)
+  }
+
+  it should "encode selead trait hierarchies" in {
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    val original: Trait = A("asd")
+    val document: BsonDocument = original.toBsonDocument
+    document should ===(
+      BsonDocument(
+        "type" -> "A",
+        "string" -> "asd"
+      ))
   }
 
 }

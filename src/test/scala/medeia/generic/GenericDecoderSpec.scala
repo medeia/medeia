@@ -2,8 +2,7 @@ package medeia.generic
 
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
-import medeia.decoder.BsonDecoderError.{KeyNotFound, TypeMismatch}
-import medeia.generic.auto._
+import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound, TypeMismatch}
 import medeia.syntax._
 import org.bson.BsonType
 import org.mongodb.scala.bson.{BsonDocument, BsonNull}
@@ -11,6 +10,7 @@ import org.mongodb.scala.bson.{BsonDocument, BsonNull}
 class GenericDecoderSpec extends MedeiaSpec {
 
   "GenericDecoder" should "handle errors" in {
+    import medeia.generic.auto._
     case class Simple(int: Int, string: String)
     val doc = BsonDocument()
     doc.fromBson[Simple].left.value should ===(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string")))
@@ -19,10 +19,12 @@ class GenericDecoderSpec extends MedeiaSpec {
   it should "decode empty values to None" in {
     case class Simple(int: Option[Int])
     val doc = BsonDocument()
-    doc.fromBson[Simple].right.value should ===(Simple(None))
+    val decoder = semiauto.deriveBsonDecoder[Simple]
+    decoder.decode(doc).right.value should ===(Simple(None))
   }
 
   it should "fail gracefully on nested decoders" in {
+    import medeia.generic.auto._
     case class Inner(int: Int)
     case class Outer(inner: Inner)
     val doc = BsonDocument(List("inner" -> BsonNull()))
@@ -30,6 +32,7 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "allow for key transformation" in {
+    import medeia.generic.auto._
     case class Simple(int: Int, string: String)
     val doc = BsonDocument(
       "intA" -> 1,
@@ -37,6 +40,65 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
     implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
     doc.fromBson[Simple].right.value should ===(Simple(1, "string"))
+  }
+
+  it should "decode selead trait hierarchies" in {
+    import medeia.generic.auto._
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    val original = BsonDocument(
+      "type" -> "B",
+      "int" -> 1
+    )
+
+    val result = original.fromBson[Trait]
+    result.right.value should ===(B(1))
+  }
+
+  it should "fail on unknown type tags" in {
+    import medeia.generic.auto._
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    val original = BsonDocument(
+      "type" -> "Z",
+      "int" -> 1
+    )
+
+    val result = original.fromBson[Trait]
+    result.left.value should ===(NonEmptyChain(InvalidTypeTag("Z")))
+  }
+
+  it should "fail on missing type tags" in {
+    import medeia.generic.auto._
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    val original = BsonDocument(
+      "int" -> 1
+    )
+
+    val result = original.fromBson[Trait]
+    result.left.value should ===(NonEmptyChain(KeyNotFound("type")))
+  }
+
+  it should "fail on invalid type tags" in {
+    import medeia.generic.auto._
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    val original = BsonDocument(
+      "type" -> 5,
+      "int" -> 1
+    )
+
+    val result = original.fromBson[Trait]
+    result.left.value should ===(NonEmptyChain(TypeMismatch(BsonType.INT32, BsonType.STRING)))
   }
 
 }
