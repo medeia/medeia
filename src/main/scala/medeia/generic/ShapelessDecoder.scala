@@ -3,9 +3,9 @@ package medeia.generic
 import cats.data.{EitherNec, NonEmptyChain}
 import cats.instances.parallel._
 import cats.syntax.parallel._
-import medeia.syntax._
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound}
-import medeia.decoder.{BsonDecoder, BsonDecoderError, DefaultBsonDecoderInstances}
+import medeia.decoder.{BsonDecoder, BsonDecoderError}
+import medeia.syntax._
 import org.mongodb.scala.bson.BsonDocument
 import shapeless.labelled.{FieldType, field}
 import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Lazy, Witness}
@@ -62,7 +62,7 @@ trait CoproductInstances {
       }
     }
     for {
-      typeField <- Option(bsonDocument.get("type")).toRight(NonEmptyChain(KeyNotFound("type")))
+      typeField <- bsonDocument.getSafe("type")
       typeTag <- typeField.fromBson[String]
       result <- doDecode(typeTag)
     } yield result

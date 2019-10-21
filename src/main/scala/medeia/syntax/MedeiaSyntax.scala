@@ -1,6 +1,8 @@
 package medeia.syntax
 
 import cats.data.EitherNec
+import cats.data.NonEmptyChain
+import medeia.decoder.BsonDecoderError.KeyNotFound
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
 import org.bson.BsonDocument
@@ -19,5 +21,13 @@ trait MedeiaSyntax {
 
   implicit class BsonDecoderOpsForDocument(document: Document) {
     def fromBson[A: BsonDecoder]: EitherNec[BsonDecoderError, A] = BsonDecoder.decode(document.toBsonDocument)
+  }
+
+  implicit class GetSafeOpsForDocument(document: Document) {
+    def getSafe(key: String): EitherNec[BsonDecoderError, BsonValue] = document.get(key).toRight(NonEmptyChain(KeyNotFound(key)))
+  }
+
+  implicit class GetSafeOpsForBsonDocument(document: BsonDocument) {
+    def getSafe(key: String): EitherNec[BsonDecoderError, BsonValue] = Option(document.get(key)).toRight(NonEmptyChain(KeyNotFound(key)))
   }
 }
