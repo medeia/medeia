@@ -16,7 +16,7 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.1.5"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.2.0"
 ```
 
 ### decoding and encoding example:
