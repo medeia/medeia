@@ -11,8 +11,8 @@ class BsonCodecSpec extends MedeiaSpec {
 
     val input = "42"
 
-    val result = imappedCodec.decode(imappedCodec.encode(input)).right.value
+    val result = imappedCodec.decode(imappedCodec.encode(input))
 
-    result should ===(input)
+    result should ===(Right(input))
   }
 }
