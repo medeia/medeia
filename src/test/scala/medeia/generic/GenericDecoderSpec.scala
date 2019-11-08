@@ -13,14 +13,14 @@ class GenericDecoderSpec extends MedeiaSpec {
     import medeia.generic.auto._
     case class Simple(int: Int, string: String)
     val doc = BsonDocument()
-    doc.fromBson[Simple].left.value should ===(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string")))
+    doc.fromBson[Simple] should ===(Left(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string"))))
   }
 
   it should "decode empty values to None" in {
     case class Simple(int: Option[Int])
     val doc = BsonDocument()
     val decoder = semiauto.deriveBsonDecoder[Simple]
-    decoder.decode(doc).right.value should ===(Simple(None))
+    decoder.decode(doc) should ===(Right(Simple(None)))
   }
 
   it should "fail gracefully on nested decoders" in {
@@ -28,7 +28,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     case class Inner(int: Int)
     case class Outer(inner: Inner)
     val doc = BsonDocument(List("inner" -> BsonNull()))
-    doc.fromBson[Outer].left.value should ===(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT)))
+    doc.fromBson[Outer] should ===(Left(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT))))
   }
 
   it should "allow for key transformation" in {
@@ -39,7 +39,7 @@ class GenericDecoderSpec extends MedeiaSpec {
       "string" -> "string"
     )
     implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
-    doc.fromBson[Simple].right.value should ===(Simple(1, "string"))
+    doc.fromBson[Simple] should ===(Right(Simple(1, "string")))
   }
 
   it should "decode selead trait hierarchies" in {
@@ -54,7 +54,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result.right.value should ===(B(1))
+    result should ===(Right(B(1)))
   }
 
   it should "fail on unknown type tags" in {
@@ -69,7 +69,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result.left.value should ===(NonEmptyChain(InvalidTypeTag("Z")))
+    result should ===(Left(NonEmptyChain(InvalidTypeTag("Z"))))
   }
 
   it should "fail on missing type tags" in {
@@ -83,7 +83,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result.left.value should ===(NonEmptyChain(KeyNotFound("type")))
+    result should ===(Left(NonEmptyChain(KeyNotFound("type"))))
   }
 
   it should "fail on invalid type tags" in {
@@ -98,7 +98,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result.left.value should ===(NonEmptyChain(TypeMismatch(BsonType.INT32, BsonType.STRING)))
+    result should ===(Left(NonEmptyChain(TypeMismatch(BsonType.INT32, BsonType.STRING))))
   }
 
 }

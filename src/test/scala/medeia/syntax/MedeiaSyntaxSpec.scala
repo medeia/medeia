@@ -14,9 +14,9 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
   it should "enrich values that have a bson encoder instance" in {
     val input = 42
 
-    val result = input.toBson.fromBson[Int].right.value
+    val result = input.toBson.fromBson[Int]
 
-    result should ===(input)
+    result should ===(Right(input))
   }
 
   it should "enrich values that have a bson document encoder instance" in {
@@ -28,18 +28,18 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
 
     val input = Foo(42)
 
-    val result = input.toBson.fromBson[Foo].right.value
+    val result = input.toBson.fromBson[Foo]
 
-    result should ===(input)
+    result should ===(Right(input))
   }
 
   it should "support getSafe for Document" in {
-    Document("existing" -> "foo").getSafe("existing").right.value should ===(BsonString("foo"))
-    Document().getSafe("nonexisting").left.value should ===(NonEmptyChain(KeyNotFound("nonexisting")))
+    Document("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
+    Document().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
   }
 
   it should "support getSafe for BsonDocument" in {
-    BsonDocument("existing" -> "foo").getSafe("existing").right.value should ===(BsonString("foo"))
-    BsonDocument().getSafe("nonexisting").left.value should ===(NonEmptyChain(KeyNotFound("nonexisting")))
+    BsonDocument("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
+    BsonDocument().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
   }
 }
