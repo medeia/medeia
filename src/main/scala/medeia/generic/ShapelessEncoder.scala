@@ -1,8 +1,9 @@
 package medeia.generic
 
 import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
+import medeia.generic.util.VersionSpecific.Lazy
 import org.mongodb.scala.bson.{BsonDocument, BsonString}
-import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Lazy, Witness}
+import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Witness}
 import shapeless.labelled.FieldType
 
 trait ShapelessEncoder[Base, H] {

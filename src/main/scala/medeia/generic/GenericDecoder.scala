@@ -3,8 +3,9 @@ package medeia.generic
 import cats.syntax.either._
 import medeia.decoder.BsonDecoder
 import medeia.decoder.BsonDecoderError.TypeMismatch
+import medeia.generic.util.VersionSpecific.Lazy
 import org.bson.BsonType
-import shapeless.{LabelledGeneric, Lazy}
+import shapeless.LabelledGeneric
 
 trait GenericDecoder[A] extends BsonDecoder[A]
 

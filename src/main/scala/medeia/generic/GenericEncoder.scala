@@ -1,7 +1,8 @@
 package medeia.generic
 
 import medeia.encoder.BsonDocumentEncoder
-import shapeless.{LabelledGeneric, Lazy}
+import medeia.generic.util.VersionSpecific.Lazy
+import shapeless.LabelledGeneric
 
 trait GenericEncoder[A] extends BsonDocumentEncoder[A]
 
