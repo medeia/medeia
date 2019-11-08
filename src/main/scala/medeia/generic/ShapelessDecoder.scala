@@ -5,10 +5,11 @@ import cats.instances.parallel._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound}
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
+import medeia.generic.util.VersionSpecific.Lazy
 import medeia.syntax._
 import org.mongodb.scala.bson.BsonDocument
 import shapeless.labelled.{FieldType, field}
-import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Lazy, Witness}
+import shapeless.{:+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Witness}
 
 trait ShapelessDecoder[Base, H] {
   def decode(bsonDocument: BsonDocument): EitherNec[BsonDecoderError, H]
