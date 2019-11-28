@@ -2,7 +2,7 @@ package medeia
 
 import java.time.Instant
 
-import cats.data.Chain
+import cats.data.{Chain, NonEmptyChain, NonEmptyList}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait Arbitraries {
@@ -27,6 +27,16 @@ trait Arbitraries {
   implicit def arbitrartChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[Chain[A]] =
     Arbitrary[Chain[A]] {
       Gen.listOf(arbitraryA.arbitrary).map(Chain.fromSeq)
+    }
+
+  implicit def arbitraryNonEmptyList[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptyList[A]] =
+    Arbitrary[NonEmptyList[A]] {
+      Gen.nonEmptyListOf(arbitraryA.arbitrary).map(NonEmptyList.fromListUnsafe)
+    }
+
+  implicit def arbitrartNonEmptyChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptyChain[A]] =
+    Arbitrary[NonEmptyChain[A]] {
+      arbitraryNonEmptyList[A].arbitrary.map(NonEmptyChain.fromNonEmptyList)
     }
 }
 

@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.{Date, UUID}
 
 import cats.Contravariant
-import cats.data.Chain
+import cats.data.{Chain, NonEmptyChain, NonEmptyList}
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
@@ -65,6 +65,10 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[Map[K, A]] = (value: Map[K, A]) => {
     BsonDocument(value.map { case (k, a) => (BsonKeyEncoder[K].encode(k), BsonEncoder[A].encode(a)) })
   }
+
+  implicit def nonEmptyListEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyList[A]] = listEncoder[A].contramap(_.toList)
+
+  implicit def nonEmptyChainEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyChain[A]] = chainEncoder[A].contramap(_.toChain)
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
 
