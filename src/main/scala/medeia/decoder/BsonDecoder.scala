@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.{Date, UUID}
 
 import cats.Functor
-import cats.data.{Chain, EitherNec}
+import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList}
 import cats.instances.either._
 import cats.instances.list._
 import cats.instances.parallel._
@@ -119,6 +119,18 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
         .map(_.toMap)
     }
   }
+
+  implicit def nonEmptyListDecoder[A: BsonDecoder]: BsonDecoder[NonEmptyList[A]] =
+    bson =>
+      listDecoder[A]
+        .decode(bson)
+        .flatMap(list => NonEmptyList.fromList(list).toRight(FieldParseError("NonEmptyList may not be empty")).toEitherNec)
+
+  implicit def nonEmptyChainDecoder[A: BsonDecoder]: BsonDecoder[NonEmptyChain[A]] =
+    bson =>
+      chainDecoder[A]
+        .decode(bson)
+        .flatMap(chain => NonEmptyChain.fromChain(chain).toRight(FieldParseError("NonEmptyChain may not be empty")).toEitherNec)
 
   implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
 
