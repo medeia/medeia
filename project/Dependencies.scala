@@ -8,7 +8,7 @@ object Dependencies {
     val cats = "2.0.0"
     val scalaCheck = "1.14.2"
     val shapeless = "2.3.3"
-    val scalaCollectionCompatVersion = "2.1.2"
+    val scalaCollectionCompatVersion = "2.1.3"
   }
 
   lazy val Libraries = libraryDependencies ++= Vector(
