@@ -1,7 +1,7 @@
 package medeia.generic
 
 import cats.data.{EitherNec, NonEmptyChain}
-import cats.instances.parallel._
+import cats.instances.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound}
 import medeia.decoder.{BsonDecoder, BsonDecoderError}

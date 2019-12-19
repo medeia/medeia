@@ -7,7 +7,6 @@ import cats.Functor
 import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList}
 import cats.instances.either._
 import cats.instances.list._
-import cats.instances.parallel._
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
