@@ -10,6 +10,9 @@ import cats.instances.list._
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
+import medeia.generic.GenericDecoder
+import medeia.generic.auto.AutoDerivationUnlocked
+import medeia.generic.util.VersionSpecific.Lazy
 import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{
@@ -179,7 +182,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   }
 }
 
-trait BsonIterableDecoder {
+trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
   def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A], X](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
@@ -195,4 +198,11 @@ trait BsonIterableDecoder {
           elems.map(_.result())
         case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
     }
+}
+
+trait LowestPrioDecoderAutoDerivation {
+  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](
+      implicit encoder: Lazy[GenericDecoder[A]]
+  ): BsonDecoder[A] =
+    medeia.generic.semiauto.deriveBsonDecoder[A](encoder)
 }

@@ -3,8 +3,8 @@ package medeia.generic.semiauto
 import medeia.codec.BsonDocumentCodec
 import medeia.decoder.BsonDecoder
 import medeia.encoder.BsonDocumentEncoder
+import medeia.generic.util.VersionSpecific.Lazy
 import medeia.generic.{GenericDecoder, GenericEncoder}
-import shapeless.Lazy
 
 trait Semiauto {
   def deriveBsonEncoder[A](implicit genericEncoder: Lazy[GenericEncoder[A]]): BsonDocumentEncoder[A] = genericEncoder.value

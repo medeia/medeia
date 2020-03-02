@@ -17,10 +17,10 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "decode empty values to None" in {
+    import medeia.generic.auto._
     case class Simple(int: Option[Int])
     val doc = BsonDocument()
-    val decoder = semiauto.deriveBsonDecoder[Simple]
-    decoder.decode(doc) should ===(Right(Simple(None)))
+    doc.fromBson[Simple] should ===(Right(Simple(None)))
   }
 
   it should "fail gracefully on nested decoders" in {
