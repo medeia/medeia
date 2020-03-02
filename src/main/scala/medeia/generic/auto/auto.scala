@@ -1,8 +1,8 @@
 package medeia.generic
 
-import medeia.decoder.DefaultBsonDecoderInstances
-import medeia.encoder.DefaultBsonEncoderInstances
+package object auto {
+  type AutoDerivationUnlocked[_] = AutoDerivationUnlocker
+  implicit val unlocker: AutoDerivationUnlocker = new AutoDerivationUnlocker {}
+}
 
-package object auto extends DefaultBsonDecoderInstances with DefaultBsonEncoderInstances with LowPriorityInstances
-
-trait LowPriorityInstances extends GenericEncoderInstances with GenericDecoderInstances
+private[medeia] sealed abstract class AutoDerivationUnlocker

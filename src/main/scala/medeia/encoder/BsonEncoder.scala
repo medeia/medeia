@@ -5,6 +5,9 @@ import java.util.{Date, UUID}
 
 import cats.Contravariant
 import cats.data.{Chain, NonEmptyChain, NonEmptyList}
+import medeia.generic.GenericEncoder
+import medeia.generic.auto.AutoDerivationUnlocked
+import medeia.generic.util.VersionSpecific.Lazy
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
@@ -77,7 +80,14 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit val mutableDocumentEncoder: BsonEncoder[mutable.Document] = _.toBsonDocument
 }
 
-trait BsonIterableEncoder {
+trait BsonIterableEncoder extends LowestPrioEncoderAutoDerivation {
   def iterableEncoder[A: BsonEncoder]: BsonEncoder[Iterable[A]] =
     xs => BsonArray.fromIterable(xs.map(BsonEncoder[A].encode))
+}
+
+trait LowestPrioEncoderAutoDerivation {
+  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](
+      implicit encoder: Lazy[GenericEncoder[A]]
+  ): BsonDocumentEncoder[A] =
+    medeia.generic.semiauto.deriveBsonEncoder[A](encoder)
 }
