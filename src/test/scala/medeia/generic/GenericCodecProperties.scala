@@ -54,4 +54,33 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     }
   }
 
+  //prevents unused field warnings
+  object ForHierarchyWithOptionsTest {
+    sealed trait Trait
+    case class A(stringField: String) extends Trait
+    case class B(int: Int) extends Trait
+
+    implicit val coproductDerivationOptions: CoproductDerivationOptions[Trait] =
+      CoproductDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeNameKey = "otherType")
+    implicit val genericDerivationOptionsA: GenericDerivationOptions[A] = GenericDerivationOptions { case a => a.toLowerCase() }
+    implicit val genericDerivationOptionsB: GenericDerivationOptions[B] = GenericDerivationOptions { case a => a.toUpperCase() }
+    val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
+    val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
+    val codec: BsonCodec[Trait] = BsonCodec.fromEncoderAndDecoder(encoder, decoder)
+  }
+
+  propertyWithSeed("decode sealed trait hierarchy with Options", None) = {
+    import ForHierarchyWithOptionsTest._
+
+    val aGen = Gen.alphaStr.map(A.apply)
+    val bGen = Gen.posNum[Int].map(B.apply)
+    val traitGen: Gen[Trait] = Gen.oneOf(aGen, bGen)
+
+    Prop.forAll(traitGen) { origin =>
+      val encoded = codec.encode(origin)
+      val decoded = codec.decode(encoded)
+      decoded == Right(origin)
+    }
+  }
+
 }
