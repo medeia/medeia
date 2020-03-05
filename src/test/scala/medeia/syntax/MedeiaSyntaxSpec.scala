@@ -4,7 +4,8 @@ import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoder
 import medeia.decoder.BsonDecoderError.KeyNotFound
-import medeia.encoder.BsonDocumentEncoder
+import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
+import medeia.generic.GenericEncoder
 import org.mongodb.scala.bson.{BsonDocument, BsonString}
 import org.mongodb.scala.bson.collection.immutable.Document
 
@@ -20,15 +21,13 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
   }
 
   it should "enrich values that have a bson document encoder instance" in {
-    case class Foo(answer: Int)
-    object Foo {
-      implicit val fooEncoder: BsonDocumentEncoder[Foo] = medeia.generic.semiauto.deriveBsonEncoder
-      implicit val fooDecoder: BsonDecoder[Foo] = medeia.generic.semiauto.deriveBsonDecoder
+    val input: Trait = Foo(42)
+
+    try { input.toBson } catch {
+      case e: Throwable => e.printStackTrace()
     }
 
-    val input = Foo(42)
-
-    val result = input.toBson.fromBson[Foo]
+    val result = input.toBson.fromBson[Trait]
 
     result should ===(Right(input))
   }
@@ -42,4 +41,12 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
     BsonDocument("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
     BsonDocument().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
   }
+}
+sealed trait Trait
+case class Foo(answer: Int) extends Trait
+case class Bar(bar: String) extends Trait
+object Trait {
+  implicit val traitEncoder: GenericEncoder[Trait] = implicitly //Does NPE
+  // implicit val traitEncoder: BsonDocumentEncoder[Trait] = medeia.generic.semiauto.deriveBsonEncoder[Trait] //DOES NOT COMPILE
+  implicit val traitDecoder: BsonDecoder[Trait] = medeia.generic.semiauto.deriveBsonDecoder[Trait]
 }
