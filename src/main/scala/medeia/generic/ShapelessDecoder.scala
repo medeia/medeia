@@ -52,7 +52,7 @@ trait CoproductInstances {
   implicit def coproductDecoder[Base, K <: Symbol, H, T <: Coproduct](
       implicit
       witness: Witness.Aux[K],
-      hInstance: Lazy[GenericDecoder[H]],
+      hInstance: Lazy[BsonDecoder[H]],
       tInstance: ShapelessDecoder[Base, T]
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>
     def doDecode(typeTag: String): Either[NonEmptyChain[BsonDecoderError], FieldType[K, H] :+: T] = {
