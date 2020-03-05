@@ -34,11 +34,13 @@ class GenericDecoderSpec extends MedeiaSpec {
   it should "allow for key transformation" in {
     import medeia.generic.auto._
     case class Simple(int: Int, string: String)
+    object Simple {
+      implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
+    }
     val doc = BsonDocument(
       "intA" -> 1,
       "string" -> "string"
     )
-    implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
     doc.fromBson[Simple] should ===(Right(Simple(1, "string")))
   }
 
@@ -50,6 +52,27 @@ class GenericDecoderSpec extends MedeiaSpec {
 
     val original = BsonDocument(
       "type" -> "B",
+      "int" -> 1
+    )
+
+    val result = original.fromBson[Trait]
+    result should ===(Right(B(1)))
+  }
+
+  //prevents unused field warnings
+  object ForSealedTraitWithTransformationTest {
+    sealed trait Trait
+    case class A(string: String) extends Trait
+    case class B(int: Int) extends Trait
+    implicit val coproductDerivationOptions: CoproductDerivationOptions[Trait] =
+      CoproductDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeNameKey = "otherType")
+  }
+
+  it should "decode sealed trait hierarchies with transformation" in {
+    import medeia.generic.auto._
+    import ForSealedTraitWithTransformationTest._
+    val original = BsonDocument(
+      "otherType" -> "b",
       "int" -> 1
     )
 
