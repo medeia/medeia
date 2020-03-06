@@ -9,6 +9,10 @@ import org.mongodb.scala.bson.{BsonDocument, BsonNull}
 
 class GenericDecoderSpec extends MedeiaSpec {
 
+  sealed trait Trait
+  case class A(string: String) extends Trait
+  case class B(int: Int) extends Trait
+
   "GenericDecoder" should "handle errors" in {
     import medeia.generic.auto._
     case class Simple(int: Int, string: String)
@@ -46,9 +50,6 @@ class GenericDecoderSpec extends MedeiaSpec {
 
   it should "decode selead trait hierarchies" in {
     import medeia.generic.auto._
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
 
     val original = BsonDocument(
       "type" -> "B",
@@ -61,11 +62,8 @@ class GenericDecoderSpec extends MedeiaSpec {
 
   //prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
-      SealedTraitDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeTag = "otherType")
+      SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
   }
 
   it should "decode sealed trait hierarchies with transformation" in {
@@ -80,11 +78,8 @@ class GenericDecoderSpec extends MedeiaSpec {
     result should ===(Right(B(1)))
   }
 
-  it should "fail on unknown type tags" in {
+  it should "fail on unknown discriminator" in {
     import medeia.generic.auto._
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
 
     val original = BsonDocument(
       "type" -> "Z",
@@ -95,11 +90,8 @@ class GenericDecoderSpec extends MedeiaSpec {
     result should ===(Left(NonEmptyChain(InvalidTypeTag("Z"))))
   }
 
-  it should "fail on missing type tags" in {
+  it should "fail on missing discriminator" in {
     import medeia.generic.auto._
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
 
     val original = BsonDocument(
       "int" -> 1
@@ -109,11 +101,8 @@ class GenericDecoderSpec extends MedeiaSpec {
     result should ===(Left(NonEmptyChain(KeyNotFound("type"))))
   }
 
-  it should "fail on invalid type tags" in {
+  it should "fail on invalid discriminator key" in {
     import medeia.generic.auto._
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
 
     val original = BsonDocument(
       "type" -> 5,

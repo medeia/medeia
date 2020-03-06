@@ -1,8 +1,8 @@
 package medeia.generic
 
 case class SealedTraitDerivationOptions[A](
-    typeNameTransformation: PartialFunction[String, String] = PartialFunction.empty,
-    typeTag: String = "type"
+    discriminatorTransformation: PartialFunction[String, String] = PartialFunction.empty,
+    discriminatorKey: String = "type"
 ) {
-  val transformTypeNames: String => String = typeNameTransformation.orElse { case x => x }
+  val transformDiscriminator: String => String = discriminatorTransformation.orElse { case x => x }
 }
