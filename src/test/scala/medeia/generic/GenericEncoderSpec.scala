@@ -9,11 +9,16 @@ class GenericEncoderSpec extends MedeiaSpec {
 
   behavior of "GenericEncoder"
 
+  sealed trait Trait
+  case class A(string: String) extends Trait
+  case class B(int: Int) extends Trait
+  case class Simple(int: Int, string: String)
+
   //prevents unused field warnings
   object ForKeyTransformationTest {
-    case class Simple(int: Int, string: String)
     implicit val decoderOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
   }
+
   it should "allow for key transformation" in {
     import ForKeyTransformationTest._
 
@@ -23,16 +28,7 @@ class GenericEncoderSpec extends MedeiaSpec {
     document.get("intA").asInt32().getValue should ===(1)
   }
 
-  //prevents unused field warnings
-  object ForSealedTraitTest {
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
-  }
-
   it should "encode selead trait hierarchies" in {
-    import ForSealedTraitTest._
-
     val original: Trait = A("asd")
     val document: BsonDocument = original.toBsonDocument
     document should ===(
@@ -44,9 +40,6 @@ class GenericEncoderSpec extends MedeiaSpec {
 
   //prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
-    sealed trait Trait
-    case class A(string: String) extends Trait
-    case class B(int: Int) extends Trait
     implicit val coproductDerivationOptions: CoproductDerivationOptions[Trait] =
       CoproductDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeNameKey = "otherType")
   }
