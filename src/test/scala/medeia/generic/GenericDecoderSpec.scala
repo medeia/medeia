@@ -64,8 +64,8 @@ class GenericDecoderSpec extends MedeiaSpec {
     sealed trait Trait
     case class A(string: String) extends Trait
     case class B(int: Int) extends Trait
-    implicit val coproductDerivationOptions: CoproductDerivationOptions[Trait] =
-      CoproductDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeNameKey = "otherType")
+    implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
+      SealedTraitDerivationOptions(typeNameTransformation = { case a => a.toLowerCase() }, typeTag = "otherType")
   }
 
   it should "decode sealed trait hierarchies with transformation" in {

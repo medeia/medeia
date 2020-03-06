@@ -1,8 +1,8 @@
 package medeia.generic
 
-case class CoproductDerivationOptions[A](
+case class SealedTraitDerivationOptions[A](
     typeNameTransformation: PartialFunction[String, String] = PartialFunction.empty,
-    typeNameKey: String = "type"
+    typeTag: String = "type"
 ) {
   val transformTypeNames: String => String = typeNameTransformation.orElse { case x => x }
 }
