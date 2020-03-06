@@ -15,7 +15,7 @@ trait CoproductEncoderInstances {
       tEncoder: ShapelessEncoder[Base, T],
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessEncoder[Base, FieldType[K, H] :+: T] = {
-    case Inl(head) => hEncoder.value.encode(head).append(options.typeTag, BsonString(options.transformTypeNames(witness.value.name)))
+    case Inl(head) => hEncoder.value.encode(head).append(options.discriminatorKey, BsonString(options.transformDiscriminator(witness.value.name)))
     case Inr(tail) => tEncoder.encode(tail)
   }
 }
