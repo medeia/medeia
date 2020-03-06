@@ -1,6 +1,6 @@
 package medeia.generic
 
-case class CoproductDerivationOptions[A](
+case class CoproductDerivationOptions[-A](
     typeNameTransformation: PartialFunction[String, String] = PartialFunction.empty,
     typeNameKey: String = "type"
 ) {
