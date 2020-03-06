@@ -10,8 +10,8 @@ import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 
 trait CoproductDecoderInstances {
   implicit def cnilDecoder[Base](
-      implicit options: CoproductDerivationOptions[Base] = CoproductDerivationOptions[Base]()): ShapelessDecoder[Base, CNil] = { bsonDocument =>
-    val typeTag = bsonDocument.getSafe(options.typeNameKey).flatMap(_.fromBson[String])
+      implicit options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()): ShapelessDecoder[Base, CNil] = { bsonDocument =>
+    val typeTag = bsonDocument.getSafe(options.typeTag).flatMap(_.fromBson[String])
     typeTag match {
       case Left(value)  => Left(value)
       case Right(value) => Left(NonEmptyChain(InvalidTypeTag(value)))
@@ -23,7 +23,7 @@ trait CoproductDecoderInstances {
       witness: Witness.Aux[K],
       hInstance: Lazy[BsonDecoder[H]],
       tInstance: ShapelessDecoder[Base, T],
-      options: CoproductDerivationOptions[Base] = CoproductDerivationOptions[Base]()
+      options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>
     val instanceTypeTag = options.transformTypeNames(witness.value.name)
     def doDecode(typeTag: String): Either[NonEmptyChain[BsonDecoderError], FieldType[K, H] :+: T] = {
@@ -34,7 +34,7 @@ trait CoproductDecoderInstances {
       }
     }
     for {
-      typeField <- bsonDocument.getSafe(options.typeNameKey)
+      typeField <- bsonDocument.getSafe(options.typeTag)
       typeTag <- typeField.fromBson[String]
       result <- doDecode(typeTag)
     } yield result

@@ -13,9 +13,9 @@ trait CoproductEncoderInstances {
       witness: Witness.Aux[K],
       hEncoder: Lazy[BsonDocumentEncoder[H]],
       tEncoder: ShapelessEncoder[Base, T],
-      options: CoproductDerivationOptions[Base] = CoproductDerivationOptions[Base]()
+      options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessEncoder[Base, FieldType[K, H] :+: T] = {
-    case Inl(head) => hEncoder.value.encode(head).append(options.typeNameKey, BsonString(options.transformTypeNames(witness.value.name)))
+    case Inl(head) => hEncoder.value.encode(head).append(options.typeTag, BsonString(options.transformTypeNames(witness.value.name)))
     case Inr(tail) => tEncoder.encode(tail)
   }
 }
