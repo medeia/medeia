@@ -12,10 +12,19 @@ inThisBuild(
 import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
-lazy val root = (project in file("."))
-  .settings(name := "medeia", organization := "de.megaera", crossScalaVersions := List("2.12.10", "2.13.1"))
-  .settings(Dependencies.Libraries, Dependencies.TestLibraries)
+lazy val commonSettings = List(
+  organization := "de.megaera",
+  crossScalaVersions := List("2.12.10", "2.13.1")
+)
+
+lazy val core = (project in file("core/"))
+  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
+
+lazy val enumeratum = (project in file("modules/enumeratum/"))
+  .settings(commonSettings)
+  .enablePlugins(MiscSettingsPlugin)
+  .dependsOn(core)
 
 lazy val publishSettings = Seq(
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
