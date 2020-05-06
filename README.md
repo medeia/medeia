@@ -18,8 +18,11 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.3.0"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.4.0"
 ```
+
+Currently no complete documentation is present, additional examples can be found in the testsuites.
+If you have questions: don't hesitate to ask in the github issues.
 
 ### decoding and encoding example:
 
@@ -36,7 +39,7 @@ medeia includes decoders and encoders for common data structures as well as auto
   // Right(List(a,b)
 ```
 
-### automatic derivation example:
+### automatic derivation example for case classes and sealed trait hierarchies:
 
 ```scala
   import org.mongodb.scala.bson._
@@ -55,6 +58,17 @@ medeia includes decoders and encoders for common data structures as well as auto
   val doc = BsonDocument("int" -> 1, "string" -> "string")
   val decoded = doc.fromBson[Simple]
   // Right(Simple(1,Some(string)))
+
+  sealed trait Trait
+  case class Foo(answer: Int) extends Trait
+  case class Bar(bar: String) extends Trait
+
+  implicit val fooCodec: BsonDocumentCodec[Foo] = deriveBsonCodec
+  implicit val barCodec: BsonDocumentCodec[Bar] = deriveBsonCodec
+  implicit val traitCodec: BsonDocumentCodec[Trait] = deriveBsonCodec
+
+  val encoded = Foo(42).toBson
+  // {"answer": 42, "type": "Foo"}
 ```
 
 A transformation function for keynames can be provided as follows:
@@ -75,6 +89,39 @@ A transformation function for keynames can be provided as follows:
 
 GenericDerivationOptions works for encoding and decoding.
 If the provided partial function is not defined for a key no tranformation is used.
+
+### Enumeratum
+
+A separate module exists for encoding and decoding Enumeratum Enums:
+
+```sbt
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.0"
+```
+
+```scala
+  import medeia.syntax._
+  import medeia.enumeratum.Enumeratum
+
+  import enumeratum.Enum
+  import enumeratum.EnumEntry
+
+  import scala.collection.immutable
+
+  sealed abstract class TestEnum(override val entryName: String) extends EnumEntry
+
+  object TestEnum extends Enum[TestEnum] {
+    override val values: immutable.IndexedSeq[TestEnum] = findValues
+
+    case object A extends TestEnum("A")
+    case object B extends TestEnum("B")
+    case object C extends TestEnum("C")
+  }
+  implicit val codec: BsonCodec[TestEnum] = Enumeratum.codec(TestEnum)
+
+  TestEnum.A.toBson
+  // "A"
+```
+
 
 ## License
 
