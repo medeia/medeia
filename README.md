@@ -115,8 +115,9 @@ A separate module exists for encoding and decoding [enumeratum](https://github.c
     case object A extends TestEnum("A")
     case object B extends TestEnum("B")
     case object C extends TestEnum("C")
+
+    implicit val codec: BsonCodec[TestEnum] = Enumeratum.codec(TestEnum)
   }
-  implicit val codec: BsonCodec[TestEnum] = Enumeratum.codec(TestEnum)
 
   TestEnum.A.toBson
   // "A"
