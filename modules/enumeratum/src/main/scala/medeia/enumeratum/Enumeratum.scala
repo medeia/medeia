@@ -14,10 +14,7 @@ object Enumeratum {
   def decoder[A <: EnumEntry](enum: Enum[A]): BsonDecoder[A] =
     (bson: BsonValue) =>
       BsonDecoder.stringDecoder.decode(bson).flatMap { string =>
-        enum.withNameOption(string) match {
-          case Some(value) => Right(value)
-          case None        => Left(FieldParseError(s"Unable to find enum with name $string, valid choices include ${enum.values.take(3)}")).toEitherNec
-        }
+        Either.catchNonFatal(enum.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}")).toEitherNec
     }
 
   def codec[A <: EnumEntry](enum: Enum[A]): BsonCodec[A] =
