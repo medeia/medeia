@@ -3,8 +3,8 @@ package medeia.decoder
 import java.time.Instant
 import java.util.{Date, UUID}
 
-import cats.Functor
-import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList}
+import cats.{Functor, Order}
+import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList, NonEmptySet}
 import cats.instances.either._
 import cats.instances.list._
 import cats.syntax.either._
@@ -34,6 +34,7 @@ import org.mongodb.scala.bson.{
 }
 
 import scala.collection.compat._
+import scala.collection.immutable.SortedSet
 import scala.jdk.CollectionConverters._
 
 @FunctionalInterface
@@ -104,6 +105,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit def setDecoder[A: BsonDecoder]: BsonDecoder[Set[A]] = iterableDecoder
 
+  implicit def sortedSetDecoder[A: BsonDecoder: Ordering]: BsonDecoder[SortedSet[A]] = iterableDecoder
+
   implicit def vectorDecoder[A: BsonDecoder]: BsonDecoder[Vector[A]] = iterableDecoder
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
@@ -133,6 +136,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       chainDecoder[A]
         .decode(bson)
         .flatMap(chain => NonEmptyChain.fromChain(chain).toRight(FieldParseError("NonEmptyChain may not be empty")).toEitherNec)
+
+  implicit def nonEmptySetDecoder[A: BsonDecoder: Order]: BsonDecoder[NonEmptySet[A]] = {
+    import Order.catsKernelOrderingForOrder
+    bson =>
+      sortedSetDecoder[A]
+        .decode(bson)
+        .flatMap(sortedSet => NonEmptySet.fromSet(sortedSet).toRight(FieldParseError("NonEmptySet may not be empty")).toEitherNec)
+  }
 
   implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
 
@@ -183,7 +194,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 }
 
 trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
-  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A], X](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
