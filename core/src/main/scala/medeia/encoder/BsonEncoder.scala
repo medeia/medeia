@@ -4,12 +4,14 @@ import java.time.Instant
 import java.util.{Date, UUID}
 
 import cats.Contravariant
-import cats.data.{Chain, NonEmptyChain, NonEmptyList}
+import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import medeia.generic.GenericEncoder
 import medeia.generic.auto.AutoDerivationUnlocked
 import medeia.generic.util.VersionSpecific.Lazy
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
+
+import scala.collection.immutable.SortedSet
 
 @FunctionalInterface
 trait BsonEncoder[A] { self =>
@@ -61,6 +63,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   implicit def setEncoder[A: BsonEncoder]: BsonEncoder[Set[A]] = iterableEncoder[A].contramap(_.toIterable)
 
+  implicit def sortedSetEncoder[A: BsonEncoder]: BsonEncoder[SortedSet[A]] = iterableEncoder[A].contramap(_.toIterable)
+
   implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toIterable)
 
   implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
@@ -72,6 +76,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def nonEmptyListEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyList[A]] = listEncoder[A].contramap(_.toList)
 
   implicit def nonEmptyChainEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyChain[A]] = chainEncoder[A].contramap(_.toChain)
+
+  implicit def nonEmptySetEncoder[A: BsonEncoder]: BsonEncoder[NonEmptySet[A]] = sortedSetEncoder[A].contramap(_.toSortedSet)
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
 
