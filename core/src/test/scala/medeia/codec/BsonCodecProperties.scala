@@ -81,7 +81,6 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   }
 
   propertyWithSeed("decode after encode === id (nonemptyset)", None) = {
-    import cats.instances.string._
     codecProperty[NonEmptySet[String]]
   }
 
