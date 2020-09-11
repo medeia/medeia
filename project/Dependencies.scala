@@ -8,7 +8,7 @@ object Dependencies {
     val cats = "2.2.0"
     val scalaCheck = "1.14.3"
     val shapeless = "2.3.3"
-    val scalaCollectionCompatVersion = "2.1.6"
+    val scalaCollectionCompatVersion = "2.2.0"
     val enumeratumVersion = "1.6.1"
   }
 
