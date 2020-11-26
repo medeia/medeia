@@ -3,7 +3,9 @@ package medeia.generic
 import medeia.MedeiaSpec
 import medeia.generic.auto._
 import medeia.syntax._
-import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.bson.{BsonDocument, BsonInt32, BsonString}
+
+import scala.jdk.CollectionConverters._
 
 class GenericEncoderSpec extends MedeiaSpec {
 
@@ -28,7 +30,7 @@ class GenericEncoderSpec extends MedeiaSpec {
     document.get("intA").asInt32().getValue should ===(1)
   }
 
-  it should "encode selead trait hierarchies" in {
+  it should "encode sealed trait hierarchies" in {
     val original: Trait = A("asd")
     val document: BsonDocument = original.toBsonDocument
     document should ===(
@@ -36,6 +38,13 @@ class GenericEncoderSpec extends MedeiaSpec {
         "type" -> "A",
         "string" -> "asd"
       ))
+  }
+
+  it should "encode fields of a case class in the right order" in {
+    val original = Simple(1, "string")
+
+    val document = original.toBsonDocument
+    document.values.asScala.toList should ===(List(BsonInt32(1), BsonString("string")))
   }
 
   //prevents unused field warnings

@@ -2,6 +2,7 @@ package medeia.generic
 
 import medeia.encoder.BsonDocumentEncoder
 import medeia.generic.util.VersionSpecific.Lazy
+import org.mongodb.scala.bson.BsonDocument
 import shapeless.LabelledGeneric
 
 trait GenericEncoder[A] extends BsonDocumentEncoder[A]
@@ -14,5 +15,5 @@ trait GenericEncoderInstances {
       generic: LabelledGeneric.Aux[Base, H],
       hEncoder: Lazy[ShapelessEncoder[Base, H]]
   ): GenericEncoder[Base] =
-    value => hEncoder.value.encode(generic.to(value))
+    value => hEncoder.value.encode(generic.to(value), BsonDocument())
 }
