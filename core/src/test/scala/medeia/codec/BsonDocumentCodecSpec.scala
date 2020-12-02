@@ -6,10 +6,9 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
   behavior of "BsonDocumentCodec"
 
   it should "support imap" in {
-    import medeia.generic.semiauto._
 
     case class Foo(answer: Int)
-    implicit val codec: BsonDocumentCodec[Foo] = deriveBsonCodec[Foo]
+    implicit val codec: BsonDocumentCodec[Foo] = BsonCodec.derive[Foo]
 
     val imappedCodec: BsonDocumentCodec[Int] = codec.imap(_.answer)(Foo)
 

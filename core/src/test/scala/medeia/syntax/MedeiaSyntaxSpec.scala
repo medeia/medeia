@@ -2,8 +2,7 @@ package medeia.syntax
 
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
-import medeia.generic.semiauto._
-import medeia.codec.BsonDocumentCodec
+import medeia.codec.{BsonCodec, BsonDocumentCodec}
 import medeia.decoder.BsonDecoderError.KeyNotFound
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.bson.{BsonDocument, BsonString}
@@ -41,7 +40,7 @@ sealed trait Trait
 case class Foo(answer: Int) extends Trait
 case class Bar(bar: String) extends Trait
 object Trait {
-  implicit val fooCodec: BsonDocumentCodec[Foo] = deriveBsonCodec
-  implicit val barCodec: BsonDocumentCodec[Bar] = deriveBsonCodec
-  implicit val traitCodec: BsonDocumentCodec[Trait] = deriveBsonCodec
+  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonCodec.derive
+  implicit val barCodec: BsonDocumentCodec[Bar] = BsonCodec.derive
+  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonCodec.derive
 }

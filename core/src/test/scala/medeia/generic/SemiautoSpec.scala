@@ -1,21 +1,23 @@
-package medeia.generic.semiauto
+package medeia.generic
 
 import medeia.MedeiaSpec
-import medeia.codec.BsonDocumentCodec
+import medeia.codec.{BsonCodec, BsonDocumentCodec}
+import medeia.decoder.BsonDecoder
+import medeia.encoder.BsonEncoder
 
 class SemiautoSpec extends MedeiaSpec {
   case class Simple(int: String)
 
   "Semiauto" should "be able to derive an encoder from a case class" in {
-    deriveBsonEncoder[Simple]
+    BsonEncoder.derive[Simple]
   }
 
   it should "be able to derive a decoder from a case class" in {
-    val _: medeia.decoder.BsonDecoder[Simple] = deriveBsonDecoder[Simple]
+    val _: medeia.decoder.BsonDecoder[Simple] = BsonDecoder.derive[Simple]
   }
 
   it should "be able to derive a codec from a case class" in {
-    val _: BsonDocumentCodec[Simple] = deriveBsonCodec[Simple]
+    val _: BsonDocumentCodec[Simple] = BsonCodec.derive[Simple]
   }
 
   "The default summoning method" should "not be able to access GenericEncoders without import" in {
