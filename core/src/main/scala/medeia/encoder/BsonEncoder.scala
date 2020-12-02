@@ -27,6 +27,8 @@ trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
 object BsonEncoder extends DefaultBsonEncoderInstances {
   def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
+  def derive[A](implicit genericEncoder: Lazy[GenericEncoder[A]]): BsonDocumentEncoder[A] = genericEncoder.value
+
   def encode[A: BsonEncoder](value: A): BsonValue = BsonEncoder[A].encode(value)
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
@@ -95,5 +97,5 @@ trait LowestPrioEncoderAutoDerivation {
   final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](
       implicit encoder: Lazy[GenericEncoder[A]]
   ): BsonDocumentEncoder[A] =
-    medeia.generic.semiauto.deriveBsonEncoder[A](encoder)
+    BsonEncoder.derive[A](encoder)
 }

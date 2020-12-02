@@ -47,6 +47,8 @@ trait BsonDecoder[A] { self =>
 object BsonDecoder extends DefaultBsonDecoderInstances {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
+  def derive[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
+
   def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {
     BsonDecoder[A].decode(bson)
   }
@@ -213,5 +215,5 @@ trait LowestPrioDecoderAutoDerivation {
   final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](
       implicit encoder: Lazy[GenericDecoder[A]]
   ): BsonDecoder[A] =
-    medeia.generic.semiauto.deriveBsonDecoder[A](encoder)
+    BsonDecoder.derive[A](encoder)
 }
