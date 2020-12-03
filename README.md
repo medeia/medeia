@@ -1,6 +1,6 @@
 # medeia
 [![Build status](https://img.shields.io/travis/medeia/medeia/master.svg)](https://travis-ci.com/medeia/medeia)
-[![Maven Central](https://img.shields.io/maven-central/v/de.megaera/medeia_2.12.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22de.megaera%22)
+[![Maven Central](https://img.shields.io/maven-central/v/de.megaera/medeia_2.13.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22de.megaera%22)
 [![Maintainability](https://api.codeclimate.com/v1/badges/ba55ea42f2857a904c41/maintainability)](https://codeclimate.com/github/medeia/medeia/maintainability)
 [![Join the chat at https://gitter.im/medeia/medeia](https://badges.gitter.im/medeia/medeia.svg)](https://gitter.im/medeia/medeia?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
@@ -19,7 +19,7 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.4.1"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.4.2"
 ```
 
 Currently no complete documentation is present, additional examples can be found in the test suites.
@@ -96,7 +96,7 @@ If the provided partial function is not defined for a key no tranformation is us
 A separate module exists for encoding and decoding [enumeratum](https://github.com/lloydmeta/enumeratum) enums:
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.0"
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.2"
 ```
 
 ```scala
