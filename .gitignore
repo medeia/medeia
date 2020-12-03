@@ -4,3 +4,4 @@
 /target/
 /core/target/
 /modules/enumeratum/target
+.bsp/
