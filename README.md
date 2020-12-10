@@ -47,15 +47,15 @@ If you have questions: don't hesitate to ask via github issues.
 
   import medeia.encoder.BsonEncoder
   import medeia.decoder.BsonDecoder
-  import medeia.generic.semiauto._
+  import medeia.codec._
   import medeia.syntax._
 
   case class Simple(int: Int, string: Option[String])
-  implicit val simpleEncoder: BsonEncoder[Simple] = deriveBsonEncoder
+  implicit val simpleEncoder: BsonEncoder[Simple] = BsonEncoder.derive
   val encoded = Simple(1, Some("a")).toBson
   // {"string": "a", "int": 1}
 
-  implicit val simpleDecoder: BsonDecoder[Simple] = deriveBsonDecoder
+  implicit val simpleDecoder: BsonDecoder[Simple] = BsonDecoder.derive
   val doc = BsonDocument("int" -> 1, "string" -> "string")
   val decoded = doc.fromBson[Simple]
   // Right(Simple(1,Some(string)))
@@ -64,9 +64,9 @@ If you have questions: don't hesitate to ask via github issues.
   case class Foo(answer: Int) extends Trait
   case class Bar(bar: String) extends Trait
 
-  implicit val fooCodec: BsonDocumentCodec[Foo] = deriveBsonCodec
-  implicit val barCodec: BsonDocumentCodec[Bar] = deriveBsonCodec
-  implicit val traitCodec: BsonDocumentCodec[Trait] = deriveBsonCodec
+  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonCodec.derive
+  implicit val barCodec: BsonDocumentCodec[Bar] = BsonCodec.derive
+  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonCodec.derive
 
   val encoded = Foo(42).toBson
   // {"answer": 42, "type": "Foo"}
@@ -77,13 +77,12 @@ A transformation function for keynames can be provided as follows:
 ```scala
   import medeia.generic.GenericDerivationOptions
   import medeia.encoder.BsonEncoder
-  import medeia.generic.semiauto._
   import medeia.syntax._
 
   case class Simple(fieldInScala: Int)
   implicit val genericDerivationOptions: GenericDerivationOptions[Simple] =
     GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
-  implicit val simpleEncoder: BsonEncoder[Simple] = deriveBsonEncoder
+  implicit val simpleEncoder: BsonEncoder[Simple] = BsonEncoder.derive
   val encoded = Simple(1).toBson
   // {"fieldInBson": 1}
 ```
