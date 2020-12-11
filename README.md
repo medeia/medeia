@@ -88,7 +88,7 @@ A transformation function for keynames can be provided as follows:
 ```
 
 GenericDerivationOptions works for encoding and decoding.
-If the provided partial function is not defined for a key no tranformation is used.
+If the provided partial function is not defined for a key no transformation is used.
 
 ### Enumeratum
 
