@@ -19,7 +19,7 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.4.2"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.4.3"
 ```
 
 Currently no complete documentation is present, additional examples can be found in the test suites.
@@ -95,7 +95,7 @@ If the provided partial function is not defined for a key no transformation is u
 A separate module exists for encoding and decoding [enumeratum](https://github.com/lloydmeta/enumeratum) enums:
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.2"
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.3"
 ```
 
 ```scala
