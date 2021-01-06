@@ -2,7 +2,7 @@ package medeia.decoder
 
 import org.bson.BsonType
 
-trait BsonDecoderError
+trait BsonDecoderError extends Exception
 
 object BsonDecoderError {
   case class TypeMismatch(actual: BsonType, expected: BsonType) extends Exception(s"expected: $expected, actual: $actual") with BsonDecoderError
