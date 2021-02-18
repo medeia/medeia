@@ -26,6 +26,11 @@ lazy val enumeratum = (project in file("modules/enumeratum/"))
   .enablePlugins(MiscSettingsPlugin)
   .dependsOn(core)
 
+lazy val refined = (project in file("modules/refined/"))
+  .settings(commonSettings)
+  .enablePlugins(MiscSettingsPlugin)
+  .dependsOn(core)
+
 lazy val publishSettings = Seq(
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),

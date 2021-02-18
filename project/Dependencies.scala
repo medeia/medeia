@@ -10,6 +10,7 @@ object Dependencies {
     val shapeless = "2.3.3"
     val scalaCollectionCompatVersion = "2.4.2"
     val enumeratumVersion = "1.6.1"
+    val refinedVersion = "0.9.21"
   }
 
   lazy val Libraries: Vector[ModuleID] =  Vector(
@@ -30,5 +31,13 @@ object Dependencies {
 
   lazy val EnumeratumTestLibraries: Vector[ModuleID] = Vector(
     "com.beachape" %% "enumeratum-scalacheck" % Versions.enumeratumVersion
+  ).map(_ % Test)
+
+  lazy val RefinedLibraries: Vector[ModuleID] = Vector(
+    "eu.timepit" %% "refined" % Versions.refinedVersion
   )
+
+  lazy val RefinedTestLibraries: Vector[ModuleID] = Vector(
+    "eu.timepit" %% "refined-scalacheck" % Versions.refinedVersion
+  ).map(_ % Test)
 }
