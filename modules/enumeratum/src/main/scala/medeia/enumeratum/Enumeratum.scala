@@ -10,7 +10,7 @@ import org.mongodb.scala.bson.BsonValue
 
 object Enumeratum {
 
-  def encoder[A <: EnumEntry](enum: Enum[A]): BsonEncoder[A] = (value: A) => BsonEncoder.stringEncoder.encode(value.entryName)
+  def encoder[A <: EnumEntry]: BsonEncoder[A] = (value: A) => BsonEncoder.stringEncoder.encode(value.entryName)
   def decoder[A <: EnumEntry](enum: Enum[A]): BsonDecoder[A] =
     (bson: BsonValue) =>
       BsonDecoder.stringDecoder.decode(bson).flatMap { string =>
@@ -18,6 +18,6 @@ object Enumeratum {
     }
 
   def codec[A <: EnumEntry](enum: Enum[A]): BsonCodec[A] =
-    BsonCodec.fromEncoderAndDecoder(encoder(enum), decoder(enum))
+    BsonCodec.fromEncoderAndDecoder(encoder, decoder(enum))
 
 }
