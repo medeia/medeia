@@ -2,3 +2,5 @@
 /project/project/
 target/
 .bsp/
+.metals/
+.vscode/

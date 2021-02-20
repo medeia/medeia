@@ -19,7 +19,7 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.4.3"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.5.0"
 ```
 
 Currently no complete documentation is present, additional examples can be found in the test suites.
@@ -94,9 +94,13 @@ If the provided partial function is not defined for a key no transformation is u
 
 A separate module exists for encoding and decoding [enumeratum](https://github.com/lloydmeta/enumeratum) enums:
 
+#### Add sbt dependency
+
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.4.3"
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.5.0"
 ```
+
+#### Usage
 
 ```scala
   import medeia.syntax._
@@ -123,6 +127,29 @@ A separate module exists for encoding and decoding [enumeratum](https://github.c
   // "A"
 ```
 
+### Refined
+
+BsonEncoder/BsonDecoder for `eu.timepit:refined` can be found in the `medeia-refined` module
+
+#### Add sbt dependency
+
+```sbt
+  libraryDependencies += "de.megaera" %% "medeia-refined" % "0.5.0"
+```
+
+#### Usage
+
+```scala
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.auto._
+import eu.timepit.refined.collection._
+import medeia.syntax._
+import medeia.refined._
+
+val refinedString: String Refined NonEmpty = "test"
+refinedString.toBson
+// BsonString{value='test'}
+```
 
 ## License
 
