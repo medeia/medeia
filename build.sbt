@@ -14,7 +14,7 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 lazy val commonSettings = List(
   organization := "de.megaera",
-  crossScalaVersions := List("2.12.12", "2.13.4")
+  crossScalaVersions := List("2.12.12", "2.13.5")
 )
 
 lazy val core = (project in file("core/"))
