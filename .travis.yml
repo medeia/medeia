@@ -39,3 +39,7 @@ before_cache:
 
 before_install:
   - git fetch --tags
+  - |
+    curl -Ls https://git.io/sbt -o sbt || travis_terminate 1
+    chmod 0755 sbt || travis_terminate 1
+    sudo mv sbt /usr/local/bin/sbt || travis_terminate 1
