@@ -28,15 +28,22 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
+lazy val commonSettings = List(
+  organization := "de.megaera",
+  crossScalaVersions := List("2.12.13", "2.13.5")
+)
 
 lazy val core = (project in file("core/"))
+  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
 
 lazy val enumeratum = (project in file("modules/enumeratum/"))
+  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
   .dependsOn(core)
 
 lazy val refined = (project in file("modules/refined/"))
+  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
   .dependsOn(core)
 
