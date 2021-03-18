@@ -15,7 +15,7 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
 ThisBuild / crossScalaVersions := List("2.12.13", "2.13.5")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
-ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.StartsWith(Ref.Tag("v"))
+ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("master")), RefPredicate.StartsWith(Ref.Tag("v")))
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
