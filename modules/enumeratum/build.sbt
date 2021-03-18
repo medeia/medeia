@@ -1,5 +1,6 @@
 import Dependencies._
 
+organization := "de.megaera"
 name := "medeia-enumeratum"
 
 libraryDependencies ++= Libraries
