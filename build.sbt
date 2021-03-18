@@ -12,22 +12,31 @@ inThisBuild(
 import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
-lazy val commonSettings = List(
-  organization := "de.megaera",
-  crossScalaVersions := List("2.12.13", "2.13.5")
+ThisBuild / crossScalaVersions := List("2.12.13", "2.13.5")
+
+ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
+ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.StartsWith(Ref.Tag("v"))
+
+ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    List("ci-release"),
+    env = Map(
+      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+    )
+  )
 )
 
 lazy val core = (project in file("core/"))
-  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
 
 lazy val enumeratum = (project in file("modules/enumeratum/"))
-  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
   .dependsOn(core)
 
 lazy val refined = (project in file("modules/refined/"))
-  .settings(commonSettings)
   .enablePlugins(MiscSettingsPlugin)
   .dependsOn(core)
 
