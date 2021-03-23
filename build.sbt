@@ -1,3 +1,6 @@
+import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
+import scala.xml.transform.{RewriteRule, RuleTransformer}
+
 inThisBuild(
   List(
     organization := "de.megaera",
@@ -6,11 +9,10 @@ inThisBuild(
     developers := List(
       Developer("froth", "Frederick Roth", "f-roth@megaera.de", url("https://derfred.org")),
       Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
-    )
+    ),
+    semanticdbEnabled := true,
+    semanticdbVersion := "4.4.10",
   ))
-
-import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
-import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 ThisBuild / crossScalaVersions := List("2.12.13", "2.13.5")
 
@@ -68,7 +70,7 @@ lazy val publishSettings = Seq(
 
         override def transform(node: XmlNode): XmlNodeSeq = node match {
           case elem: Elem if isTestScope(elem) => Nil
-          case _                               => node
+          case _ => node
         }
       }
     ).transform(node).head
