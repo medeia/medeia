@@ -7,6 +7,7 @@ import shapeless.labelled.FieldType
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 
 trait CoproductEncoderInstances {
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit def cnilEncoder[Base]: ShapelessEncoder[Base, CNil] = (_, _) => throw new Exception("Inconceivable!")
   implicit def coproductEncoder[Base, K <: Symbol, H, T <: Coproduct](
       implicit
