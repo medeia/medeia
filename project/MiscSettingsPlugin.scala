@@ -1,12 +1,13 @@
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import com.lucidchart.sbt.scalafmt.ScalafmtPlugin
 import sbt.Keys._
-import sbt.{Def, _}
+import sbt.{CrossVersion, Def, _}
+import scalafix.sbt.ScalafixPlugin.autoImport.{scalafixOnCompile, scalafixScalaBinaryVersion}
 
 object MiscSettingsPlugin extends AutoPlugin {
   override def requires: Plugins = ScalafmtPlugin
 
-  override lazy val projectSettings: Seq[Def.Setting[_]] = commonSettings
+  override lazy val projectSettings: Seq[Def.Setting[_]] = commonSettings ++ scalafixSettings
 
   lazy val extraScalacOptions = Seq(
     "-unchecked",
@@ -39,5 +40,10 @@ object MiscSettingsPlugin extends AutoPlugin {
       }
     },
     scalafmtOnCompile := true
+  )
+
+  lazy val scalafixSettings = Seq(
+    scalafixScalaBinaryVersion in ThisBuild := CrossVersion.binaryScalaVersion(scalaVersion.value),
+    scalafixOnCompile := true
   )
 }
