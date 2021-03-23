@@ -27,6 +27,8 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
       intOpt <- Gen.option(Gen.posNum[Int])
       stringList <- Gen.listOf(Gen.alphaStr)
     } yield Complex(intOpt, stringList)
+
+    @SuppressWarnings(Array("org.wartremover.warts.FinalVal")) //false positive
     val codec: BsonCodec[Complex] = BsonCodec.fromEncoderAndDecoder
 
     Prop.forAll(complexGen) { origin =>
@@ -41,7 +43,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     case class B(int: Int) extends Trait
     val aGen = Gen.alphaStr.map(A.apply)
     val bGen = Gen.posNum[Int].map(B.apply)
-    val traitGen: Gen[Trait] = Gen.oneOf(aGen, bGen)
+    val traitGen = Gen.oneOf[Trait](aGen, bGen)
 
     val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
     val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
@@ -74,7 +76,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
 
     val aGen = Gen.alphaStr.map(A.apply)
     val bGen = Gen.posNum[Int].map(B.apply)
-    val traitGen: Gen[Trait] = Gen.oneOf(aGen, bGen)
+    val traitGen = Gen.oneOf[Trait](aGen, bGen)
 
     Prop.forAll(traitGen) { origin =>
       val encoded = codec.encode(origin)

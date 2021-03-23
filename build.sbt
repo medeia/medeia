@@ -1,3 +1,6 @@
+import wartremover.Wart
+import wartremover.WartRemover.autoImport.{Warts, wartremoverWarnings}
+
 import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
@@ -31,9 +34,14 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
+
+val wartIgnoreMain: List[Wart] = List(Wart.DefaultArguments, Wart.Any, Wart.Nothing)
+val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
 lazy val commonSettings = List(
   organization := "de.megaera",
-  crossScalaVersions := List("2.12.13", "2.13.5")
+  crossScalaVersions := List("2.12.13", "2.13.5"),
+  wartremoverWarnings in(Compile, compile) := Warts.allBut(wartIgnoreMain: _*),
+  wartremoverWarnings in(Test, compile) := Warts.allBut(wartIgnoreTest: _*)
 )
 
 lazy val core = (project in file("core/"))
