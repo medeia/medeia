@@ -199,6 +199,7 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
       bson.getBsonType match {
         case BsonType.ARRAY =>
           val builder = factory.newBuilder
+          @SuppressWarnings(Array("org.wartremover.warts.Var"))
           var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
 
           bson.asArray.getValues.forEach { b =>
