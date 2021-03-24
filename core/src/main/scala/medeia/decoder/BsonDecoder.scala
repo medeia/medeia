@@ -111,14 +111,15 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
 
+  type BsonDecoderResult[A] = EitherNec[BsonDecoderError, A]
   implicit def mapDecoder[K: BsonKeyDecoder, A: BsonDecoder]: BsonDecoder[Map[K, A]] = bson => {
     val document = bsonDocumentDecoder.decode(bson)
     document.flatMap { doc: BsonDocument =>
       doc.asScala.toList
-        .parTraverse {
+        .parTraverse[BsonDecoderResult, (K, A)] {
           case (k, v) =>
-            val key = BsonKeyDecoder[K].decode(k)
-            val value = BsonDecoder[A].decode(v)
+            val key: BsonDecoderResult[K] = BsonKeyDecoder[K].decode(k)
+            val value: BsonDecoderResult[A] = BsonDecoder[A].decode(v)
             (key, value).parMapN((k, v) => k -> v)
         }
         .map(_.toMap)
@@ -198,13 +199,13 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
-          val builder = factory.newBuilder
+          val builder: scala.collection.mutable.Builder[A, C[A]] = factory.newBuilder
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
-          var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
+          var elems: EitherNec[BsonDecoderError, builder.type] = Either.rightNec[BsonDecoderError, builder.type](builder)
 
           bson.asArray.getValues.forEach { b =>
-            val decoded = BsonDecoder[A].decode(b)
-            elems = (elems, decoded).parMapN((builder, dec) => builder += dec)
+            val decoded: EitherNec[BsonDecoderError, A] = BsonDecoder[A].decode(b)
+            elems = (elems, decoded).parMapN[builder.type]((builder, dec) => builder += dec)
           }
 
           elems.map(_.result())
