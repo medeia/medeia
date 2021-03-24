@@ -72,8 +72,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit val instantDecoder: BsonDecoder[Instant] = bson =>
     bson.getBsonType match {
       case BsonType.DATE_TIME =>
-        Right(Instant.ofEpochMilli(bson.asDateTime().getValue))
-      case t => Either.leftNec(TypeMismatch(t, BsonType.DATE_TIME))
+        Either.rightNec[BsonDecoderError, Instant](Instant.ofEpochMilli(bson.asDateTime().getValue))
+      case t => Either.leftNec[BsonDecoderError, Instant](TypeMismatch(t, BsonType.DATE_TIME))
   }
 
   implicit val dateDecoder: BsonDecoder[Date] = instantDecoder.map(Date.from)
@@ -82,14 +82,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val symbolDecoder: BsonDecoder[Symbol] = bson =>
     bson.getBsonType match {
-      case BsonType.SYMBOL => Right(Symbol(bson.asSymbol().getSymbol))
-      case t               => Either.leftNec(TypeMismatch(t, BsonType.SYMBOL))
+      case BsonType.SYMBOL => Either.rightNec[BsonDecoderError, Symbol](Symbol(bson.asSymbol().getSymbol))
+      case t               => Either.leftNec[BsonDecoderError, Symbol](TypeMismatch(t, BsonType.SYMBOL))
   }
 
   implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
     new BsonDecoder[Option[A]] {
       override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] = bson.getBsonType match {
-        case BsonType.NULL => Right(None)
+        case BsonType.NULL => Either.rightNec[BsonDecoderError, Option[A]](None)
         case _             => BsonDecoder[A].decode(bson).map(Some(_))
       }
 
@@ -145,7 +145,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
         .flatMap(sortedSet => NonEmptySet.fromSet(sortedSet).toRight(FieldParseError("NonEmptySet may not be empty")).toEitherNec)
   }
 
-  implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec(_)
+  implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec[BsonDecoderError, BsonValue](_)
 
   implicit val bsonArrayDecoder: BsonDecoder[BsonArray] = withType(BsonType.ARRAY)(_.asArray)
 
@@ -187,14 +187,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit val mutableDocumentDecoder: BsonDecoder[mutable.Document] = withType(BsonType.DOCUMENT)(b => mutable.Document(b.asDocument))
 
   private[this] def withType[A](expectedType: BsonType)(f: BsonValue => A)(bson: BsonValue): EitherNec[BsonDecoderError, A] = bson.getBsonType match {
-    case `expectedType` => Right(f(bson))
-    case _              => Either.leftNec(TypeMismatch(bson.getBsonType, expectedType))
+    case `expectedType` => Either.rightNec[BsonDecoderError, A](f(bson))
+    case _              => Either.leftNec[BsonDecoderError, A](TypeMismatch(bson.getBsonType, expectedType))
 
   }
 }
 
 trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
-  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[_]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
@@ -208,7 +208,7 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
           }
 
           elems.map(_.result())
-        case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
+        case t => Either.leftNec[BsonDecoderError, C[A]](TypeMismatch(t, BsonType.ARRAY))
     }
 }
 
