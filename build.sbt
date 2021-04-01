@@ -14,8 +14,7 @@ inThisBuild(
       Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
     ),
     semanticdbEnabled := true,
-    semanticdbVersion := "4.4.10",
-    wartremoverWarnings := Warts.allBut(Wart.DefaultArguments)
+    semanticdbVersion := "4.4.10"
   ))
 
 ThisBuild / crossScalaVersions := List("2.12.13", "2.13.5")
@@ -35,8 +34,8 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
-val wartIgnoreMain: List[Wart] = List(Wart.DefaultArguments)
-val wartIgnoreTest = wartIgnoreMain ++ List(Wart.Any, Wart.Nothing, Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
+val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments)
+val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
 lazy val commonSettings = List(
   organization := "de.megaera",
   crossScalaVersions := List("2.12.13", "2.13.5"),
