@@ -71,9 +71,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val instantDecoder: BsonDecoder[Instant] = bson =>
     bson.getBsonType match {
-      case BsonType.DATE_TIME =>
-        Either.rightNec[BsonDecoderError, Instant](Instant.ofEpochMilli(bson.asDateTime().getValue))
-      case t => Either.leftNec[BsonDecoderError, Instant](TypeMismatch(t, BsonType.DATE_TIME))
+      case BsonType.DATE_TIME => Either.rightNec(Instant.ofEpochMilli(bson.asDateTime().getValue))
+      case t                  => Either.leftNec(TypeMismatch(t, BsonType.DATE_TIME))
   }
 
   implicit val dateDecoder: BsonDecoder[Date] = instantDecoder.map(Date.from)
@@ -82,14 +81,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val symbolDecoder: BsonDecoder[Symbol] = bson =>
     bson.getBsonType match {
-      case BsonType.SYMBOL => Either.rightNec[BsonDecoderError, Symbol](Symbol(bson.asSymbol().getSymbol))
-      case t               => Either.leftNec[BsonDecoderError, Symbol](TypeMismatch(t, BsonType.SYMBOL))
+      case BsonType.SYMBOL => Either.rightNec(Symbol(bson.asSymbol().getSymbol))
+      case t               => Either.leftNec(TypeMismatch(t, BsonType.SYMBOL))
   }
 
   implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
     new BsonDecoder[Option[A]] {
       override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] = bson.getBsonType match {
-        case BsonType.NULL => Either.rightNec[BsonDecoderError, Option[A]](None)
+        case BsonType.NULL => Either.rightNec(None)
         case _             => BsonDecoder[A].decode(bson).map(Some(_))
       }
 
@@ -111,15 +110,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit def chainDecoder[A: BsonDecoder]: BsonDecoder[Chain[A]] = listDecoder[A].map(Chain.fromSeq)
 
-  type BsonDecoderResult[A] = EitherNec[BsonDecoderError, A]
   implicit def mapDecoder[K: BsonKeyDecoder, A: BsonDecoder]: BsonDecoder[Map[K, A]] = bson => {
     val document = bsonDocumentDecoder.decode(bson)
     document.flatMap { doc: BsonDocument =>
       doc.asScala.toList
-        .parTraverse[BsonDecoderResult, (K, A)] {
+        .parTraverse {
           case (k, v) =>
-            val key: BsonDecoderResult[K] = BsonKeyDecoder[K].decode(k)
-            val value: BsonDecoderResult[A] = BsonDecoder[A].decode(v)
+            val key = BsonKeyDecoder[K].decode(k)
+            val value = BsonDecoder[A].decode(v)
             (key, value).parMapN((k, v) => k -> v)
         }
         .map(_.toMap)
@@ -188,8 +186,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit val mutableDocumentDecoder: BsonDecoder[mutable.Document] = withType(BsonType.DOCUMENT)(b => mutable.Document(b.asDocument))
 
   private[this] def withType[A](expectedType: BsonType)(f: BsonValue => A)(bson: BsonValue): EitherNec[BsonDecoderError, A] = bson.getBsonType match {
-    case `expectedType` => Either.rightNec[BsonDecoderError, A](f(bson))
-    case _              => Either.leftNec[BsonDecoderError, A](TypeMismatch(bson.getBsonType, expectedType))
+    case `expectedType` => Either.rightNec(f(bson))
+    case _              => Either.leftNec(TypeMismatch(bson.getBsonType, expectedType))
 
   }
 }
@@ -199,17 +197,17 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
-          val builder: scala.collection.mutable.Builder[A, C[A]] = factory.newBuilder
+          val builder = factory.newBuilder
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
-          var elems: EitherNec[BsonDecoderError, builder.type] = Either.rightNec[BsonDecoderError, builder.type](builder)
+          var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
 
           bson.asArray.getValues.forEach { b =>
-            val decoded: EitherNec[BsonDecoderError, A] = BsonDecoder[A].decode(b)
-            elems = (elems, decoded).parMapN[builder.type]((builder, dec) => builder += dec)
+            val decoded = BsonDecoder[A].decode(b)
+            elems = (elems, decoded).parMapN((builder, dec) => builder += dec)
           }
 
           elems.map(_.result())
-        case t => Either.leftNec[BsonDecoderError, C[A]](TypeMismatch(t, BsonType.ARRAY))
+        case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
     }
 }
 
