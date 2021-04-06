@@ -1,3 +1,4 @@
+import sbt.Keys.versionScheme
 import wartremover.Wart
 import wartremover.WartRemover.autoImport.{Warts, wartremoverWarnings}
 
@@ -13,6 +14,7 @@ inThisBuild(
       Developer("froth", "Frederick Roth", "f-roth@megaera.de", url("https://derfred.org")),
       Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
     ),
+    versionScheme := Some("semver-spec"),
     semanticdbEnabled := true,
     semanticdbVersion := "4.4.10"
   ))
@@ -39,6 +41,7 @@ val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitSta
 lazy val commonSettings = List(
   organization := "de.megaera",
   crossScalaVersions := List("2.12.13", "2.13.5"),
+  versionScheme := Some("semver-spec"),
   Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
 )
