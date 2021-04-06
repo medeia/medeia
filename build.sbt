@@ -39,8 +39,8 @@ val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitSta
 lazy val commonSettings = List(
   organization := "de.megaera",
   crossScalaVersions := List("2.12.13", "2.13.5"),
-  wartremoverWarnings in(Compile, compile) := Warts.allBut(wartIgnoreMain: _*),
-  wartremoverWarnings in(Test, compile) := Warts.allBut(wartIgnoreTest: _*)
+  Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
+  Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
 )
 
 lazy val core = (project in file("core/"))
@@ -60,7 +60,7 @@ lazy val refined = (project in file("modules/refined/"))
 lazy val publishSettings = Seq(
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ =>
     false
   },
