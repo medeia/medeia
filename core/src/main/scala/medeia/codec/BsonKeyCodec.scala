@@ -6,12 +6,13 @@ import medeia.decoder.{BsonKeyDecoder, BsonDecoderError}
 import medeia.encoder.BsonKeyEncoder
 
 trait BsonKeyCodec[A] extends BsonKeyEncoder[A] with BsonKeyDecoder[A] { self =>
-  def imap[B](f: A => B)(g: B => A): BsonKeyCodec[B] = new BsonKeyCodec[B] {
-    override def decode(string: String): EitherNec[BsonDecoderError, B] =
-      self.decode(string).map(f)
+  def imap[B](f: A => B)(g: B => A): BsonKeyCodec[B] =
+    new BsonKeyCodec[B] {
+      override def decode(string: String): EitherNec[BsonDecoderError, B] =
+        self.decode(string).map(f)
 
-    override def encode(value: B): String = self.encode(g(value))
-  }
+      override def encode(value: B): String = self.encode(g(value))
+    }
 }
 
 object BsonKeyCodec {

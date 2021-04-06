@@ -10,8 +10,7 @@ trait GenericEncoder[A] extends BsonDocumentEncoder[A]
 object GenericEncoder extends GenericEncoderInstances
 
 trait GenericEncoderInstances {
-  implicit def genericEncoder[Base, H](
-      implicit
+  implicit def genericEncoder[Base, H](implicit
       generic: LabelledGeneric.Aux[Base, H],
       hEncoder: Lazy[ShapelessEncoder[Base, H]]
   ): GenericEncoder[Base] =

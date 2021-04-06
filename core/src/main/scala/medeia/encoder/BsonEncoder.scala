@@ -71,9 +71,10 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
 
-  implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[Map[K, A]] = (value: Map[K, A]) => {
-    BsonDocument(value.map { case (k, a) => (BsonKeyEncoder[K].encode(k), BsonEncoder[A].encode(a)) })
-  }
+  implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[Map[K, A]] =
+    (value: Map[K, A]) => {
+      BsonDocument(value.map { case (k, a) => (BsonKeyEncoder[K].encode(k), BsonEncoder[A].encode(a)) })
+    }
 
   implicit def nonEmptyListEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyList[A]] = listEncoder[A].contramap(_.toList)
 
@@ -94,8 +95,8 @@ trait BsonIterableEncoder extends LowestPrioEncoderAutoDerivation {
 }
 
 trait LowestPrioEncoderAutoDerivation {
-  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](
-      implicit encoder: Lazy[GenericEncoder[A]]
+  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit
+      encoder: Lazy[GenericEncoder[A]]
   ): BsonDocumentEncoder[A] =
     BsonEncoder.derive[A](encoder)
 }

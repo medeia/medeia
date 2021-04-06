@@ -15,7 +15,7 @@ object Enumeratum {
     (bson: BsonValue) =>
       BsonDecoder.stringDecoder.decode(bson).flatMap { string =>
         Either.catchNonFatal(enum.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}")).toEitherNec
-    }
+      }
 
   def codec[A <: EnumEntry](enum: Enum[A]): BsonCodec[A] =
     BsonCodec.fromEncoderAndDecoder(encoder, decoder(enum))

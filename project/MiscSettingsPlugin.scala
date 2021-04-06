@@ -1,5 +1,5 @@
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
-import com.lucidchart.sbt.scalafmt.ScalafmtPlugin
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
+import org.scalafmt.sbt.ScalafmtPlugin
 import sbt.Keys._
 import sbt.{CrossVersion, Def, _}
 import scalafix.sbt.ScalafixPlugin.autoImport.{scalafixOnCompile, scalafixScalaBinaryVersion}

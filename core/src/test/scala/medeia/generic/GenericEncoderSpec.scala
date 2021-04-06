@@ -37,7 +37,8 @@ class GenericEncoderSpec extends MedeiaSpec {
       BsonDocument(
         "type" -> "A",
         "string" -> "asd"
-      ))
+      )
+    )
   }
 
   it should "encode fields of a case class in the right order" in {
@@ -62,7 +63,8 @@ class GenericEncoderSpec extends MedeiaSpec {
       BsonDocument(
         "otherType" -> "b",
         "int" -> 1
-      ))
+      )
+    )
   }
 
 }

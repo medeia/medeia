@@ -12,8 +12,7 @@ trait GenericDecoder[A] extends BsonDecoder[A]
 object GenericDecoder extends GenericDecoderInstances
 
 trait GenericDecoderInstances {
-  implicit def genericDecoder[Base, H](
-      implicit
+  implicit def genericDecoder[Base, H](implicit
       generic: LabelledGeneric.Aux[Base, H],
       hDecoder: Lazy[ShapelessDecoder[Base, H]]
   ): GenericDecoder[Base] = { bson =>

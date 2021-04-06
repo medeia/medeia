@@ -14,9 +14,7 @@ trait Semiauto {
   def deriveBsonDecoder[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
 
   @deprecated("Use BsonCodec.derive", "0.4.2")
-  def deriveBsonCodec[A](implicit
-                         genericEncoder: GenericEncoder[A],
-                         genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
+  def deriveBsonCodec[A](implicit genericEncoder: GenericEncoder[A], genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
     BsonDocumentCodec.fromEncoderAndDecoder
   }
 }
