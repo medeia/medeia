@@ -1,5 +1,5 @@
 package medeia.generic.util
 
-object VersionSpecific{
+object VersionSpecific {
   type Lazy[+A] = shapeless.Lazy[A]
 }
