@@ -3,9 +3,11 @@ package medeia.generic
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound, TypeMismatch}
+import medeia.decoder.ErrorStack
+import medeia.decoder.StackFrame.{Attr, Case, Index}
 import medeia.syntax._
 import org.bson.BsonType
-import org.mongodb.scala.bson.{BsonDocument, BsonNull}
+import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonDocument, BsonNull, BsonString}
 
 class GenericDecoderSpec extends MedeiaSpec {
 
@@ -32,7 +34,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     case class Inner(int: Int)
     case class Outer(inner: Inner)
     val doc = BsonDocument(List("inner" -> BsonNull()))
-    doc.fromBson[Outer] should ===(Left(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT))))
+    doc.fromBson[Outer] should ===(Left(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT, ErrorStack(List(Attr("inner")))))))
   }
 
   it should "allow for key transformation" in {
@@ -113,4 +115,31 @@ class GenericDecoderSpec extends MedeiaSpec {
     result should ===(Left(NonEmptyChain(TypeMismatch(BsonType.INT32, BsonType.STRING))))
   }
 
+  it should "fail with an error stack" in {
+    import medeia.generic.auto._
+
+    case class FooBar(foo: Foo, bar: Bar)
+    case class Foo(i: Int)
+    case class Bar(baz: List[Baz])
+
+    sealed trait Baz
+    case class Qux(answer: Int) extends Baz
+
+    val doc = BsonDocument(
+      "foo" -> BsonDocument("i" -> BsonString("not-an-int")),
+      "bar" -> BsonDocument(
+        "baz" -> BsonArray.fromIterable(
+          List(BsonDocument("type" -> "Qux"), BsonDocument("type" -> "Qux", "answer" -> BsonBoolean(false)))
+        )
+      )
+    )
+
+    val result = doc.fromBson[FooBar]
+
+    result.left.value.map(_.stack).toChain.toList should contain theSameElementsAs List(
+      ErrorStack(List(Attr("foo"), Attr("i"))),
+      ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))),
+      ErrorStack(List(Attr("bar"), Attr("baz"), Index(1), Case("Qux"), Attr("answer")))
+    )
+  }
 }

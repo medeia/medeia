@@ -2,7 +2,9 @@ package medeia.generic
 
 import cats.data.NonEmptyChain
 import cats.syntax.eq._
+import cats.syntax.either._
 import medeia.decoder.BsonDecoderError.InvalidTypeTag
+import medeia.decoder.StackFrame.Case
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.generic.util.VersionSpecific.Lazy
 import medeia.syntax._
@@ -27,13 +29,15 @@ trait CoproductDecoderInstances {
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>
     val instanceDiscriminator = options.transformDiscriminator(witness.value.name)
+
     def doDecode(discriminatorFromBson: String): Either[NonEmptyChain[BsonDecoderError], FieldType[K, H] :+: T] = {
       if (discriminatorFromBson === instanceDiscriminator) {
-        hInstance.value.decode(bsonDocument).map((x: H) => Inl(field[K](x)))
+        hInstance.value.decode(bsonDocument).map((x: H) => Inl(field[K](x))).leftMap(_.map(_.push(Case(instanceDiscriminator))))
       } else {
         tInstance.decode(bsonDocument).map(Inr(_))
       }
     }
+
     for {
       discriminatorField <- bsonDocument.getSafe(options.discriminatorKey)
       discriminatorFromBson <- discriminatorField.fromBson[String]

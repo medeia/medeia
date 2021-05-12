@@ -2,12 +2,12 @@ package medeia.decoder
 
 import java.time.Instant
 import java.util.{Date, UUID}
-
 import cats.{Functor, Order}
 import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList, NonEmptySet}
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
+import medeia.decoder.StackFrame.{Index, MapKey}
 import medeia.generic.GenericDecoder
 import medeia.generic.auto.AutoDerivationUnlocked
 import medeia.generic.util.VersionSpecific.Lazy
@@ -120,7 +120,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
             case (k, v) =>
               val key = BsonKeyDecoder[K].decode(k)
               val value = BsonDecoder[A].decode(v)
-              (key, value).parMapN((k, v) => k -> v)
+              (key, value).parMapN((k, v) => k -> v).leftMap(_.map(_.push(MapKey(k))))
           }
           .map(_.toMap)
       }
@@ -196,17 +196,20 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 }
 
 trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
-  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[_]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
           val builder = factory.newBuilder
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
           var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
+          @SuppressWarnings(Array("org.wartremover.warts.Var"))
+          var i = 0
 
           bson.asArray.getValues.forEach { b =>
-            val decoded = BsonDecoder[A].decode(b)
+            val decoded = BsonDecoder[A].decode(b).leftMap(_.map(_.push(Index(i))))
             elems = (elems, decoded).parMapN((builder, dec) => builder += dec)
+            i += 1
           }
 
           elems.map(_.result())
@@ -215,8 +218,6 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
 }
 
 trait LowestPrioDecoderAutoDerivation {
-  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit
-      encoder: Lazy[GenericDecoder[A]]
-  ): BsonDecoder[A] =
+  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit encoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] =
     BsonDecoder.derive[A](encoder)
 }
