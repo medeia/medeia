@@ -139,7 +139,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     result.left.value.map(_.stack).toChain.toList should contain theSameElementsAs List(
       ErrorStack(List(Attr("foo"), Attr("i"))),
       ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))),
-      ErrorStack(List(Attr("bar"), Attr("baz"), Index(1), Case("Qux"), Attr("answer")))
+      ErrorStack(List(Attr("bar"), Attr("baz"), Index(2), Case("Qux"), Attr("answer")))
     )
   }
 }
