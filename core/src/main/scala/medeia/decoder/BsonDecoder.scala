@@ -7,7 +7,7 @@ import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList, NonEmptySet}
 import cats.syntax.either._
 import cats.syntax.parallel._
 import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
-import medeia.decoder.StackFrame.{Index, MapKey}
+import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import medeia.generic.GenericDecoder
 import medeia.generic.auto.AutoDerivationUnlocked
 import medeia.generic.util.VersionSpecific.Lazy
@@ -90,7 +90,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] =
         bson.getBsonType match {
           case BsonType.NULL => Either.rightNec(None)
-          case _             => BsonDecoder[A].decode(bson).map(Some(_))
+          case _             => BsonDecoder[A].decode(bson).map(Some(_)).leftMap(_.map(_.push(Case("Some"))))
         }
 
       override def defaultValue: Option[Option[A]] = Some(None)

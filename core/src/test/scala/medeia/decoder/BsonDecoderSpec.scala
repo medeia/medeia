@@ -2,7 +2,7 @@ package medeia.decoder
 
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
-import medeia.decoder.StackFrame.{Index, MapKey}
+import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import org.bson.BsonValue
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonElement, BsonInt32, BsonString}
@@ -51,5 +51,31 @@ class BsonDecoderSpec extends MedeiaSpec {
     val result = BsonDecoder[List[String]].decode(bsonValue)
 
     result.left.value.map(_.stack) should ===(NonEmptyChain.of(ErrorStack(List(Index(1))), ErrorStack(List(Index(3)))))
+  }
+
+  it should "provide an error stack when decoding an Option in the Some case" in {
+    val bsonValue = new BsonString("foo")
+
+    val result = BsonDecoder[Option[Int]].decode(bsonValue)
+
+    result.left.value.head.stack.frames should ===(List(Case("Some")))
+  }
+
+  it should "provide an error stack when decoding an iterable" in {
+    val bsonValue = BsonArray.fromIterable(List(new BsonString("zero"), new BsonInt32(1)))
+    val decoder: BsonDecoder[List[Int]] = BsonDecoder.iterableDecoder
+
+    val result = decoder.decode(bsonValue)
+
+    result.left.value.head.stack.frames should ===(List(Index(0)))
+  }
+
+  it should "provide an error stack when decoding a map" in {
+    val keyname = "some-key"
+    val bsonValue = BsonDocument(keyname -> new BsonString("not a number"))
+
+    val result = BsonDecoder[Map[String, Int]].decode(bsonValue)
+
+    result.left.value.head.stack.frames should ===(List(MapKey(keyname)))
   }
 }
