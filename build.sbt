@@ -16,7 +16,7 @@ inThisBuild(
     ),
     versionScheme := Some("semver-spec"),
     semanticdbEnabled := true,
-    semanticdbVersion := "4.4.10"
+    semanticdbVersion := "4.4.18"
   ))
 
 ThisBuild / crossScalaVersions := List("2.12.13", "2.13.5")
