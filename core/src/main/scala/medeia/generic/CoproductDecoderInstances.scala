@@ -6,7 +6,6 @@ import cats.syntax.either._
 import medeia.decoder.BsonDecoderError.InvalidTypeTag
 import medeia.decoder.StackFrame.Case
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
-import medeia.generic.util.VersionSpecific.Lazy
 import medeia.syntax._
 import shapeless.labelled.{FieldType, field}
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
@@ -24,7 +23,7 @@ trait CoproductDecoderInstances {
 
   implicit def coproductDecoder[Base, K <: Symbol, H, T <: Coproduct](implicit
       witness: Witness.Aux[K],
-      hInstance: Lazy[BsonDecoder[H]],
+      hInstance: BsonDecoder[H],
       tInstance: ShapelessDecoder[Base, T],
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>
@@ -32,7 +31,7 @@ trait CoproductDecoderInstances {
 
     def doDecode(discriminatorFromBson: String): Either[NonEmptyChain[BsonDecoderError], FieldType[K, H] :+: T] = {
       if (discriminatorFromBson === instanceDiscriminator) {
-        hInstance.value.decode(bsonDocument).map((x: H) => Inl(field[K](x))).leftMap(_.map(_.push(Case(instanceDiscriminator))))
+        hInstance.decode(bsonDocument).map((x: H) => Inl(field[K](x))).leftMap(_.map(_.push(Case(instanceDiscriminator))))
       } else {
         tInstance.decode(bsonDocument).map(Inr(_))
       }
