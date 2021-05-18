@@ -20,8 +20,20 @@ trait BsonEncoder[A] { self =>
   def contramap[B](f: B => A): BsonEncoder[B] = b => self.encode(f(b))
 }
 
-trait BsonDocumentEncoder[A] extends BsonEncoder[A] {
+@FunctionalInterface
+trait BsonDocumentEncoder[A] extends BsonEncoder[A] { self =>
   override def encode(a: A): BsonDocument
+
+  override def contramap[B](f: B => A): BsonDocumentEncoder[B] = b => self.encode(f(b))
+}
+
+object BsonDocumentEncoder {
+  def apply[A: BsonDocumentEncoder]: BsonDocumentEncoder[A] = implicitly
+
+  implicit val contravariantBsonEncoder: Contravariant[BsonDocumentEncoder] =
+    new Contravariant[BsonDocumentEncoder] {
+      override def contramap[A, B](fa: BsonDocumentEncoder[A])(f: B => A): BsonDocumentEncoder[B] = fa.contramap(f).encode
+    }
 }
 
 object BsonEncoder extends DefaultBsonEncoderInstances {
