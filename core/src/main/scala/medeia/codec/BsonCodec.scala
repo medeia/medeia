@@ -2,6 +2,8 @@ package medeia.codec
 
 import cats.Invariant
 import cats.data.EitherNec
+import cats.syntax.either._
+import medeia.decoder.BsonDecoderError.GenericDecoderError
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonEncoder
 import medeia.generic.{GenericDecoder, GenericEncoder}
@@ -12,6 +14,14 @@ trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] { self =>
     new BsonCodec[B] {
       override def decode(bson: BsonValue): EitherNec[BsonDecoderError, B] =
         self.decode(bson).map(f)
+
+      override def encode(value: B): BsonValue = self.encode(g(value))
+    }
+
+  def iemap[B](f: A => Either[String, B])(g: B => A): BsonCodec[B] =
+    new BsonCodec[B] {
+      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, B] =
+        self.decode(bson).flatMap(f(_).leftMap(GenericDecoderError(_)).toEitherNec)
 
       override def encode(value: B): BsonValue = self.encode(g(value))
     }
