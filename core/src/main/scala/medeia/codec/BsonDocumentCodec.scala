@@ -9,6 +9,8 @@ import org.bson.{BsonDocument, BsonValue}
 
 trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
   override def imap[B](f: A => B)(g: B => A): BsonDocumentCodec[B] = fromEncoderAndDecoder(contramap(g), map(f))
+
+  override def iemap[B](f: A => Either[String, B])(g: B => A): BsonDocumentCodec[B] = fromEncoderAndDecoder(contramap(g), emap(f))
 }
 
 object BsonDocumentCodec {
