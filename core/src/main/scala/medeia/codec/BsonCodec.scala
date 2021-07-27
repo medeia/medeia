@@ -8,14 +8,8 @@ import medeia.encoder.BsonEncoder
 import medeia.generic.{GenericDecoder, GenericEncoder}
 import org.mongodb.scala.bson.BsonValue
 
-trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] { self =>
-  def imap[B](f: A => B)(g: B => A): BsonCodec[B] =
-    new BsonCodec[B] {
-      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, B] =
-        self.decode(bson).map(f)
-
-      override def encode(value: B): BsonValue = self.encode(g(value))
-    }
+trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] {
+  def imap[B](f: A => B)(g: B => A): BsonCodec[B] = fromEncoderAndDecoder(contramap(g), map(f))
 
   def iemap[B](f: A => Either[String, B])(g: B => A): BsonCodec[B] = fromEncoderAndDecoder(contramap(g), emap(f))
 }
