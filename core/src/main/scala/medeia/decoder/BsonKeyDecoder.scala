@@ -1,16 +1,18 @@
 package medeia.decoder
 
 import java.util.UUID
-
 import cats.Functor
 import cats.syntax.either._
 import cats.data.EitherNec
-import medeia.decoder.BsonDecoderError.FieldParseError
+import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError}
 
 trait BsonKeyDecoder[A] { self =>
   def decode(key: String): EitherNec[BsonDecoderError, A]
 
   def map[B](f: A => B): BsonKeyDecoder[B] = (key: String) => self.decode(key).map(f)
+
+  def emap[B](f: A => Either[String, B]): BsonKeyDecoder[B] =
+    (key: String) => self.decode(key).flatMap(f(_).leftMap(GenericDecoderError(_)).toEitherNec)
 }
 
 object BsonKeyDecoder extends DefaultBsonKeyDecoderInstances {

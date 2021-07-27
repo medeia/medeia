@@ -2,17 +2,14 @@ package medeia.codec
 
 import cats.Invariant
 import cats.data.EitherNec
-import medeia.decoder.{BsonKeyDecoder, BsonDecoderError}
+import medeia.codec.BsonKeyCodec.fromEncoderAndDecoder
+import medeia.decoder.{BsonDecoderError, BsonKeyDecoder}
 import medeia.encoder.BsonKeyEncoder
 
 trait BsonKeyCodec[A] extends BsonKeyEncoder[A] with BsonKeyDecoder[A] { self =>
-  def imap[B](f: A => B)(g: B => A): BsonKeyCodec[B] =
-    new BsonKeyCodec[B] {
-      override def decode(string: String): EitherNec[BsonDecoderError, B] =
-        self.decode(string).map(f)
+  def imap[B](f: A => B)(g: B => A): BsonKeyCodec[B] = fromEncoderAndDecoder(contramap(g), map(f))
 
-      override def encode(value: B): String = self.encode(g(value))
-    }
+  def iemap[B](f: A => Either[String, B])(g: B => A): BsonKeyCodec[B] = fromEncoderAndDecoder(contramap(g), emap(f))
 }
 
 object BsonKeyCodec {
