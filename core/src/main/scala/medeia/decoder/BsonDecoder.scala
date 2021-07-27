@@ -6,7 +6,7 @@ import cats.{Functor, Order}
 import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList, NonEmptySet}
 import cats.syntax.either._
 import cats.syntax.parallel._
-import medeia.decoder.BsonDecoderError.{FieldParseError, TypeMismatch}
+import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, TypeMismatch}
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import medeia.generic.GenericDecoder
 import medeia.generic.auto.AutoDerivationUnlocked
@@ -42,6 +42,9 @@ trait BsonDecoder[A] { self =>
   def defaultValue: Option[A] = None
 
   def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
+
+  def emap[B](f: A => Either[String, B]): BsonDecoder[B] =
+    x => self.decode(x).flatMap(f(_).leftMap(GenericDecoderError(_)).toEitherNec)
 }
 
 object BsonDecoder extends DefaultBsonDecoderInstances {
