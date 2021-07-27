@@ -2,18 +2,13 @@ package medeia.codec
 
 import cats.Invariant
 import cats.data.EitherNec
+import medeia.codec.BsonDocumentCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonDocumentEncoder
 import org.bson.{BsonDocument, BsonValue}
 
-trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] { self =>
-  override def imap[B](f: A => B)(g: B => A): BsonDocumentCodec[B] =
-    new BsonDocumentCodec[B] {
-      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, B] =
-        self.decode(bson).map(f)
-
-      override def encode(value: B): BsonDocument = self.encode(g(value))
-    }
+trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
+  override def imap[B](f: A => B)(g: B => A): BsonDocumentCodec[B] = fromEncoderAndDecoder(contramap(g), map(f))
 }
 
 object BsonDocumentCodec {

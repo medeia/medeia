@@ -119,11 +119,10 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       val document = bsonDocumentDecoder.decode(bson)
       document.flatMap { doc: BsonDocument =>
         doc.asScala.toList
-          .parTraverse {
-            case (k, v) =>
-              val key = BsonKeyDecoder[K].decode(k)
-              val value = BsonDecoder[A].decode(v)
-              (key, value).parMapN((k, v) => k -> v).leftMap(_.map(_.push(MapKey(k))))
+          .parTraverse { case (k, v) =>
+            val key = BsonKeyDecoder[K].decode(k)
+            val value = BsonDecoder[A].decode(v)
+            (key, value).parMapN((k, v) => k -> v).leftMap(_.map(_.push(MapKey(k))))
           }
           .map(_.toMap)
       }
