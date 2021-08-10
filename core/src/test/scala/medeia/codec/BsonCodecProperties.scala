@@ -7,7 +7,8 @@ import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import medeia.Arbitraries
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
-import org.scalacheck.{Arbitrary, Prop, Properties}
+import org.scalacheck.Arbitrary.arbFunction1
+import org.scalacheck.{Arbitrary, Cogen, Prop, Properties}
 
 import scala.collection.immutable.SortedSet
 
@@ -88,8 +89,32 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
     codecProperty[UUID]
   }
 
+  propertyWithSeed("map === emap (long, string)", None) = {
+    mapEmapProperty[Long, String]
+  }
+
+  propertyWithSeed("imap === iemap (long, string)", None) = {
+    imapIemapProperty[Long, String]
+  }
+
   private[this] def codecProperty[A: Arbitrary: BsonCodec]: Prop =
     Prop.forAll { original: A =>
       BsonDecoder.decode[A](original.toBson) == Right(original)
+    }
+
+  private[this] def mapEmapProperty[A: Cogen: Arbitrary: BsonCodec, B: Arbitrary]: Prop =
+    Prop.forAll { value: A =>
+      Prop.forAll { f: (A => B) =>
+        BsonCodec[A].map(f).decode(value.toBson) == BsonDecoder[A].emap(a => Right(f(a))).decode(value.toBson)
+      }
+    }
+
+  private[this] def imapIemapProperty[A: Cogen: Arbitrary: BsonCodec, B: Arbitrary: Cogen]: Prop =
+    Prop.forAll { value: A =>
+      Prop.forAll { f: (A => B) =>
+        Prop.forAll { g: (B => A) =>
+          BsonCodec[A].imap(f)(g).decode(value.toBson) == BsonCodec[A].iemap(a => Right(f(a)))(g).decode(value.toBson)
+        }
+      }
     }
 }
