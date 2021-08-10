@@ -1,7 +1,8 @@
 package medeia.decoder
 
-import cats.data.NonEmptyChain
+import cats.data.{EitherNec, NonEmptyChain}
 import medeia.MedeiaSpec
+import medeia.decoder.BsonDecoderError.GenericDecoderError
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import org.bson.BsonValue
 import org.mongodb.scala.bson.collection.{immutable, mutable}
@@ -77,5 +78,30 @@ class BsonDecoderSpec extends MedeiaSpec {
     val result = BsonDecoder[Map[String, Int]].decode(bsonValue)
 
     result.left.value.head.stack.frames should ===(List(MapKey(keyname)))
+  }
+
+  it should "support map" in {
+    val doc = new BsonInt32(42)
+
+    val result = BsonDecoder[Int].map(_.toString).decode(doc)
+
+    result should ===(Right("42"))
+  }
+
+  it should "support emap" in {
+    val doc = new BsonInt32(42)
+
+    val result = BsonDecoder[Int].emap(i => Right(i.toString)).decode(doc)
+
+    result should ===(Right("42"))
+  }
+
+  it should "handle failures in emap" in {
+    val doc = new BsonInt32(42)
+
+    val error = "oops"
+    val result: EitherNec[BsonDecoderError, String] = BsonDecoder[Int].emap[String](_ => Left(error)).decode(doc)
+
+    result should ===(Left(NonEmptyChain.of(GenericDecoderError(error))))
   }
 }
