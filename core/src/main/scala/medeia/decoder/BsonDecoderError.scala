@@ -26,7 +26,7 @@ object BsonDecoderError {
       with BsonDecoderError
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  final case class FieldParseError(message: String, cause: Exception = null, stack: ErrorStack = ErrorStack.empty)
+  final case class FieldParseError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
       extends Exception(s"$message, stack: ${stack.toString}", cause)
       with BsonDecoderError
 
@@ -35,7 +35,7 @@ object BsonDecoderError {
       with BsonDecoderError
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  final case class GenericDecoderError(message: String, cause: Exception = null, stack: ErrorStack = ErrorStack.empty)
+  final case class GenericDecoderError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
       extends Exception(s"$message, stack: ${stack.toString}", cause)
       with BsonDecoderError
 }
