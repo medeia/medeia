@@ -36,7 +36,7 @@ object MiscSettingsPlugin extends AutoPlugin {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => extraScalacOptions ++ extraScalacOptions_2_12
         case Some((2, 13)) => extraScalacOptions
-        case _ => extraScalacOptions
+        case _             => extraScalacOptions
       }
     },
     scalafmtOnCompile := true

@@ -17,7 +17,8 @@ inThisBuild(
     versionScheme := Some("semver-spec"),
     semanticdbEnabled := true,
     semanticdbVersion := "4.4.30"
-  ))
+  )
+)
 
 ThisBuild / crossScalaVersions := List("2.12.15", "2.13.7")
 
@@ -81,7 +82,7 @@ lazy val publishSettings = Seq(
 
         override def transform(node: XmlNode): XmlNodeSeq = node match {
           case elem: Elem if isTestScope(elem) => Nil
-          case _ => node
+          case _                               => node
         }
       }
     ).transform(node).head

@@ -13,7 +13,7 @@ object Dependencies {
     val refinedVersion = "0.9.28"
   }
 
-  lazy val Libraries: Vector[ModuleID] =  Vector(
+  lazy val Libraries: Vector[ModuleID] = Vector(
     "org.mongodb.scala" %% "mongo-scala-bson" % Versions.mongoScalaBson,
     "org.typelevel" %% "cats-core" % Versions.cats,
     "com.chuusai" %% "shapeless" % Versions.shapeless,
