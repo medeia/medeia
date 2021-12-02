@@ -13,33 +13,33 @@ import org.mongodb.scala.bson.BsonValue
 object Enumeratum {
 
   def encoder[A <: EnumEntry]: BsonEncoder[A] = (value: A) => BsonEncoder.stringEncoder.encode(value.entryName)
-  def decoder[A <: EnumEntry](enum: Enum[A]): BsonDecoder[A] =
-    (bson: BsonValue) => BsonDecoder.stringDecoder.decode(bson).flatMap(stringToEnum(enum))
+  def decoder[A <: EnumEntry](enumInstance: Enum[A]): BsonDecoder[A] =
+    (bson: BsonValue) => BsonDecoder.stringDecoder.decode(bson).flatMap(stringToEnum(enumInstance))
 
-  def codec[A <: EnumEntry](enum: Enum[A]): BsonCodec[A] =
-    BsonCodec.fromEncoderAndDecoder(encoder, decoder(enum))
+  def codec[A <: EnumEntry](enumInstance: Enum[A]): BsonCodec[A] =
+    BsonCodec.fromEncoderAndDecoder(encoder, decoder(enumInstance))
 
   def keyEncoder[A <: EnumEntry]: BsonKeyEncoder[A] = (value: A) => BsonKeyEncoder.stringEncoder.encode(value.entryName)
-  def keyDecoder[A <: EnumEntry](enum: Enum[A]): BsonKeyDecoder[A] = string => stringToEnum(enum)(string)
+  def keyDecoder[A <: EnumEntry](enumInstance: Enum[A]): BsonKeyDecoder[A] = string => stringToEnum(enumInstance)(string)
 
-  def keyCodec[A <: EnumEntry](enum: Enum[A]): BsonKeyCodec[A] = BsonKeyCodec.fromEncoderAndDecoder(keyEncoder, keyDecoder(enum))
+  def keyCodec[A <: EnumEntry](enumInstance: Enum[A]): BsonKeyCodec[A] = BsonKeyCodec.fromEncoderAndDecoder(keyEncoder, keyDecoder(enumInstance))
 
   def valueEnumEncoder[ValueType: BsonEncoder, EntryType <: ValueEnumEntry[ValueType]]: BsonEncoder[EntryType] =
     (a: EntryType) => BsonEncoder[ValueType].encode(a.value)
 
   def valueEnumDecoder[ValueType: BsonDecoder, EntryType <: ValueEnumEntry[ValueType]](
-      enum: ValueEnum[ValueType, EntryType]
+      enumInstance: ValueEnum[ValueType, EntryType]
   ): BsonDecoder[EntryType] = (bson: BsonValue) =>
     BsonDecoder[ValueType]
       .decode(bson)
       .flatMap(value =>
-        Either.catchNonFatal(enum.withValue(value)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
+        Either.catchNonFatal(enumInstance.withValue(value)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
       )
 
   def valueEnumCodec[ValueType: BsonCodec, EntryType <: ValueEnumEntry[ValueType]](
-      enum: ValueEnum[ValueType, EntryType]
-  ): BsonCodec[EntryType] = BsonCodec.fromEncoderAndDecoder(valueEnumEncoder, valueEnumDecoder(enum))
+      enumInstance: ValueEnum[ValueType, EntryType]
+  ): BsonCodec[EntryType] = BsonCodec.fromEncoderAndDecoder(valueEnumEncoder, valueEnumDecoder(enumInstance))
 
-  private[this] def stringToEnum[A <: EnumEntry](enum: Enum[A])(string: String): EitherNec[BsonDecoderError, A] =
-    Either.catchNonFatal(enum.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
+  private[this] def stringToEnum[A <: EnumEntry](enumInstance: Enum[A])(string: String): EitherNec[BsonDecoderError, A] =
+    Either.catchNonFatal(enumInstance.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
 }
