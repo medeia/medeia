@@ -62,7 +62,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     result should ===(Right(B(1)))
   }
 
-  //prevents unused field warnings
+  // prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")

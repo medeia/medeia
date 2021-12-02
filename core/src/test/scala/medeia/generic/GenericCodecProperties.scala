@@ -28,7 +28,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
       stringList <- Gen.listOf(Gen.alphaStr)
     } yield Complex(intOpt, stringList)
 
-    @SuppressWarnings(Array("org.wartremover.warts.FinalVal")) //false positive
+    @SuppressWarnings(Array("org.wartremover.warts.FinalVal")) // false positive
     val codec: BsonCodec[Complex] = BsonCodec.fromEncoderAndDecoder
 
     Prop.forAll(complexGen) { origin =>
@@ -56,7 +56,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     }
   }
 
-  //prevents unused field warnings
+  // prevents unused field warnings
   object ForHierarchyWithOptionsTest {
     sealed trait Trait
     case class A(stringField: String) extends Trait

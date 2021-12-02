@@ -16,7 +16,7 @@ class GenericEncoderSpec extends MedeiaSpec {
   case class B(int: Int) extends Trait
   case class Simple(int: Int, string: String)
 
-  //prevents unused field warnings
+  // prevents unused field warnings
   object ForKeyTransformationTest {
     implicit val decoderOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
   }
@@ -48,7 +48,7 @@ class GenericEncoderSpec extends MedeiaSpec {
     document.values.asScala.toList should ===(List(BsonInt32(1), BsonString("string")))
   }
 
-  //prevents unused field warnings
+  // prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
