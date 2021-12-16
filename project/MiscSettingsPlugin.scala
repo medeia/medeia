@@ -38,8 +38,7 @@ object MiscSettingsPlugin extends AutoPlugin {
         case Some((2, 13)) => extraScalacOptions
         case _             => extraScalacOptions
       }
-    },
-    scalafmtOnCompile := true
+    }
   )
 
   lazy val scalafixSettings = Seq(
