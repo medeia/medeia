@@ -13,7 +13,7 @@ class GenericEncoderSpec extends MedeiaSpec {
 
   sealed trait Trait
   case class A(string: String) extends Trait
-  case class B(int: Int) extends Trait
+  case object B extends Trait
   case class Simple(int: Int, string: String)
 
   // prevents unused field warnings
@@ -41,6 +41,12 @@ class GenericEncoderSpec extends MedeiaSpec {
     )
   }
 
+  it should "encode case objects" in {
+    val original: Trait = B
+    val document: BsonDocument = original.toBsonDocument
+    document should ===(BsonDocument("type" -> BsonString("B")))
+  }
+
   it should "encode fields of a case class in the right order" in {
     val original = Simple(1, "string")
 
@@ -57,12 +63,12 @@ class GenericEncoderSpec extends MedeiaSpec {
   it should "encode sealed trait hierarchies with transformation" in {
     import medeia.generic.auto._
     import ForSealedTraitWithTransformationTest._
-    val original: Trait = B(1)
+    val original: Trait = A("1")
     val document: BsonDocument = original.toBsonDocument
     document should ===(
       BsonDocument(
-        "otherType" -> "b",
-        "int" -> 1
+        "otherType" -> "a",
+        "string" -> "1"
       )
     )
   }
