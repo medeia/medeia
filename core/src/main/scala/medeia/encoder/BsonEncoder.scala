@@ -73,15 +73,15 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
 
-  implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toIterable)
+  implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toList)
 
-  implicit def setEncoder[A: BsonEncoder]: BsonEncoder[Set[A]] = iterableEncoder[A].contramap(_.toIterable)
+  implicit def setEncoder[A: BsonEncoder]: BsonEncoder[Set[A]] = iterableEncoder[A].contramap(_.toSet)
 
-  implicit def sortedSetEncoder[A: BsonEncoder]: BsonEncoder[SortedSet[A]] = iterableEncoder[A].contramap(_.toIterable)
+  implicit def sortedSetEncoder[A: BsonEncoder]: BsonEncoder[SortedSet[A]] = iterableEncoder[A].contramap(_.toSet)
 
-  implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toIterable)
+  implicit def vectorEncoder[A: BsonEncoder]: BsonEncoder[Vector[A]] = iterableEncoder[A].contramap(_.toVector)
 
-  implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList.toIterable)
+  implicit def chainEncoder[A: BsonEncoder]: BsonEncoder[Chain[A]] = iterableEncoder[A].contramap(_.toList)
 
   implicit def mapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonDocumentEncoder[Map[K, A]] =
     (value: Map[K, A]) => {
