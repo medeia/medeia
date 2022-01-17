@@ -16,7 +16,7 @@ inThisBuild(
     ),
     versionScheme := Some("semver-spec"),
     semanticdbEnabled := true,
-    semanticdbVersion := "4.4.30"
+    semanticdbVersion := "4.4.32"
   )
 )
 
