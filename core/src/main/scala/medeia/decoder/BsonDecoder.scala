@@ -10,7 +10,6 @@ import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, Ty
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import medeia.generic.GenericDecoder
 import medeia.generic.auto.AutoDerivationUnlocked
-import medeia.generic.util.VersionSpecific.Lazy
 import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{
@@ -50,7 +49,7 @@ trait BsonDecoder[A] { self =>
 object BsonDecoder extends DefaultBsonDecoderInstances {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
-  def derive[A](implicit genericDecoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] = genericDecoder.value
+  def derive[A](implicit genericDecoder: GenericDecoder[A]): BsonDecoder[A] = genericDecoder
 
   def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {
     BsonDecoder[A].decode(bson)
@@ -220,6 +219,6 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
 }
 
 trait LowestPrioDecoderAutoDerivation {
-  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit encoder: Lazy[GenericDecoder[A]]): BsonDecoder[A] =
+  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit encoder: GenericDecoder[A]): BsonDecoder[A] =
     BsonDecoder.derive[A](encoder)
 }

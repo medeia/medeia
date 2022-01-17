@@ -7,7 +7,6 @@ import cats.Contravariant
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import medeia.generic.GenericEncoder
 import medeia.generic.auto.AutoDerivationUnlocked
-import medeia.generic.util.VersionSpecific.Lazy
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
@@ -39,7 +38,7 @@ object BsonDocumentEncoder {
 object BsonEncoder extends DefaultBsonEncoderInstances {
   def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
-  def derive[A](implicit genericEncoder: Lazy[GenericEncoder[A]]): BsonDocumentEncoder[A] = genericEncoder.value
+  def derive[A](implicit genericEncoder: GenericEncoder[A]): BsonDocumentEncoder[A] = genericEncoder
 
   def encode[A: BsonEncoder](value: A): BsonValue = BsonEncoder[A].encode(value)
 
@@ -108,7 +107,7 @@ trait BsonIterableEncoder extends LowestPrioEncoderAutoDerivation {
 
 trait LowestPrioEncoderAutoDerivation {
   final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit
-      encoder: Lazy[GenericEncoder[A]]
+      encoder: GenericEncoder[A]
   ): BsonDocumentEncoder[A] =
     BsonEncoder.derive[A](encoder)
 }
