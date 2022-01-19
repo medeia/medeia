@@ -6,7 +6,7 @@ import scalafix.sbt.ScalafixPlugin.autoImport.{scalafixOnCompile, scalafixScalaB
 object MiscSettingsPlugin extends AutoPlugin {
   override def requires: Plugins = ScalafmtPlugin
 
-  override lazy val projectSettings: Seq[Def.Setting[_]] = commonSettings ++ scalafixSettingsScala
+  override lazy val projectSettings: Seq[Def.Setting[_]] = commonSettings ++ scalafixSettings
 
   lazy val extraScalacOptions = Seq(
     "-unchecked",
@@ -48,7 +48,7 @@ object MiscSettingsPlugin extends AutoPlugin {
     }
   )
 
-  lazy val scalafixSettingsScala = Seq(
+  lazy val scalafixSettings = Seq(
         ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
       )
 }
