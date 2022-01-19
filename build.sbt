@@ -37,6 +37,13 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
+ThisBuild / githubWorkflowBuildPreamble := Seq(
+  WorkflowStep.Run(
+    commands = List("mkdir -p ./modules/enumeratum/target"),
+    name = Some("create enumeratum target as ci will fail when it is missing (not buildable for scala-3")
+  )
+)
+
 val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments)
 val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
 lazy val commonSettings = List(
