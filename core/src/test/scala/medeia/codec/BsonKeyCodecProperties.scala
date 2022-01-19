@@ -29,7 +29,7 @@ class BsonKeyCodecProperties extends Properties("BsonKeyCodec") with Arbitraries
   }
 
   private[this] def codecProperty[A: Arbitrary: BsonKeyCodec]: Prop =
-    Prop.forAll { original: A =>
+    Prop.forAll { (original: A) =>
       BsonKeyDecoder.decode[A](BsonKeyEncoder.encode[A](original)) == Right(original)
     }
 }

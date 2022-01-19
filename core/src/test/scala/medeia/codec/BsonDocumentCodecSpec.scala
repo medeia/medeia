@@ -2,7 +2,7 @@ package medeia.codec
 
 import cats.syntax.either._
 import medeia.MedeiaSpec
-import medeia.decoder.BsonDecoder
+import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.decoder.BsonDecoderError.GenericDecoderError
 import org.mongodb.scala.bson.{BsonDocument, BsonInt32}
 
@@ -13,7 +13,7 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
   implicit val derivedCodec: BsonDocumentCodec[Foo] = BsonCodec.derive[Foo]
 
   it should "support imap" in {
-    val imappedCodec: BsonDocumentCodec[Int] = derivedCodec.imap(_.answer)(Foo)
+    val imappedCodec: BsonDocumentCodec[Int] = derivedCodec.imap(_.answer)(Foo.apply)
 
     val input = 42
 
@@ -42,12 +42,12 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
 
     val result = emappedDecoder.decode(new BsonDocument("answer", new BsonInt32(42)))
 
-    result should ===(Left(GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)).toEitherNec)
   }
 
   it should "support iemap" in {
     val codec = BsonDocumentCodec[Foo]
-    val iemappedCodec: BsonDocumentCodec[Int] = codec.iemap(i => Right(i.answer))(Foo)
+    val iemappedCodec: BsonDocumentCodec[Int] = codec.iemap(i => Right(i.answer))(Foo.apply)
 
     val input = 42
 
@@ -61,10 +61,10 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
 
     val error = "oops"
 
-    val iemappedCodec: BsonDocumentCodec[Int] = codec.iemap(_ => Left(error))(Foo)
+    val iemappedCodec: BsonDocumentCodec[Int] = codec.iemap(_ => Left(error))(Foo.apply)
 
     val result = iemappedCodec.decode(iemappedCodec.encode(42))
 
-    result should ===(Left(GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)).toEitherNec)
   }
 }

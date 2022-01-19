@@ -3,6 +3,7 @@ package medeia.codec
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoderError.GenericDecoderError
 import cats.syntax.either._
+import medeia.decoder.BsonDecoderError
 
 class BsonKeyCodecSpec extends MedeiaSpec {
   behavior of "BsonKeyCodec"
@@ -38,6 +39,6 @@ class BsonKeyCodecSpec extends MedeiaSpec {
 
     val result = iemappedCodec.decode(iemappedCodec.encode("42"))
 
-    result should ===(Left(GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, String](GenericDecoderError(error)).toEitherNec)
   }
 }
