@@ -40,7 +40,7 @@ ThisBuild / githubWorkflowPublish := Seq(
 ThisBuild / githubWorkflowBuildPreamble := Seq(
   WorkflowStep.Run(
     commands = List("mkdir -p ./modules/enumeratum/target"),
-    name = Some("create enumeratum target as ci will fail when it is missing (not buildable for scala-3")
+    name = Some("create enumeratum target as ci will fail when it is missing (not buildable for scala-3)")
   )
 )
 
