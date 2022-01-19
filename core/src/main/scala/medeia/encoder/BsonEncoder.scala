@@ -2,11 +2,11 @@ package medeia.encoder
 
 import java.time.Instant
 import java.util.{Date, UUID}
-
 import cats.Contravariant
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import medeia.generic.GenericEncoder
 import medeia.generic.auto.AutoDerivationUnlocked
+
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 

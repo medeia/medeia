@@ -1,15 +1,14 @@
 package medeia.decoder
 
-import java.time.Instant
-import java.util.{Date, UUID}
-import cats.{Functor, Order}
-import cats.data.{Chain, EitherNec, NonEmptyChain, NonEmptyList, NonEmptySet}
+import cats.data._
 import cats.syntax.either._
 import cats.syntax.parallel._
+import cats.{Functor, Order}
 import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, TypeMismatch}
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import medeia.generic.GenericDecoder
 import medeia.generic.auto.AutoDerivationUnlocked
+
 import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 import org.mongodb.scala.bson.{
@@ -30,6 +29,8 @@ import org.mongodb.scala.bson.{
   BsonValue
 }
 
+import java.time.Instant
+import java.util.{Date, UUID}
 import scala.collection.compat._
 import scala.collection.immutable.SortedSet
 import scala.jdk.CollectionConverters._
@@ -116,7 +117,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit def mapDecoder[K: BsonKeyDecoder, A: BsonDecoder]: BsonDecoder[Map[K, A]] =
     bson => {
       val document = bsonDocumentDecoder.decode(bson)
-      document.flatMap { doc: BsonDocument =>
+      document.flatMap { (doc: BsonDocument) =>
         doc.asScala.toList
           .parTraverse { case (k, v) =>
             val key = BsonKeyDecoder[K].decode(k)
@@ -197,13 +198,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 }
 
 trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
-  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[A]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
+  def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[_]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {
         case BsonType.ARRAY =>
-          val builder = factory.newBuilder
+          type BuilderType = scala.collection.mutable.Builder[A, C[A]]
+          val builder: BuilderType = factory.newBuilder
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
-          var elems = Either.rightNec[BsonDecoderError, builder.type](builder)
+          var elems = Either.rightNec[BsonDecoderError, BuilderType](builder)
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
           var i = 0
 
