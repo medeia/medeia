@@ -7,7 +7,7 @@ import medeia.decoder.ErrorStack
 import medeia.decoder.StackFrame.{Attr, Case, Index}
 import medeia.syntax._
 import org.bson.BsonType
-import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonDocument, BsonNull, BsonString}
+import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonDocument, BsonNull}
 
 class GenericDecoderSpec extends MedeiaSpec {
 
@@ -19,7 +19,8 @@ class GenericDecoderSpec extends MedeiaSpec {
     import medeia.generic.auto._
     case class Simple(int: Int, string: String)
     val doc = BsonDocument()
-    doc.fromBson[Simple] should ===(Left(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string"))))
+    doc.fromBson[Simple].left.value.head should ===(KeyNotFound("int"))
+    //shapeless3 does not easily support error accumulation
   }
 
   it should "decode empty values to None" in {
@@ -50,7 +51,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     doc.fromBson[Simple] should ===(Right(Simple(1, "string")))
   }
 
-  it should "decode selead trait hierarchies" in {
+  it should "decode sealed trait hierarchies" in {
     import medeia.generic.auto._
 
     val original = BsonDocument(
@@ -118,15 +119,13 @@ class GenericDecoderSpec extends MedeiaSpec {
   it should "fail with an error stack" in {
     import medeia.generic.auto._
 
-    case class FooBar(foo: Foo, bar: Bar)
-    case class Foo(i: Int)
+    case class FooBar(bar: Bar)
     case class Bar(baz: List[Baz])
 
     sealed trait Baz
     case class Qux(answer: Int) extends Baz
 
     val doc = BsonDocument(
-      "foo" -> BsonDocument("i" -> BsonString("not-an-int")),
       "bar" -> BsonDocument(
         "baz" -> BsonArray.fromIterable(
           List(BsonDocument("type" -> "Qux"), BsonDocument("type" -> "Qux", "answer" -> BsonBoolean(false)))
@@ -137,7 +136,6 @@ class GenericDecoderSpec extends MedeiaSpec {
     val result = doc.fromBson[FooBar]
 
     result.left.value.map(_.stack).toChain.toList should contain theSameElementsAs List(
-      ErrorStack(List(Attr("foo"), Attr("i"))),
       ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))),
       ErrorStack(List(Attr("bar"), Attr("baz"), Index(1), Case("Qux"), Attr("answer")))
     )
