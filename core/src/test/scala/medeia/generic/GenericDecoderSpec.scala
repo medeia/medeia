@@ -19,8 +19,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     import medeia.generic.auto._
     case class Simple(int: Int, string: String)
     val doc = BsonDocument()
-    doc.fromBson[Simple].left.value.head should ===(KeyNotFound("int"))
-    //shapeless3 does not easily support error accumulation
+    doc.fromBson[Simple] should ===(Left(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string"))))
   }
 
   it should "decode empty values to None" in {
