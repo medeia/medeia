@@ -13,9 +13,9 @@ object GenericProductEncoder {
   ): GenericEncoder[A] =
     (value: A) =>
       BsonDocument(
-        labelling.elemLabels.zipWithIndex.map((label, i) => {
+        labelling.elemLabels.zipWithIndex.map((label, i) =>
           val fieldName = options.transformKeys(label)
           fieldName -> inst.project(value)(i)([t] => (encoder: BsonEncoder[t], pt: t) => encoder.encode(pt))
-        })
+        )
       )
 }

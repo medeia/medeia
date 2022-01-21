@@ -18,11 +18,10 @@ object GenericCoproductEncoder {
     (value: A) => {
       inst.fold(value)(
         [t] =>
-          (st: BsonEncoder[t], t: t) => {
+          (st: BsonEncoder[t], t: t) =>
             val original: BsonDocument = st.encode(t).asDocument()
             val label = labelling.elemLabels(mirror.ordinal(value))
             original.append(options.discriminatorKey, BsonString(options.transformDiscriminator(label)))
-        }
       )
     }
 }

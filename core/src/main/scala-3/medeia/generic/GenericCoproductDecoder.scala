@@ -17,14 +17,12 @@ object GenericCoproductDecoder {
       labelling: Labelling[A],
       options: SealedTraitDerivationOptions[A]
   ): GenericDecoder[A] = { value =>
-    {
-      for {
-        document <- value.fromBson[BsonDocument]
-        tagBson <- document.getSafe(options.discriminatorKey)
-        tag <- tagBson.fromBson[String]
-        result <- doDecode(tag, value)
-      } yield (result)
-    }
+    for {
+      document <- value.fromBson[BsonDocument]
+      tagBson <- document.getSafe(options.discriminatorKey)
+      tag <- tagBson.fromBson[String]
+      result <- doDecode(tag, value)
+    } yield (result)
   }
 
   private def doDecode[A](discriminatorKey: String, value: BsonValue)(using
@@ -33,17 +31,14 @@ object GenericCoproductDecoder {
       options: SealedTraitDerivationOptions[A]
   ) = {
     labelling.elemLabels.zipWithIndex
-      .map {
-        case (label, index) => {
-          if (discriminatorKey == options.transformDiscriminator(label)) {
-            inst.inject[Option[EitherNec[BsonDecoderError, A]]](index)(
-              [t <: A] => (rt: BsonDecoder[t]) => Some(rt.decode(value).leftMap(_.map(_.push(Case(discriminatorKey)))))
-            )
-          } else None
+      .map { case (label, index) =>
+        Option.when(discriminatorKey == options.transformDiscriminator(label)) {
+          inst.inject[EitherNec[BsonDecoderError, A]](index)(
+            [t <: A] => (rt: BsonDecoder[t]) => rt.decode(value).leftMap(_.map(_.push(Case(discriminatorKey))))
+          )
         }
       }
-      .find(_.isDefined)
-      .flatten
+      .collectFirst { case Some(x) => x }
       .getOrElse(Left(NonEmptyChain(InvalidTypeTag(discriminatorKey))))
   }
 }
