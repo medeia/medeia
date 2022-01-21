@@ -14,10 +14,12 @@ import medeia.decoder.BsonDecoder
 import shapeless3.deriving.*
 
 object GenericProductDecoder {
-  private case class Accumulator(labels: IndexedSeq[String], errors: Chain[BsonDecoderError]) {
-    def next(): Accumulator = this.copy(labels.tail)
-    def next(error: BsonDecoderError) = this.copy(labels.tail, errors :+ error)
-    def next(errors: NonEmptyChain[BsonDecoderError]) = this.copy(labels.tail, this.errors ++ errors.toChain)
+  private case class Accumulator(labels: IndexedSeq[String], errors: Option[NonEmptyChain[BsonDecoderError]]) {
+    def discardLabel(): Accumulator = this.copy(labels.tail)
+    def addErrors(errors: NonEmptyChain[BsonDecoderError]): Accumulator = this.copy(
+      labels = labels.tail,
+      errors = this.errors.fold(Some(errors))(es => Some(es ++ errors))
+    )
   }
 
   def decoder[A](using
@@ -33,30 +35,29 @@ object GenericProductDecoder {
       labelling: Labelling[A],
       options: GenericDerivationOptions[A]
   ): EitherNec[BsonDecoderError, A] = {
-    val (acc, result) = inst.unfold[Accumulator](Accumulator(labelling.elemLabels, Chain.empty))(
+    val (acc, result) = inst.unfold[Accumulator](Accumulator(labelling.elemLabels, None))(
       [t] =>
-        (acc: Accumulator, rt: BsonDecoder[t]) => {
-          val label = options.transformKeys(acc.labels.head)
+        (acc: Accumulator, rt: BsonDecoder[t]) =>
+          val label =
+            acc.labels.headOption
+              .map(options.transformKeys)
+              .getOrElse(throw new RuntimeException("Bug in derivation logic, accumulator has no labels!"))
+
           val decoded = Option(bsonDocument.get(label)) match {
             case Some(headField) => rt.decode(headField).leftMap(_.map(_.push(Attr(label))))
             case None            => rt.defaultValue.toRight(NonEmptyChain(KeyNotFound(label)))
           }
+
           decoded match {
-            case Left(error) =>
-              (acc.next(error), None)
-            case Right(value) =>
-              (acc.next(), Some(value))
-          }
-      }
+            case Left(es)     => (acc.addErrors(es), Some(null.asInstanceOf[t])) // we have to avoid stopping the unfold via None
+            case Right(value) => (acc.discardLabel(), Some(value))
+        }
     )
-    result match {
-      case Some(value) => Right(value)
-      case None =>
-        Left(
-          NonEmptyChain
-            .fromChain(acc.errors)
-            .getOrElse(NonEmptyChain(GenericDecoderError("Decoding failed but no error found (should never happen)")))
-        )
+
+    (acc, result) match {
+      case (Accumulator(Seq(), None), Some(r)) => Right(r)
+      case (Accumulator(Seq(), Some(es)), _)   => Left(es)
+      case (acc, r)                            => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
     }
   }
 }
