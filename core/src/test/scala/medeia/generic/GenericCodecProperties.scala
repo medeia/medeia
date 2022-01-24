@@ -41,9 +41,10 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     sealed trait Trait
     case class A(string: String) extends Trait
     case class B(int: Int) extends Trait
+    case object C extends Trait
     val aGen = Gen.alphaStr.map(A.apply)
     val bGen = Gen.posNum[Int].map(B.apply)
-    val traitGen = Gen.oneOf[Trait](aGen, bGen)
+    val traitGen = Gen.oneOf[Trait](aGen, bGen, Gen.const(C))
 
     val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
     val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder

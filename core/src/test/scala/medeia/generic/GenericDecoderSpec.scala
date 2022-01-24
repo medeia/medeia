@@ -139,4 +139,15 @@ class GenericDecoderSpec extends MedeiaSpec {
       ErrorStack(List(Attr("bar"), Attr("baz"), Index(1), Case("Qux"), Attr("answer")))
     )
   }
+
+  it should "decode case objects" in {
+    import medeia.generic.auto._
+    case object Foo
+
+    val doc = BsonDocument()
+
+    val result = doc.fromBson[Foo.type]
+
+    result.value should ===(Foo)
+  }
 }
