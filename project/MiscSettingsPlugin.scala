@@ -49,6 +49,6 @@ object MiscSettingsPlugin extends AutoPlugin {
   )
 
   lazy val scalafixSettings = Seq(
-        ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
-      )
+    ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
+  )
 }
