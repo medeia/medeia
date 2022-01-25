@@ -98,21 +98,21 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   }
 
   private[this] def codecProperty[A: Arbitrary: BsonCodec]: Prop =
-    Prop.forAll { original: A =>
+    Prop.forAll { (original: A) =>
       BsonDecoder.decode[A](original.toBson) == Right(original)
     }
 
   private[this] def mapEmapProperty[A: Cogen: Arbitrary: BsonCodec, B: Arbitrary]: Prop =
-    Prop.forAll { value: A =>
-      Prop.forAll { f: (A => B) =>
+    Prop.forAll { (value: A) =>
+      Prop.forAll { (f: (A => B)) =>
         BsonCodec[A].map(f).decode(value.toBson) == BsonDecoder[A].emap(a => Right(f(a))).decode(value.toBson)
       }
     }
 
   private[this] def imapIemapProperty[A: Cogen: Arbitrary: BsonCodec, B: Arbitrary: Cogen]: Prop =
-    Prop.forAll { value: A =>
-      Prop.forAll { f: (A => B) =>
-        Prop.forAll { g: (B => A) =>
+    Prop.forAll { (value: A) =>
+      Prop.forAll { (f: (A => B)) =>
+        Prop.forAll { (g: (B => A)) =>
           BsonCodec[A].imap(f)(g).decode(value.toBson) == BsonCodec[A].iemap(a => Right(f(a)))(g).decode(value.toBson)
         }
       }

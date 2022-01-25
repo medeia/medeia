@@ -27,7 +27,7 @@ class RefinedCodecProperties extends Properties("RefinedCodec") {
   }
 
   private[this] def codecProperty[A: Arbitrary: BsonCodec]: Prop =
-    Prop.forAll { original: A =>
+    Prop.forAll { (original: A) =>
       BsonDecoder.decode[A](original.toBson) == Right(original)
     }
 }

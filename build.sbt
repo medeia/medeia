@@ -20,7 +20,7 @@ inThisBuild(
   )
 )
 
-ThisBuild / crossScalaVersions := List("2.12.15", "2.13.8")
+ThisBuild / crossScalaVersions := List("2.12.15", "2.13.8", "3.1.0")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
@@ -37,11 +37,18 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
+ThisBuild / githubWorkflowBuildPreamble := Seq(
+  WorkflowStep.Run(
+    commands = List("mkdir -p ./modules/enumeratum/target"),
+    name = Some("create enumeratum target as ci will fail when it is missing (not buildable for scala-3)")
+  )
+)
+
 val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments)
 val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
 lazy val commonSettings = List(
   organization := "de.megaera",
-  crossScalaVersions := List("2.12.15", "2.13.8"),
+  crossScalaVersions := List("2.12.15", "2.13.8", "3.1.0"),
   versionScheme := Some("semver-spec"),
   Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
