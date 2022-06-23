@@ -15,3 +15,4 @@ jobs:
         uses: scala-steward-org/scala-steward-action@v2
         with:
           github-token: ${{ secrets.REPO_GITHUB_TOKEN }}
+          author-email: "scala-steward@megaera.de"
