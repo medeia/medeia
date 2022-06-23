@@ -5,7 +5,7 @@ object Dependencies {
   object Versions {
     val scalaTest = "3.2.12"
     val mongoScalaBson = "4.6.0"
-    val cats = "2.7.0"
+    val cats = "2.8.0"
     val scalaCheck = "1.16.0"
     val shapeless2 = "2.3.9"
     val shapeless3 = "3.1.0"
