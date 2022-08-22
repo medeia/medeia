@@ -198,6 +198,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 }
 
 trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
+  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[_]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
       bson.getBsonType match {

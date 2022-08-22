@@ -44,8 +44,8 @@ ThisBuild / githubWorkflowBuildPreamble := Seq(
   )
 )
 
-val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments)
-val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault, Wart.Equals)
+val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments, Wart.ImplicitParameter, Wart.Equals)
+val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault)
 lazy val commonSettings = List(
   organization := "de.megaera",
   crossScalaVersions := List("2.12.16", "2.13.8", "3.1.3"),
