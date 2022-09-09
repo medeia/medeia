@@ -20,7 +20,7 @@ inThisBuild(
   )
 )
 
-ThisBuild / crossScalaVersions := List("2.12.16", "2.13.8", "3.1.3")
+ThisBuild / crossScalaVersions := List("2.12.16", "2.13.8", "3.2.0")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
@@ -48,7 +48,7 @@ val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArgume
 val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault)
 lazy val commonSettings = List(
   organization := "de.megaera",
-  crossScalaVersions := List("2.12.16", "2.13.8", "3.1.3"),
+  crossScalaVersions := List("2.12.16", "2.13.8", "3.2.0"),
   versionScheme := Some("semver-spec"),
   Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
