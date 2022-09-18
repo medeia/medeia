@@ -48,11 +48,7 @@ val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArgume
 val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault)
 lazy val commonSettings = List(
   organization := "de.megaera",
-<<<<<<< HEAD
-  crossScalaVersions := List("2.12.16", "2.13.10", "3.2.0"),
-=======
-  crossScalaVersions := List("2.12.17", "2.13.8", "3.2.0"),
->>>>>>> b79bbb5 (Update scala-library to 2.12.17)
+  crossScalaVersions := List("2.12.17", "2.13.10", "3.2.0"),
   versionScheme := Some("semver-spec"),
   Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
