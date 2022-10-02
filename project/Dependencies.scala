@@ -3,7 +3,7 @@ import sbt._
 
 object Dependencies {
   object Versions {
-    val scalaTest = "3.2.13"
+    val scalaTest = "3.2.14"
     val mongoScalaBson = "4.7.1"
     val cats = "2.8.0"
     val scalaCheck = "1.17.0"
