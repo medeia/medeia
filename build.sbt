@@ -7,6 +7,7 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 inThisBuild(
   List(
+    scalaVersion := "2.13.10",
     organization := "de.megaera",
     homepage := Some(url("https://github.com/medeia/medeia")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
