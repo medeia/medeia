@@ -16,7 +16,7 @@ inThisBuild(
     ),
     versionScheme := Some("semver-spec"),
     semanticdbEnabled := true,
-    semanticdbVersion := "4.5.9"
+    semanticdbVersion := scalafixSemanticdb.revision
   )
 )
 
