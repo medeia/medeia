@@ -10,7 +10,7 @@ object Dependencies {
     val shapeless2 = "2.3.10"
     val shapeless3 = "3.2.0"
     val scalaCollectionCompatVersion = "2.9.0"
-    val enumeratumVersion = "1.7.1"
+    val enumeratumVersion = "1.7.2"
     val refinedVersion = "0.10.1"
   }
 
