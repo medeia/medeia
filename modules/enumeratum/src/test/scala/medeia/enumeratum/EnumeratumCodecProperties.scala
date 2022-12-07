@@ -9,7 +9,7 @@ class EnumeratumCodecProperties extends Properties("EnumeratumCodec") with enume
   propertyWithSeed("Enum: decode after encode === id", None) = {
     implicit val codec: BsonCodec[TestEnum] = Enumeratum.codec(TestEnum)
 
-    Prop.forAll { original: TestEnum =>
+    Prop.forAll { (original: TestEnum) =>
       BsonDecoder.decode(original.toBson) == Right(original)
     }
   }
@@ -17,7 +17,7 @@ class EnumeratumCodecProperties extends Properties("EnumeratumCodec") with enume
   propertyWithSeed("IntEnum decode after encode === id", None) = {
     implicit val codec: BsonCodec[TestIntEnum] = Enumeratum.valueEnumCodec(TestIntEnum)
 
-    Prop.forAll { original: TestIntEnum =>
+    Prop.forAll { (original: TestIntEnum) =>
       BsonDecoder.decode(original.toBson) == Right(original)
     }
   }

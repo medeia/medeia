@@ -20,7 +20,7 @@ object MiscSettingsPlugin extends AutoPlugin {
   )
 
   lazy val extraScalacOptions_2 = Seq(
-    "-target:jvm-1.8",
+    "-release:8",
     "-Xlint", // recommended additional warnings
     "-Ywarn-value-discard" // Warn when non-Unit expression results are unused
   )
@@ -32,7 +32,8 @@ object MiscSettingsPlugin extends AutoPlugin {
   )
 
   lazy val extraScalacOptions_3 = Seq(
-    "-Xtarget:jvm-1.8",
+    "-release:8",
+    "-Yretain-trees",
     "-deprecation"
   )
 
@@ -43,7 +44,7 @@ object MiscSettingsPlugin extends AutoPlugin {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => extraScalacOptions ++ extraScalacOptions_2 ++ extraScalacOptions_2_12
         case Some((2, 13)) => extraScalacOptions ++ extraScalacOptions_2
-        case _             => extraScalacOptions
+        case _             => extraScalacOptions ++ extraScalacOptions_3
       }
     }
   )
