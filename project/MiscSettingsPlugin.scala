@@ -39,7 +39,7 @@ object MiscSettingsPlugin extends AutoPlugin {
 
   lazy val commonSettings = Seq(
     organization := "",
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.11",
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => extraScalacOptions ++ extraScalacOptions_2 ++ extraScalacOptions_2_12
