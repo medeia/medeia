@@ -1,6 +1,6 @@
 package medeia.generic
 
-import medeia.codec.BsonCodec
+import medeia.codec.{BsonCodec, BsonDocumentCodec}
 import medeia.decoder.BsonDecoder
 import medeia.encoder.BsonEncoder
 import org.scalacheck.{Gen, Prop, Properties}
@@ -69,7 +69,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     implicit val genericDerivationOptionsB: GenericDerivationOptions[B] = GenericDerivationOptions { case a => a.toUpperCase() }
     val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
     val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
-    val codec: BsonCodec[Trait] = BsonCodec.fromEncoderAndDecoder(encoder, decoder)
+    val codec: BsonCodec[Trait] = BsonDocumentCodec.derived
   }
 
   propertyWithSeed("decode sealed trait hierarchy with Options", None) = {

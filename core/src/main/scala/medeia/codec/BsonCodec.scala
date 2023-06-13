@@ -17,6 +17,7 @@ trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] {
 object BsonCodec {
   def apply[A](implicit codec: BsonCodec[A]): BsonCodec[A] = codec
 
+  @deprecated(message = "use medeia.codec.BsonDocumentCodec.derived", since = "0.10.0")
   def derive[A](implicit genericEncoder: GenericEncoder[A], genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
     BsonDocumentCodec.fromEncoderAndDecoder(genericEncoder, genericDecoder)
   }

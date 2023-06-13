@@ -40,7 +40,7 @@ sealed trait Trait
 case class Foo(answer: Int) extends Trait
 case class Bar(bar: String) extends Trait
 object Trait {
-  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonCodec.derive
-  implicit val barCodec: BsonDocumentCodec[Bar] = BsonCodec.derive
-  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonCodec.derive
+  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonDocumentCodec.derived
+  implicit val barCodec: BsonDocumentCodec[Bar] = BsonDocumentCodec.derived
+  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 }
