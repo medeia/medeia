@@ -14,6 +14,7 @@ import medeia.decoder.BsonDecoder
 import shapeless3.deriving.*
 
 object GenericProductDecoder {
+  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   private case class Accumulator(labels: IndexedSeq[String], errors: Option[NonEmptyChain[BsonDecoderError]]) {
     def discardLabel(): Accumulator = this.copy(labels.tail)
     def addErrors(errors: NonEmptyChain[BsonDecoderError]): Accumulator = this.copy(
@@ -30,6 +31,7 @@ object GenericProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],

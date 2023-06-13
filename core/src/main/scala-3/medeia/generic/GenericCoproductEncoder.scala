@@ -9,6 +9,7 @@ import shapeless3.deriving.*
 import scala.deriving.Mirror
 
 object GenericCoproductEncoder {
+  @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
   def encoder[A](using
       inst: => K0.CoproductInstances[BsonEncoder, A],
       labelling: Labelling[A],

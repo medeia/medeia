@@ -54,8 +54,8 @@ class Scala3DerivesSpec extends MedeiaSpec {
   }
 
   enum TestEnum derives BsonDocumentCodec:
-   case A1(stringField: String)
-   case B2(int: Int)
+    case A1(stringField: String)
+    case B2(int: Int)
 
   object TestEnum {
     given SealedTraitDerivationOptions[TestEnum] =
