@@ -1,9 +1,9 @@
 package medeia.decoder
 
-import medeia.decoder.BsonDecoderError._
 import org.bson.BsonType
 
 sealed trait BsonDecoderError extends Exception {
+  import medeia.decoder.BsonDecoderError._
   def stack: ErrorStack
 
   final def push(frame: StackFrame): BsonDecoderError =
@@ -16,6 +16,7 @@ sealed trait BsonDecoderError extends Exception {
     }
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.Null"))
 object BsonDecoderError {
   final case class TypeMismatch(actual: BsonType, expected: BsonType, stack: ErrorStack = ErrorStack.empty)
       extends Exception(s"expected: ${expected.toString}, actual: ${actual.toString}, stack: ${stack.toString}")
@@ -25,7 +26,6 @@ object BsonDecoderError {
       extends Exception(s"Key not found: $keyName, stack: ${stack.toString}")
       with BsonDecoderError
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   final case class FieldParseError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
       extends Exception(s"$message, stack: ${stack.toString}", cause)
       with BsonDecoderError
@@ -34,7 +34,6 @@ object BsonDecoderError {
       extends Exception(s"Trying to decode sealed trait, but no match found for typetag: $typeTag")
       with BsonDecoderError
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   final case class GenericDecoderError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
       extends Exception(s"$message, stack: ${stack.toString}", cause)
       with BsonDecoderError

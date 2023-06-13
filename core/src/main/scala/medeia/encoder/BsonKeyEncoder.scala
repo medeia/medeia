@@ -23,5 +23,6 @@ trait DefaultBsonKeyEncoderInstances {
 
   implicit val doubleEncoder: BsonKeyEncoder[Double] = value => value.toString
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   implicit val uuidEncoder: BsonKeyEncoder[UUID] = value => value.toString
 }
