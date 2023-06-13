@@ -5,6 +5,7 @@ import cats.data.EitherNec
 import medeia.codec.BsonDocumentCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonDocumentEncoder
+import medeia.generic.{GenericEncoder, GenericDecoder}
 import org.bson.{BsonDocument, BsonValue}
 
 trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
@@ -15,6 +16,10 @@ trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
 
 object BsonDocumentCodec {
   def apply[A](implicit codec: BsonDocumentCodec[A]): BsonDocumentCodec[A] = codec
+
+  def derived[A](implicit genericEncoder: GenericEncoder[A], genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
+    BsonDocumentCodec.fromEncoderAndDecoder(genericEncoder, genericDecoder)
+  }
 
   implicit def fromEncoderAndDecoder[A](implicit encoder: BsonDocumentEncoder[A], decoder: BsonDecoder[A]): BsonDocumentCodec[A] =
     new BsonDocumentCodec[A] {

@@ -29,6 +29,8 @@ trait BsonDocumentEncoder[A] extends BsonEncoder[A] { self =>
 object BsonDocumentEncoder {
   def apply[A: BsonDocumentEncoder]: BsonDocumentEncoder[A] = implicitly
 
+  def derived[A](implicit genericEncoder: GenericEncoder[A]): BsonDocumentEncoder[A] = genericEncoder
+
   implicit val contravariantBsonEncoder: Contravariant[BsonDocumentEncoder] =
     new Contravariant[BsonDocumentEncoder] {
       override def contramap[A, B](fa: BsonDocumentEncoder[A])(f: B => A): BsonDocumentEncoder[B] = fa.contramap(f).encode
@@ -38,6 +40,7 @@ object BsonDocumentEncoder {
 object BsonEncoder extends DefaultBsonEncoderInstances {
   def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
+  @deprecated(message = "use medeia.encoder.BsonDocumentEncoder.derived", since = "0.10.0")
   def derive[A](implicit genericEncoder: GenericEncoder[A]): BsonDocumentEncoder[A] = genericEncoder
 
   def encode[A: BsonEncoder](value: A): BsonValue = BsonEncoder[A].encode(value)
@@ -48,6 +51,7 @@ object BsonEncoder extends DefaultBsonEncoderInstances {
     }
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.RedundantConversions"))
 trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit val booleanEncoder: BsonEncoder[Boolean] = x => BsonBoolean(x)
 
@@ -70,6 +74,7 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def optionEncoder[A: BsonEncoder]: BsonEncoder[Option[A]] =
     x => x.map(BsonEncoder[A].encode).getOrElse(BsonNull())
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
 
   implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toList)
@@ -109,5 +114,5 @@ trait LowestPrioEncoderAutoDerivation {
   final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit
       encoder: GenericEncoder[A]
   ): BsonDocumentEncoder[A] =
-    BsonEncoder.derive[A](encoder)
+    BsonDocumentEncoder.derived[A](encoder)
 }

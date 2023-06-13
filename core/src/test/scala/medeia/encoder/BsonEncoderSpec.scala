@@ -21,7 +21,7 @@ class BsonEncoderSpec extends MedeiaSpec {
 
     val input = Foo(new BsonString("string"), new BsonInt32(42))
 
-    implicit val fooCodec: BsonDocumentEncoder[Foo] = BsonEncoder.derive[Foo]
+    implicit val fooCodec: BsonDocumentEncoder[Foo] = BsonDocumentEncoder.derived[Foo]
 
     val result = input.toBson
 
