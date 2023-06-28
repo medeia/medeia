@@ -6,6 +6,7 @@ import medeia.Arbitraries
 import medeia.decoder.BsonKeyDecoder
 import medeia.encoder.BsonKeyEncoder
 import org.scalacheck.{Arbitrary, Prop, Properties}
+import java.util.Locale
 
 class BsonKeyCodecProperties extends Properties("BsonKeyCodec") with Arbitraries {
   propertyWithSeed("decode after encode === id (string)", None) = {
@@ -26,6 +27,10 @@ class BsonKeyCodecProperties extends Properties("BsonKeyCodec") with Arbitraries
 
   propertyWithSeed("decode after encode === id (uuid)", None) = {
     codecProperty[UUID]
+  }
+
+  propertyWithSeed("decode after encode === id (locale)", None) = {
+    codecProperty[Locale]
   }
 
   private[this] def codecProperty[A: Arbitrary: BsonKeyCodec]: Prop =

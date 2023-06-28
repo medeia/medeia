@@ -1,9 +1,9 @@
 package medeia.generic
 
 import medeia.MedeiaSpec
-import medeia.codec.{BsonCodec, BsonDocumentCodec}
+import medeia.codec.BsonDocumentCodec
 import medeia.decoder.BsonDecoder
-import medeia.encoder.{BsonEncoder, BsonDocumentEncoder}
+import medeia.encoder.BsonDocumentEncoder
 
 class SemiautoSpec extends MedeiaSpec {
   case class Simple(int: String)

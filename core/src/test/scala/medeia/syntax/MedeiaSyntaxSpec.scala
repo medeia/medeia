@@ -2,10 +2,11 @@ package medeia.syntax
 
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
-import medeia.codec.{BsonCodec, BsonDocumentCodec}
+import medeia.codec.BsonDocumentCodec
 import medeia.decoder.BsonDecoderError.KeyNotFound
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.bson.BsonString
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.bson.{BsonDocument, BsonString}
 
 class MedeiaSyntaxSpec extends MedeiaSpec {
   behavior of classOf[MedeiaSyntax].getSimpleName

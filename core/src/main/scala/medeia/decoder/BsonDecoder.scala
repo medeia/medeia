@@ -34,6 +34,8 @@ import java.util.{Date, UUID}
 import scala.collection.compat._
 import scala.collection.immutable.SortedSet
 import scala.jdk.CollectionConverters._
+import java.util.Locale
+import java.util.IllformedLocaleException
 
 @FunctionalInterface
 trait BsonDecoder[A] { self =>
@@ -104,6 +106,14 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
   implicit val uuidDecoder: BsonDecoder[UUID] = bson =>
     stringDecoder.decode(bson).flatMap { string =>
       Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError("Cannot parse UUID", _)).toEitherNec
+    }
+
+  implicit val localeDecoder: BsonDecoder[Locale] = bson =>
+    stringDecoder.decode(bson).flatMap { string =>
+      Either
+        .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(string).build())
+        .leftMap(FieldParseError("Cannot parse locale", _))
+        .toEitherNec
     }
 
   implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder

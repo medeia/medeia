@@ -11,6 +11,7 @@ import org.scalacheck.Arbitrary.arbFunction1
 import org.scalacheck.{Arbitrary, Cogen, Prop, Properties}
 
 import scala.collection.immutable.SortedSet
+import java.util.Locale
 
 class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
   propertyWithSeed("decode after encode === id (boolean)", None) = {
@@ -83,6 +84,10 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
 
   propertyWithSeed("decode after encode === id (nonemptyset)", None) = {
     codecProperty[NonEmptySet[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (locale)", None) = {
+    codecProperty[Locale]
   }
 
   propertyWithSeed("decode after encode === id (uuid)", None) = {

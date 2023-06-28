@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.Order
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import org.scalacheck.{Arbitrary, Gen}
+import java.util.Locale
 
 trait Arbitraries {
   implicit val arbitraryInstant: Arbitrary[Instant] = Arbitrary[Instant] {
@@ -43,6 +44,11 @@ trait Arbitraries {
   implicit def arbitrartNonEmptySet[A: Order](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptySet[A]] =
     Arbitrary[NonEmptySet[A]] {
       arbitraryNonEmptyList[A].arbitrary.map(as => NonEmptySet.of(as.head, as.tail: _*))
+    }
+
+  implicit val aribtraryLocale: Arbitrary[Locale] =
+    Arbitrary {
+      Gen.oneOf(Locale.forLanguageTag("de-AT"), Locale.GERMANY, Locale.ENGLISH, new Locale("da"))
     }
 }
 
