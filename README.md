@@ -48,11 +48,11 @@ If you have questions: don't hesitate to ask via github issues.
   import medeia.syntax._
 
   case class Simple(int: Int, string: Option[String])
-  implicit val simpleEncoder: BsonEncoder[Simple] = BsonEncoder.derive
+  implicit val simpleEncoder: BsonEncoder[Simple] = BsonDocumentEncoder.derived
   val encoded = Simple(1, Some("a")).toBson
   // {"string": "a", "int": 1}
 
-  implicit val simpleDecoder: BsonDecoder[Simple] = BsonDecoder.derive
+  implicit val simpleDecoder: BsonDecoder[Simple] = BsonDocumentDecoder.derived
   val doc = BsonDocument("int" -> 1, "string" -> "string")
   val decoded = doc.fromBson[Simple]
   // Right(Simple(1,Some(string)))
@@ -61,9 +61,9 @@ If you have questions: don't hesitate to ask via github issues.
   case class Foo(answer: Int) extends Trait
   case class Bar(bar: String) extends Trait
 
-  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonCodec.derive
-  implicit val barCodec: BsonDocumentCodec[Bar] = BsonCodec.derive
-  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonCodec.derive
+  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonDocumentCodec.derived
+  implicit val barCodec: BsonDocumentCodec[Bar] = BsonDocumentCodec.derived
+  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 
   val encoded = Foo(42).toBson
   // {"answer": 42, "type": "Foo"}
@@ -79,7 +79,7 @@ A transformation function for keynames can be provided as follows:
   case class Simple(fieldInScala: Int)
   implicit val genericDerivationOptions: GenericDerivationOptions[Simple] =
     GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
-  implicit val simpleEncoder: BsonEncoder[Simple] = BsonEncoder.derive
+  implicit val simpleEncoder: BsonDocumentEncoder[Simple] = BsonDocumentEncoder.derived
   val encoded = Simple(1).toBson
   // {"fieldInBson": 1}
 ```
