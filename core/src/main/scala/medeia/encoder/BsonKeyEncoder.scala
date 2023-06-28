@@ -1,6 +1,7 @@
 package medeia.encoder
 
 import java.util.UUID
+import java.util.Locale
 
 trait BsonKeyEncoder[A] { self =>
   def encode(value: A): String
@@ -25,4 +26,6 @@ trait DefaultBsonKeyEncoderInstances {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   implicit val uuidEncoder: BsonKeyEncoder[UUID] = value => value.toString
+
+  implicit val localeEncoder: BsonKeyEncoder[Locale] = value => value.toLanguageTag()
 }

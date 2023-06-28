@@ -11,6 +11,7 @@ import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
 
 import scala.collection.immutable.SortedSet
+import java.util.Locale
 
 @FunctionalInterface
 trait BsonEncoder[A] { self =>
@@ -76,6 +77,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
+
+  implicit val localeEncoder: BsonEncoder[Locale] = stringEncoder.contramap(_.toLanguageTag())
 
   implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toList)
 

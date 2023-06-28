@@ -5,6 +5,8 @@ import cats.Functor
 import cats.syntax.either._
 import cats.data.EitherNec
 import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError}
+import java.util.Locale
+import java.util.IllformedLocaleException
 
 trait BsonKeyDecoder[A] { self =>
   def decode(key: String): EitherNec[BsonDecoderError, A]
@@ -41,4 +43,10 @@ trait DefaultBsonKeyDecoderInstances {
 
   implicit val uuidDecoder: BsonKeyDecoder[UUID] = key =>
     Either.catchOnly[IllegalArgumentException](UUID.fromString(key)).leftMap(FieldParseError("Cannot parse UUID", _)).toEitherNec
+
+  implicit val localeDecoder: BsonKeyDecoder[Locale] = key =>
+    Either
+      .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(key).build())
+      .leftMap(FieldParseError("Cannot parse locale", _))
+      .toEitherNec
 }
