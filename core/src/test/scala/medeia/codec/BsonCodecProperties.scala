@@ -2,7 +2,6 @@ package medeia.codec
 
 import java.time.Instant
 import java.util.{Date, UUID}
-
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import medeia.Arbitraries
 import medeia.decoder.BsonDecoder
@@ -10,6 +9,7 @@ import medeia.syntax._
 import org.scalacheck.Arbitrary.arbFunction1
 import org.scalacheck.{Arbitrary, Cogen, Prop, Properties}
 
+import java.net.URI
 import scala.collection.immutable.SortedSet
 import java.util.Locale
 
@@ -92,6 +92,10 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
 
   propertyWithSeed("decode after encode === id (uuid)", None) = {
     codecProperty[UUID]
+  }
+
+  propertyWithSeed("decode after encode === id (uri)", None) = {
+    codecProperty[URI]
   }
 
   propertyWithSeed("map === emap (long, string)", None) = {
