@@ -1,10 +1,11 @@
 package medeia
 
-import java.time.Instant
-
 import cats.Order
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
 import org.scalacheck.{Arbitrary, Gen}
+
+import java.net.URI
+import java.time.Instant
 import java.util.Locale
 
 trait Arbitraries {
@@ -49,6 +50,11 @@ trait Arbitraries {
   implicit val aribtraryLocale: Arbitrary[Locale] =
     Arbitrary {
       Gen.oneOf(Locale.forLanguageTag("de-AT"), Locale.GERMANY, Locale.ENGLISH, new Locale("da"))
+    }
+
+  implicit val aribtraryUri: Arbitrary[URI] =
+    Arbitrary {
+      Gen.oneOf(URI.create("https://example.com"), URI.create("/test/"), URI.create("https://example.com:8080/test/path?my=param"))
     }
 }
 

@@ -34,6 +34,7 @@ import java.util.{Date, UUID}
 import scala.collection.compat._
 import scala.collection.immutable.SortedSet
 import scala.jdk.CollectionConverters._
+import java.net.URI
 import java.util.Locale
 import java.util.IllformedLocaleException
 
@@ -114,6 +115,11 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
         .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(string).build())
         .leftMap(FieldParseError("Cannot parse locale", _))
         .toEitherNec
+    }
+
+  implicit val uriDecoder: BsonDecoder[URI] = bson =>
+    stringDecoder.decode(bson).flatMap { string =>
+      Either.catchOnly[IllegalArgumentException](URI.create(string)).leftMap(FieldParseError("Cannot parse URI", _)).toEitherNec
     }
 
   implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder

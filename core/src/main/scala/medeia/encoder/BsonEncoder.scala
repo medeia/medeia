@@ -1,5 +1,6 @@
 package medeia.encoder
 
+import java.net.URI
 import java.time.Instant
 import java.util.{Date, UUID}
 import cats.Contravariant
@@ -79,6 +80,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit val uuidEncoder: BsonEncoder[UUID] = stringEncoder.contramap(_.toString)
 
   implicit val localeEncoder: BsonEncoder[Locale] = stringEncoder.contramap(_.toLanguageTag())
+
+  implicit val uriEncoder: BsonEncoder[URI] = stringEncoder.contramap(_.toString)
 
   implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toList)
 
