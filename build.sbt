@@ -75,18 +75,17 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:medeia/medeia.git"
     )
   ),
-  pomPostProcess := {
-    node: XmlNode =>
-      new RuleTransformer(
-        new RewriteRule {
-          private def isTestScope(elem: Elem): Boolean =
-            elem.label == "dependency" && elem.child.exists(child => child.label == "scope" && child.text == "test")
+  pomPostProcess := { node: XmlNode =>
+    new RuleTransformer(
+      new RewriteRule {
+        private def isTestScope(elem: Elem): Boolean =
+          elem.label == "dependency" && elem.child.exists(child => child.label == "scope" && child.text == "test")
 
-          override def transform(node: XmlNode): XmlNodeSeq = node match {
-            case elem: Elem if isTestScope(elem) => Nil
-            case _                               => node
-          }
+        override def transform(node: XmlNode): XmlNodeSeq = node match {
+          case elem: Elem if isTestScope(elem) => Nil
+          case _                               => node
         }
-      ).transform(node).head
+      }
+    ).transform(node).head
   }
 )
