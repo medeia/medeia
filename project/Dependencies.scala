@@ -6,7 +6,7 @@ object Dependencies {
     val scalaTest = "3.2.18"
     val mongoScalaBson = "5.0.1"
     val cats = "2.10.0"
-    val scalaCheck = "1.17.0"
+    val scalaCheck = "1.17.1"
     val shapeless2 = "2.3.10"
     val shapeless3 = "3.4.1"
     val scalaCollectionCompatVersion = "2.12.0"
