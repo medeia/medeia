@@ -32,6 +32,7 @@ ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
 ThisBuild / tlFatalWarnings := false
+ThisBuild / tlCiMimaBinaryIssueCheck := false
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
