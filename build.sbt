@@ -2,9 +2,6 @@ import sbt.Keys.versionScheme
 import wartremover.Wart
 import wartremover.WartRemover.autoImport.{Warts, wartremoverWarnings}
 
-import scala.xml.{Elem, Node => XmlNode, NodeSeq => XmlNodeSeq}
-import scala.xml.transform.{RewriteRule, RuleTransformer}
-
 inThisBuild(
   List(
     scalaVersion := "2.13.14",
