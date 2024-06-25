@@ -37,10 +37,17 @@ lazy val wartRemoverSettings = List(
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
 )
 
-lazy val core = (project in file("core/"))
+lazy val root = tlCrossRootProject
+  .aggregate(core, enumeratum, refined)
+
+lazy val core = project
+  .in(file("core/"))
+  .settings(name := "medeia")
   .settings(wartRemoverSettings)
 
-lazy val enumeratum = (project in file("modules/enumeratum/"))
+lazy val enumeratum = project
+  .in(file("modules/enumeratum/"))
+  .settings(name := "medeia-enumeratum")
   .settings(wartRemoverSettings)
   .settings(scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
@@ -50,6 +57,8 @@ lazy val enumeratum = (project in file("modules/enumeratum/"))
   })
   .dependsOn(core)
 
-lazy val refined = (project in file("modules/refined/"))
+lazy val refined = project
+  .in(file("modules/refined/"))
+  .settings(name := "medeia-refined")
   .settings(wartRemoverSettings)
   .dependsOn(core)
