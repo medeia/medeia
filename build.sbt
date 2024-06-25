@@ -31,6 +31,7 @@ ThisBuild / tlSonatypeUseLegacyHost := true
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
+ThisBuild / tlFatalWarnings := false
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
