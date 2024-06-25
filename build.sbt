@@ -15,9 +15,10 @@ inThisBuild(
       Developer("froth", "Frederick Roth", "f-roth@megaera.de", url("https://derfred.org")),
       Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
     ),
-    versionScheme := Some("semver-spec"),
+    versionScheme := Some("early-semver"),
+    scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),
     semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
+    semanticdbVersion := "4.9.7"
   )
 )
 
@@ -25,6 +26,11 @@ ThisBuild / crossScalaVersions := List("2.12.19", "2.13.14", "3.3.3")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
+ThisBuild / tlBaseVersion := "0.12"
+ThisBuild / tlSonatypeUseLegacyHost := true
+ThisBuild / tlCiScalafmtCheck := true
+ThisBuild / tlCiScalafixCheck := true
+ThisBuild / tlCiHeaderCheck := false
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
@@ -40,52 +46,24 @@ ThisBuild / githubWorkflowPublish := Seq(
 
 val wartIgnoreMain: List[Wart] = List(Wart.Any, Wart.Nothing, Wart.DefaultArguments, Wart.ImplicitParameter, Wart.Equals)
 val wartIgnoreTest = wartIgnoreMain ++ List(Wart.FinalCaseClass, Wart.NonUnitStatements, Wart.LeakingSealed, Wart.PlatformDefault)
-lazy val commonSettings = List(
-  organization := "de.megaera",
-  crossScalaVersions := List("2.12.19", "2.13.14", "3.3.3"),
-  versionScheme := Some("semver-spec"),
+lazy val wartRemoverSettings = List(
   Compile / compile / wartremoverWarnings := Warts.allBut(wartIgnoreMain: _*),
   Test / compile / wartremoverWarnings := Warts.allBut(wartIgnoreTest: _*)
 )
 
 lazy val core = (project in file("core/"))
-  .settings(commonSettings)
-  .enablePlugins(MiscSettingsPlugin)
+  .settings(wartRemoverSettings)
 
 lazy val enumeratum = (project in file("modules/enumeratum/"))
-  .settings(commonSettings)
-  .enablePlugins(MiscSettingsPlugin)
+  .settings(wartRemoverSettings)
+  .settings(scalacOptions ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, n)) => List("-Yretain-trees")
+      case _            => List.empty
+    }
+  })
   .dependsOn(core)
 
 lazy val refined = (project in file("modules/refined/"))
-  .settings(commonSettings)
-  .enablePlugins(MiscSettingsPlugin)
+  .settings(wartRemoverSettings)
   .dependsOn(core)
-
-lazy val publishSettings = Seq(
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  Test / publishArtifact := false,
-  pomIncludeRepository := { _ =>
-    false
-  },
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/medeia/medeia"),
-      "scm:git:git@github.com:medeia/medeia.git"
-    )
-  ),
-  pomPostProcess := { node: XmlNode =>
-    new RuleTransformer(
-      new RewriteRule {
-        private def isTestScope(elem: Elem): Boolean =
-          elem.label == "dependency" && elem.child.exists(child => child.label == "scope" && child.text == "test")
-
-        override def transform(node: XmlNode): XmlNodeSeq = node match {
-          case elem: Elem if isTestScope(elem) => Nil
-          case _                               => node
-        }
-      }
-    ).transform(node).head
-  }
-)
