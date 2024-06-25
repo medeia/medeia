@@ -26,13 +26,12 @@ ThisBuild / crossScalaVersions := List("2.12.19", "2.13.14", "3.3.3")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
-ThisBuild / tlBaseVersion := "0.12"
+ThisBuild / tlBaseVersion := "0.13"
 ThisBuild / tlSonatypeUseLegacyHost := true
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
 ThisBuild / tlFatalWarnings := false
-ThisBuild / tlCiMimaBinaryIssueCheck := false
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
