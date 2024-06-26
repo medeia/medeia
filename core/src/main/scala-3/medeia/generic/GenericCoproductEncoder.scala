@@ -1,9 +1,8 @@
 package medeia.generic
 
 import medeia.encoder.BsonEncoder
-import medeia.encoder.BsonDocumentEncoder
 import org.bson.BsonString
-import org.mongodb.scala.bson.{BsonDocument, BsonValue}
+import org.mongodb.scala.bson.BsonDocument
 import shapeless3.deriving.*
 
 import scala.deriving.Mirror

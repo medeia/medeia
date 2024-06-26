@@ -81,6 +81,7 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
 
   implicit val localeEncoder: BsonEncoder[Locale] = stringEncoder.contramap(_.toLanguageTag())
 
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   implicit val uriEncoder: BsonEncoder[URI] = stringEncoder.contramap(_.toString)
 
   implicit def listEncoder[A: BsonEncoder]: BsonEncoder[List[A]] = iterableEncoder[A].contramap(_.toList)
