@@ -1,7 +1,3 @@
-import sbt.Keys.versionScheme
-import wartremover.Wart
-import wartremover.WartRemover.autoImport.{Warts, wartremoverWarnings}
-
 inThisBuild(
   List(
     scalaVersion := "2.13.14",
@@ -19,7 +15,6 @@ inThisBuild(
     semanticdbVersion := "4.9.7"
   )
 )
-
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))

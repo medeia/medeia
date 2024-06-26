@@ -4,10 +4,10 @@ import Wartremover._
 name := "medeia-enumeratum"
 
 scalacOptions ++= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, n)) => List("-Yretain-trees")
-      case _            => List.empty
-    }
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, n)) => List("-Yretain-trees")
+    case _            => List.empty
+  }
 }
 
 libraryDependencies ++= Libraries
