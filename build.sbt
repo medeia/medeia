@@ -1,7 +1,9 @@
+val scala2_13 = "2.13.14"
+
 inThisBuild(
   List(
-    scalaVersion := "2.13.14",
-    crossScalaVersions := List("2.12.19", "2.13.14", "3.3.3"),
+    scalaVersion := scala2_13,
+    crossScalaVersions := List("2.12.19", scala2_13, "3.3.3"),
     organization := "de.megaera",
     homepage := Some(url("https://github.com/medeia/medeia")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -10,9 +12,8 @@ inThisBuild(
       Developer("markus1189", "Markus Hauck", "markus1189@gmail.com", url("https://github.com/markus1189"))
     ),
     versionScheme := Some("early-semver"),
-    scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),
     semanticdbEnabled := true,
-    semanticdbVersion := "4.9.7"
+    semanticdbVersion := scalafixSemanticdb.revision
   )
 )
 
