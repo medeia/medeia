@@ -7,9 +7,7 @@ import medeia.decoder.BsonDecoderError
 import medeia.decoder.BsonDecoder
 import medeia.decoder.StackFrame.*
 import medeia.syntax.*
-import org.bson.BsonString
 import org.mongodb.scala.bson.{BsonDocument, BsonValue}
-import medeia.decoder.BsonDecoder
 
 import shapeless3.deriving.*
 
