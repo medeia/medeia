@@ -16,7 +16,7 @@ medeia includes decoders and encoders for common data structures as well as auto
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.13.0"
+  libraryDependencies += "de.megaera" %% "medeia" % "0.13.1"
 ```
 
 Currently no complete documentation is present, additional examples(including Scala 3 derives syntax) can be found in the test suites.
@@ -94,7 +94,7 @@ A separate module exists for encoding and decoding [enumeratum](https://github.c
 #### Add sbt dependency
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.13.0"
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.13.1"
 ```
 
 #### Usage
@@ -131,7 +131,7 @@ BsonEncoder/BsonDecoder for `eu.timepit:refined` can be found in the `medeia-ref
 #### Add sbt dependency
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-refined" % "0.13.0"
+  libraryDependencies += "de.megaera" %% "medeia-refined" % "0.13.1"
 ```
 
 #### Usage
