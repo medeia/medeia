@@ -4,7 +4,7 @@ import java.net.URI
 import java.time.Instant
 import java.util.{Date, UUID}
 import cats.Contravariant
-import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
+import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyMap, NonEmptySet}
 import medeia.generic.GenericEncoder
 import medeia.generic.auto.AutoDerivationUnlocked
 
@@ -104,6 +104,8 @@ trait DefaultBsonEncoderInstances extends BsonIterableEncoder {
   implicit def nonEmptyChainEncoder[A: BsonEncoder]: BsonEncoder[NonEmptyChain[A]] = chainEncoder[A].contramap(_.toChain)
 
   implicit def nonEmptySetEncoder[A: BsonEncoder]: BsonEncoder[NonEmptySet[A]] = sortedSetEncoder[A].contramap(_.toSortedSet)
+
+  implicit def nonEmptyMapEncoder[K: BsonKeyEncoder, A: BsonEncoder]: BsonEncoder[NonEmptyMap[K, A]] = mapEncoder[K, A].contramap(_.toSortedMap)
 
   implicit def bsonValueEncoder[A <: BsonValue]: BsonEncoder[A] = value => value
 
