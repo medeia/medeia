@@ -2,7 +2,7 @@ package medeia.codec
 
 import java.time.Instant
 import java.util.{Date, UUID}
-import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
+import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyMap, NonEmptySet}
 import medeia.Arbitraries
 import medeia.decoder.BsonDecoder
 import medeia.syntax._
@@ -76,6 +76,10 @@ class BsonCodecProperties extends Properties("BsonCodec") with Arbitraries {
 
   propertyWithSeed("decode after encode === id (nonemptylist)", None) = {
     codecProperty[NonEmptyList[String]]
+  }
+
+  propertyWithSeed("decode after encode === id (nonemptymap)", None) = {
+    codecProperty[NonEmptyMap[String, String]]
   }
 
   propertyWithSeed("decode after encode === id (nonemptychain)", None) = {

@@ -1,12 +1,14 @@
 package medeia
 
 import cats.Order
-import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptySet}
+import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyMap, NonEmptySet}
 import org.scalacheck.{Arbitrary, Gen}
 
 import java.net.URI
 import java.time.Instant
 import java.util.Locale
+import scala.collection.compat._
+import scala.collection.immutable.SortedMap
 
 trait Arbitraries {
   implicit val arbitraryInstant: Arbitrary[Instant] = Arbitrary[Instant] {
@@ -27,7 +29,7 @@ trait Arbitraries {
       Gen.listOf(arbitraryA.arbitrary)
     }
 
-  implicit def arbitrartChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[Chain[A]] =
+  implicit def arbitraryChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[Chain[A]] =
     Arbitrary[Chain[A]] {
       Gen.listOf(arbitraryA.arbitrary).map(Chain.fromSeq)
     }
@@ -37,14 +39,26 @@ trait Arbitraries {
       Gen.nonEmptyListOf(arbitraryA.arbitrary).map(NonEmptyList.fromListUnsafe)
     }
 
-  implicit def arbitrartNonEmptyChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptyChain[A]] =
+  implicit def arbitraryNonEmptyChain[A](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptyChain[A]] =
     Arbitrary[NonEmptyChain[A]] {
       arbitraryNonEmptyList[A].arbitrary.map(NonEmptyChain.fromNonEmptyList)
     }
 
-  implicit def arbitrartNonEmptySet[A: Order](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptySet[A]] =
+  implicit def arbitraryNonEmptySet[A: Order](implicit arbitraryA: Arbitrary[A]): Arbitrary[NonEmptySet[A]] =
     Arbitrary[NonEmptySet[A]] {
       arbitraryNonEmptyList[A].arbitrary.map(as => NonEmptySet.of(as.head, as.tail: _*))
+    }
+
+  implicit def arbitraryNonEmptyMap[K: Ordering, A](implicit arbitraryK: Arbitrary[K], arbitraryA: Arbitrary[A]): Arbitrary[NonEmptyMap[K, A]] =
+    Arbitrary[NonEmptyMap[K, A]] {
+      Gen
+        .nonEmptyMap(
+          for {
+            k <- arbitraryK.arbitrary
+            a <- arbitraryA.arbitrary
+          } yield (k, a)
+        )
+        .map(map => NonEmptyMap.fromMapUnsafe(SortedMap.from(map)))
     }
 
   implicit val aribtraryLocale: Arbitrary[Locale] =

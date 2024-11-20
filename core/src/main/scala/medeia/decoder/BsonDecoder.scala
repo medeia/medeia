@@ -32,7 +32,7 @@ import org.mongodb.scala.bson.{
 import java.time.Instant
 import java.util.{Date, UUID}
 import scala.collection.compat._
-import scala.collection.immutable.SortedSet
+import scala.collection.immutable.{SortedMap, SortedSet}
 import scala.jdk.CollectionConverters._
 import java.net.URI
 import java.util.Locale
@@ -165,6 +165,12 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
         .decode(bson)
         .flatMap(sortedSet => NonEmptySet.fromSet(sortedSet).toRight(FieldParseError("NonEmptySet may not be empty")).toEitherNec)
   }
+
+  implicit def nonEmptyMapDecoder[K: BsonKeyDecoder: Ordering, A: BsonDecoder]: BsonDecoder[NonEmptyMap[K, A]] =
+    bson =>
+      mapDecoder[K, A]
+        .decode(bson)
+        .flatMap(map => NonEmptyMap.fromMap(SortedMap.from(map)).toRight(FieldParseError("NonEmptyMap may not be empty")).toEitherNec)
 
   implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec[BsonDecoderError, BsonValue](_)
 
