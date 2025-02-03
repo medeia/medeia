@@ -16,8 +16,7 @@ object Dependencies {
 
   lazy val Libraries: Vector[ModuleID] = Vector(
     ("org.mongodb.scala" %% "mongo-scala-bson" % Versions.mongoScalaBson).cross(CrossVersion.for3Use2_13),
-    "org.typelevel" %% "cats-core" % Versions.cats,
-    "org.scala-lang.modules" %% "scala-collection-compat" % Versions.scalaCollectionCompatVersion
+    "org.typelevel" %% "cats-core" % Versions.cats
   )
 
   lazy val Scala2Libraries: Vector[ModuleID] = Vector(
