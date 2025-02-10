@@ -3,7 +3,7 @@ val scala2_13 = "2.13.16"
 inThisBuild(
   List(
     scalaVersion := scala2_13,
-    crossScalaVersions := List("2.12.20", scala2_13, "3.3.5"),
+    crossScalaVersions := List(scala2_13, "3.3.5"),
     organization := "de.megaera",
     homepage := Some(url("https://github.com/medeia/medeia")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -20,7 +20,7 @@ inThisBuild(
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
 
-ThisBuild / tlBaseVersion := "0.14"
+ThisBuild / tlBaseVersion := "0.15"
 ThisBuild / tlSonatypeUseLegacyHost := true
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true

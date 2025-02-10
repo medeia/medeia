@@ -7,7 +7,6 @@ import org.scalacheck.{Arbitrary, Gen}
 import java.net.URI
 import java.time.Instant
 import java.util.Locale
-import scala.collection.compat._
 import scala.collection.immutable.SortedMap
 
 trait Arbitraries {

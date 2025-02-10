@@ -31,8 +31,8 @@ import org.mongodb.scala.bson.{
 
 import java.time.Instant
 import java.util.{Date, UUID}
-import scala.collection.compat._
 import scala.collection.immutable.{SortedMap, SortedSet}
+import scala.collection.Factory
 import scala.jdk.CollectionConverters._
 import java.net.URI
 import java.util.Locale

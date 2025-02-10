@@ -9,15 +9,13 @@ object Dependencies {
     val scalaCheck = "1.18.1"
     val shapeless2 = "2.3.12"
     val shapeless3 = "3.4.3"
-    val scalaCollectionCompatVersion = "2.13.0"
     val enumeratumVersion = "1.7.5"
     val refinedVersion = "0.11.3"
   }
 
   lazy val Libraries: Vector[ModuleID] = Vector(
     ("org.mongodb.scala" %% "mongo-scala-bson" % Versions.mongoScalaBson).cross(CrossVersion.for3Use2_13),
-    "org.typelevel" %% "cats-core" % Versions.cats,
-    "org.scala-lang.modules" %% "scala-collection-compat" % Versions.scalaCollectionCompatVersion
+    "org.typelevel" %% "cats-core" % Versions.cats
   )
 
   lazy val Scala2Libraries: Vector[ModuleID] = Vector(
