@@ -21,7 +21,7 @@ ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
 
 ThisBuild / tlBaseVersion := "0.15"
-ThisBuild / tlSonatypeUseLegacyHost := true
+ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeLegacy
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false

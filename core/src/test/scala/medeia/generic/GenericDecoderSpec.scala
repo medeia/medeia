@@ -65,7 +65,7 @@ class GenericDecoderSpec extends MedeiaSpec {
   // prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
-      SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
+      SealedTraitDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
   }
 
   it should "decode sealed trait hierarchies with transformation" in {
