@@ -67,8 +67,6 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
       SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
     implicit val genericDerivationOptionsA: GenericDerivationOptions[A] = GenericDerivationOptions { case a => a.toLowerCase() }
     implicit val genericDerivationOptionsB: GenericDerivationOptions[B] = GenericDerivationOptions { case a => a.toUpperCase() }
-    val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
-    val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
     val codec: BsonCodec[Trait] = BsonDocumentCodec.derived
   }
 

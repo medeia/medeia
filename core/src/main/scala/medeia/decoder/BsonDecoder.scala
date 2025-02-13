@@ -7,7 +7,6 @@ import cats.{Functor, Order}
 import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, TypeMismatch}
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
 import medeia.generic.GenericDecoder
-import medeia.generic.auto.AutoDerivationUnlocked
 
 import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
 import org.mongodb.scala.bson.collection.{immutable, mutable}
@@ -221,7 +220,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
     }
 }
 
-trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
+trait BsonIterableDecoder {
   @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   def iterableDecoder[A: BsonDecoder, C[_] <: Iterable[_]](implicit factory: Factory[A, C[A]]): BsonDecoder[C[A]] =
     bson =>
@@ -243,9 +242,4 @@ trait BsonIterableDecoder extends LowestPrioDecoderAutoDerivation {
           elems.map(_.result())
         case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
       }
-}
-
-trait LowestPrioDecoderAutoDerivation {
-  final implicit def autoDerivedBsonEncoder[A: AutoDerivationUnlocked](implicit encoder: GenericDecoder[A]): BsonDecoder[A] =
-    BsonDecoder.derived[A](encoder)
 }

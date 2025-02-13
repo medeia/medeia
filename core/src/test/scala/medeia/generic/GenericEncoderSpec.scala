@@ -1,11 +1,11 @@
 package medeia.generic
 
 import medeia.MedeiaSpec
-import medeia.generic.auto._
 import medeia.syntax._
 import org.mongodb.scala.bson.{BsonDocument, BsonInt32, BsonString}
 
 import scala.jdk.CollectionConverters._
+import medeia.encoder.BsonDocumentEncoder
 
 class GenericEncoderSpec extends MedeiaSpec {
 
@@ -16,9 +16,16 @@ class GenericEncoderSpec extends MedeiaSpec {
   case object B extends Trait
   case class Simple(int: Int, string: String)
 
+  object DefaultTraitEncoders {
+    implicit val encoderA: BsonDocumentEncoder[A] = BsonDocumentEncoder.derived
+    implicit val encoderB: BsonDocumentEncoder[B.type] = BsonDocumentEncoder.derived
+    implicit val encoder: BsonDocumentEncoder[Trait] = BsonDocumentEncoder.derived
+  }
+
   // prevents unused field warnings
   object ForKeyTransformationTest {
-    implicit val decoderOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
+    implicit val encoderOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
+    implicit val encoder: BsonDocumentEncoder[Simple] = BsonDocumentEncoder.derived
   }
 
   it should "allow for key transformation" in {
@@ -31,6 +38,7 @@ class GenericEncoderSpec extends MedeiaSpec {
   }
 
   it should "encode sealed trait hierarchies" in {
+    import DefaultTraitEncoders._
     val original: Trait = A("asd")
     val document: BsonDocument = original.toBsonDocument
     document should ===(
@@ -42,12 +50,14 @@ class GenericEncoderSpec extends MedeiaSpec {
   }
 
   it should "encode case objects" in {
+    import DefaultTraitEncoders._
     val original: Trait = B
     val document: BsonDocument = original.toBsonDocument
     document should ===(BsonDocument("type" -> BsonString("B")))
   }
 
   it should "encode fields of a case class in the right order" in {
+    implicit val encoder: BsonDocumentEncoder[Simple] = BsonDocumentEncoder.derived
     val original = Simple(1, "string")
 
     val document = original.toBsonDocument
@@ -58,10 +68,12 @@ class GenericEncoderSpec extends MedeiaSpec {
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
+    implicit val encoderA: BsonDocumentEncoder[A] = BsonDocumentEncoder.derived
+    implicit val encoderB: BsonDocumentEncoder[B.type] = BsonDocumentEncoder.derived
+    implicit val encoder: BsonDocumentEncoder[Trait] = BsonDocumentEncoder.derived
   }
 
   it should "encode sealed trait hierarchies with transformation" in {
-    import medeia.generic.auto._
     import ForSealedTraitWithTransformationTest._
     val original: Trait = A("1")
     val document: BsonDocument = original.toBsonDocument
