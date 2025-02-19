@@ -53,8 +53,6 @@ trait BsonDecoder[A] { self =>
 object BsonDecoder extends DefaultBsonDecoderInstances {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
-  @deprecated(message = "use derived", since = "0.10.0")
-  def derive[A](implicit genericDecoder: GenericDecoder[A]): BsonDecoder[A] = genericDecoder
   def derived[A](implicit genericDecoder: GenericDecoder[A]): BsonDecoder[A] = genericDecoder
 
   def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {

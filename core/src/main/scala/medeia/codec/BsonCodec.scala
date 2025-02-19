@@ -5,7 +5,6 @@ import cats.data.EitherNec
 import medeia.codec.BsonCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonEncoder
-import medeia.generic.{GenericDecoder, GenericEncoder}
 import org.mongodb.scala.bson.BsonValue
 
 trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] {
@@ -16,11 +15,6 @@ trait BsonCodec[A] extends BsonEncoder[A] with BsonDecoder[A] {
 
 object BsonCodec {
   def apply[A](implicit codec: BsonCodec[A]): BsonCodec[A] = codec
-
-  @deprecated(message = "use medeia.codec.BsonDocumentCodec.derived", since = "0.10.0")
-  def derive[A](implicit genericEncoder: GenericEncoder[A], genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
-    BsonDocumentCodec.fromEncoderAndDecoder(genericEncoder, genericDecoder)
-  }
 
   implicit def fromEncoderAndDecoder[A](implicit encoder: BsonEncoder[A], decoder: BsonDecoder[A]): BsonCodec[A] =
     new BsonCodec[A] {
