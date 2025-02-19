@@ -7,7 +7,7 @@ import medeia.decoder.BsonDecoderError
 import medeia.decoder.BsonDecoder
 import medeia.decoder.StackFrame.*
 import medeia.syntax.*
-import org.mongodb.scala.bson.{BsonDocument, BsonValue}
+import org.mongodb.scala.bson.{BsonDocument}
 
 import shapeless3.deriving.*
 
@@ -29,7 +29,7 @@ object GenericProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],

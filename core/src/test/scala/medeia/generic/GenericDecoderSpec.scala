@@ -2,6 +2,7 @@ package medeia.generic
 
 import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
+import medeia.decoder.BsonDecoder
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound, TypeMismatch}
 import medeia.decoder.ErrorStack
 import medeia.decoder.StackFrame.{Attr, Case, Index}
@@ -16,33 +17,32 @@ class GenericDecoderSpec extends MedeiaSpec {
   case class B(int: Int) extends Trait
 
   "GenericDecoder" should "handle errors" in {
-    import medeia.generic.auto._
     case class Simple(int: Int, string: String)
+    implicit val decoder: BsonDecoder[Simple] = BsonDecoder.derived
     val doc = BsonDocument()
     doc.fromBson[Simple] should ===(Left(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string"))))
   }
 
   it should "decode empty values to None" in {
-    import medeia.generic.auto._
     case class Simple(int: Option[Int])
+    implicit val decoder: BsonDecoder[Simple] = BsonDecoder.derived
     val doc = BsonDocument()
     doc.fromBson[Simple] should ===(Right(Simple(None)))
   }
 
   it should "fail gracefully on nested decoders" in {
-    import medeia.generic.auto._
     case class Inner(int: Int)
+    implicit val innerdecoder: BsonDecoder[Inner] = BsonDecoder.derived
     case class Outer(inner: Inner)
+    implicit val outerdecoder: BsonDecoder[Outer] = BsonDecoder.derived
     val doc = BsonDocument(List("inner" -> BsonNull()))
     doc.fromBson[Outer] should ===(Left(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT, ErrorStack(List(Attr("inner")))))))
   }
 
   it should "allow for key transformation" in {
-    import medeia.generic.auto._
     case class Simple(int: Int, string: String)
-    object Simple {
-      implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
-    }
+    implicit val derivationOptions: GenericDerivationOptions[Simple] = GenericDerivationOptions { case "int" => "intA" }
+    implicit val decoder: BsonDecoder[Simple] = BsonDecoder.derived[Simple]
     val doc = BsonDocument(
       "intA" -> 1,
       "string" -> "string"
@@ -51,8 +51,9 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "decode sealed trait hierarchies" in {
-    import medeia.generic.auto._
-
+    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
+    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
+    implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> "B",
       "int" -> 1
@@ -66,10 +67,12 @@ class GenericDecoderSpec extends MedeiaSpec {
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
+    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
+    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
+    implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
   }
 
   it should "decode sealed trait hierarchies with transformation" in {
-    import medeia.generic.auto._
     import ForSealedTraitWithTransformationTest._
     val original = BsonDocument(
       "otherType" -> "b",
@@ -81,8 +84,9 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on unknown discriminator" in {
-    import medeia.generic.auto._
-
+    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
+    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
+    implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> "Z",
       "int" -> 1
@@ -93,8 +97,9 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on missing discriminator" in {
-    import medeia.generic.auto._
-
+    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
+    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
+    implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "int" -> 1
     )
@@ -104,8 +109,9 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on invalid discriminator key" in {
-    import medeia.generic.auto._
-
+    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
+    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
+    implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> 5,
       "int" -> 1
@@ -116,13 +122,16 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail with an error stack" in {
-    import medeia.generic.auto._
-
     case class FooBar(bar: Bar)
     case class Bar(baz: List[Baz])
 
     sealed trait Baz
     case class Qux(answer: Int) extends Baz
+
+    implicit val quxdecoder: BsonDecoder[Qux] = BsonDecoder.derived
+    implicit val bazdecoder: BsonDecoder[Baz] = BsonDecoder.derived
+    implicit val bardecoder: BsonDecoder[Bar] = BsonDecoder.derived
+    implicit val fooBardecoder: BsonDecoder[FooBar] = BsonDecoder.derived
 
     val doc = BsonDocument(
       "bar" -> BsonDocument(
@@ -141,8 +150,8 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "decode case objects" in {
-    import medeia.generic.auto._
     case object Foo
+    implicit val decoder: BsonDecoder[Foo.type] = BsonDecoder.derived
 
     val doc = BsonDocument()
 

@@ -16,10 +16,10 @@ sealed trait BsonDecoderError extends Exception {
     }
 }
 
-@SuppressWarnings(Array("org.wartremover.warts.Null"))
+@SuppressWarnings(Array("org.wartremover.warts.Null", "org.wartremover.warts.StringPlusAny"))
 object BsonDecoderError {
   final case class TypeMismatch(actual: BsonType, expected: BsonType, stack: ErrorStack = ErrorStack.empty)
-      extends Exception(s"expected: ${expected.toString}, actual: ${actual.toString}, stack: ${stack.toString}")
+      extends Exception(s"expected: ${expected}, actual: ${actual}, stack: ${stack}")
       with BsonDecoderError
 
   final case class KeyNotFound(keyName: String, stack: ErrorStack = ErrorStack.empty)
@@ -27,7 +27,7 @@ object BsonDecoderError {
       with BsonDecoderError
 
   final case class FieldParseError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
-      extends Exception(s"$message, stack: ${stack.toString}", cause)
+      extends Exception(s"$message, stack: ${stack}", cause)
       with BsonDecoderError
 
   final case class InvalidTypeTag(typeTag: String, stack: ErrorStack = ErrorStack.empty)
@@ -35,6 +35,6 @@ object BsonDecoderError {
       with BsonDecoderError
 
   final case class GenericDecoderError(message: String, cause: Throwable = null, stack: ErrorStack = ErrorStack.empty)
-      extends Exception(s"$message, stack: ${stack.toString}", cause)
+      extends Exception(s"$message, stack: ${stack}", cause)
       with BsonDecoderError
 }

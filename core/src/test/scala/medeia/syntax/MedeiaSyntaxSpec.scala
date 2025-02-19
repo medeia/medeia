@@ -11,6 +11,15 @@ import org.mongodb.scala.bson.collection.immutable.Document
 class MedeiaSyntaxSpec extends MedeiaSpec {
   behavior of classOf[MedeiaSyntax].getSimpleName
 
+  sealed trait Trait
+  case class Foo(answer: Int) extends Trait
+  case class Bar(bar: String) extends Trait
+  object Trait {
+    implicit val fooCodec: BsonDocumentCodec[Foo] = BsonDocumentCodec.derived
+    implicit val barCodec: BsonDocumentCodec[Bar] = BsonDocumentCodec.derived
+    implicit val traitCodec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
+  }
+
   it should "enrich values that have a bson encoder instance" in {
     val input = 42
 
@@ -36,12 +45,4 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
     BsonDocument("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
     BsonDocument().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
   }
-}
-sealed trait Trait
-case class Foo(answer: Int) extends Trait
-case class Bar(bar: String) extends Trait
-object Trait {
-  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonDocumentCodec.derived
-  implicit val barCodec: BsonDocumentCodec[Bar] = BsonDocumentCodec.derived
-  implicit val traitCodec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 }

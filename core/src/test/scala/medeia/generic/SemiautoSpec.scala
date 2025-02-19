@@ -7,13 +7,16 @@ import medeia.encoder.BsonDocumentEncoder
 
 class SemiautoSpec extends MedeiaSpec {
   case class Simple(int: String)
+  sealed trait Trait
+  case class A(string: String) extends Trait
+  case object B extends Trait
 
   "Semiauto" should "be able to derive an encoder from a case class" in {
     BsonDocumentEncoder.derived[Simple]
   }
 
   it should "be able to derive a decoder from a case class" in {
-    val _: medeia.decoder.BsonDecoder[Simple] = BsonDecoder.derived[Simple]
+    val _: BsonDecoder[Simple] = BsonDecoder.derived[Simple]
   }
 
   it should "be able to derive a codec from a case class" in {
