@@ -1,17 +1,12 @@
 package medeia.generic
 
 import medeia.codec.{BsonCodec, BsonDocumentCodec}
-import medeia.decoder.BsonDecoder
-import medeia.encoder.BsonEncoder
 import org.scalacheck.{Gen, Prop, Properties}
 
 class GenericCodecProperties extends Properties("GenericEncoding") {
-  import medeia.generic.GenericDecoder._
-  import medeia.generic.GenericEncoder._
-
   propertyWithSeed("decode simple case class", None) = {
     case class Simple(int: Int, string: String)
-    val codec: BsonCodec[Simple] = BsonCodec.fromEncoderAndDecoder
+    val codec: BsonDocumentCodec[Simple] = BsonDocumentCodec.derived
 
     Prop.forAll { (int: Int, string: String) =>
       val origin = Simple(int, string)
@@ -28,8 +23,7 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
       stringList <- Gen.listOf(Gen.alphaStr)
     } yield Complex(intOpt, stringList)
 
-    @SuppressWarnings(Array("org.wartremover.warts.FinalVal")) // false positive
-    val codec: BsonCodec[Complex] = BsonCodec.fromEncoderAndDecoder
+    val codec: BsonDocumentCodec[Complex] = BsonDocumentCodec.derived
 
     Prop.forAll(complexGen) { origin =>
       val encoded = codec.encode(origin)
@@ -46,9 +40,10 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     val bGen = Gen.posNum[Int].map(B.apply)
     val traitGen = Gen.oneOf[Trait](aGen, bGen, Gen.const(C))
 
-    val encoder: BsonEncoder[Trait] = GenericEncoder.genericEncoder
-    val decoder: BsonDecoder[Trait] = GenericDecoder.genericDecoder
-    val codec: BsonCodec[Trait] = BsonCodec.fromEncoderAndDecoder(encoder, decoder)
+    implicit val codecA: BsonDocumentCodec[A] = BsonDocumentCodec.derived
+    implicit val codecB: BsonDocumentCodec[B] = BsonDocumentCodec.derived
+    implicit val codecC: BsonDocumentCodec[C.type] = BsonDocumentCodec.derived
+    val codec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 
     Prop.forAll(traitGen) { origin =>
       val encoded = codec.encode(origin)
@@ -67,6 +62,8 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
       SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
     implicit val genericDerivationOptionsA: GenericDerivationOptions[A] = GenericDerivationOptions { case a => a.toLowerCase() }
     implicit val genericDerivationOptionsB: GenericDerivationOptions[B] = GenericDerivationOptions { case a => a.toUpperCase() }
+    implicit val codecA: BsonDocumentCodec[A] = BsonDocumentCodec.derived
+    implicit val codecB: BsonDocumentCodec[B] = BsonDocumentCodec.derived
     val codec: BsonCodec[Trait] = BsonDocumentCodec.derived
   }
 
