@@ -42,9 +42,6 @@ object BsonDocumentEncoder {
 object BsonEncoder extends DefaultBsonEncoderInstances {
   def apply[A: BsonEncoder]: BsonEncoder[A] = implicitly
 
-  @deprecated(message = "use medeia.encoder.BsonDocumentEncoder.derived", since = "0.10.0")
-  def derive[A](implicit genericEncoder: GenericEncoder[A]): BsonDocumentEncoder[A] = genericEncoder
-
   def encode[A: BsonEncoder](value: A): BsonValue = BsonEncoder[A].encode(value)
 
   implicit val contravariantBsonEncoder: Contravariant[BsonEncoder] =
