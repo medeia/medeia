@@ -5,7 +5,6 @@ import java.time.Instant
 import java.util.{Date, UUID}
 import cats.Contravariant
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyMap, NonEmptySet}
-import medeia.generic.GenericEncoder
 
 import org.mongodb.scala.bson._
 import org.mongodb.scala.bson.collection.{immutable, mutable}
@@ -27,10 +26,9 @@ trait BsonDocumentEncoder[A] extends BsonEncoder[A] { self =>
   override def contramap[B](f: B => A): BsonDocumentEncoder[B] = b => self.encode(f(b))
 }
 
-object BsonDocumentEncoder {
+object BsonDocumentEncoder extends BsonDocumentEncoderVersionSpecific {
   def apply[A: BsonDocumentEncoder]: BsonDocumentEncoder[A] = implicitly
 
-  def derived[A](implicit genericEncoder: GenericEncoder[A]): BsonDocumentEncoder[A] = genericEncoder
 
   implicit val contravariantBsonEncoder: Contravariant[BsonDocumentEncoder] =
     new Contravariant[BsonDocumentEncoder] {
