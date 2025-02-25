@@ -29,7 +29,6 @@ trait BsonDocumentEncoder[A] extends BsonEncoder[A] { self =>
 object BsonDocumentEncoder extends BsonDocumentEncoderVersionSpecific {
   def apply[A: BsonDocumentEncoder]: BsonDocumentEncoder[A] = implicitly
 
-
   implicit val contravariantBsonEncoder: Contravariant[BsonDocumentEncoder] =
     new Contravariant[BsonDocumentEncoder] {
       override def contramap[A, B](fa: BsonDocumentEncoder[A])(f: B => A): BsonDocumentEncoder[B] = fa.contramap(f).encode
