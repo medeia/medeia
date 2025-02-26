@@ -29,7 +29,7 @@ object GenericProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Null"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
