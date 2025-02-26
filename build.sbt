@@ -25,7 +25,6 @@ ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeLegacy
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
-ThisBuild / tlFatalWarnings := false
 
 lazy val root = tlCrossRootProject
   .aggregate(core, enumeratum, refined)
