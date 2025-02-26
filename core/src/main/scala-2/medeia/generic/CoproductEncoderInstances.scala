@@ -1,16 +1,15 @@
 package medeia.generic
 
-import medeia.encoder.BsonDocumentEncoder
 import org.mongodb.scala.bson.BsonString
 import shapeless.labelled.FieldType
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 
-trait CoproductEncoderInstances {
+private[medeia] trait CoproductEncoderInstances {
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   implicit def cnilEncoder[Base]: ShapelessEncoder[Base, CNil] = (_, _) => throw new Exception("Inconceivable!")
   implicit def coproductEncoder[Base, K <: Symbol, H, T <: Coproduct](implicit
       witness: Witness.Aux[K],
-      hEncoder: BsonDocumentEncoder[H],
+      hEncoder: GenericEncoder[H],
       tEncoder: ShapelessEncoder[Base, T],
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessEncoder[Base, FieldType[K, H] :+: T] = {

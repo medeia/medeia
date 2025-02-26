@@ -5,7 +5,6 @@ import cats.data.EitherNec
 import medeia.codec.BsonDocumentCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonDocumentEncoder
-import medeia.generic.{GenericEncoder, GenericDecoder}
 import org.bson.{BsonDocument, BsonValue}
 
 trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
@@ -14,12 +13,8 @@ trait BsonDocumentCodec[A] extends BsonCodec[A] with BsonDocumentEncoder[A] {
   override def iemap[B](f: A => Either[String, B])(g: B => A): BsonDocumentCodec[B] = fromEncoderAndDecoder(contramap(g), emap(f))
 }
 
-object BsonDocumentCodec {
+object BsonDocumentCodec extends BsonDocumentCodecVersionSpecific {
   def apply[A](implicit codec: BsonDocumentCodec[A]): BsonDocumentCodec[A] = codec
-
-  def derived[A](implicit genericEncoder: GenericEncoder[A], genericDecoder: GenericDecoder[A]): BsonDocumentCodec[A] = {
-    BsonDocumentCodec.fromEncoderAndDecoder(genericEncoder, genericDecoder)
-  }
 
   implicit def fromEncoderAndDecoder[A](implicit encoder: BsonDocumentEncoder[A], decoder: BsonDecoder[A]): BsonDocumentCodec[A] =
     new BsonDocumentCodec[A] {

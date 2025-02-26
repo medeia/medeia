@@ -6,7 +6,6 @@ import cats.syntax.parallel._
 import cats.{Functor, Order}
 import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, TypeMismatch}
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
-import medeia.generic.GenericDecoder
 
 import org.bson.{BsonDbPointer, BsonDocument, BsonInt32, BsonType}
 import org.mongodb.scala.bson.collection.{immutable, mutable}
@@ -49,10 +48,8 @@ trait BsonDecoder[A] { self =>
     x => self.decode(x).flatMap(f(_).leftMap(GenericDecoderError(_)).toEitherNec)
 }
 
-object BsonDecoder extends DefaultBsonDecoderInstances {
+object BsonDecoder extends DefaultBsonDecoderInstances with BsonDecoderVersionSpecific {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
-
-  def derived[A](implicit genericDecoder: GenericDecoder[A]): BsonDecoder[A] = genericDecoder
 
   def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {
     BsonDecoder[A].decode(bson)
