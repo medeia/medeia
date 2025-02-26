@@ -17,11 +17,10 @@ trait GenericDecoderInstances {
   inline def apply[A]: GenericDecoder[A] =
     summonInline[GenericDecoder[A]]
 
-  given coproduct[A]
-    (using
+  given coproduct[A](using
       inst: => K0.CoproductInstances[ProductDecoder, A],
       labelling: Labelling[A],
-      options: SealedTraitDerivationOptions[A]= SealedTraitDerivationOptions[A]()
+      options: SealedTraitDerivationOptions[A] = SealedTraitDerivationOptions[A]()
   ): GenericDecoder[A] = { value =>
     for {
       document <- value.fromBson[BsonDocument]
@@ -31,7 +30,10 @@ trait GenericDecoderInstances {
     } yield (result)
   }
 
-  given product[A: Labelling](using inst: => ProductInstances[BsonDecoder, A], options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()): GenericDecoder[A] = ProductDecoder.product
+  given product[A: Labelling](using
+      inst: => ProductInstances[BsonDecoder, A],
+      options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
+  ): GenericDecoder[A] = ProductDecoder.product
 
   private def doDecode[A](discriminatorKey: String, value: BsonValue)(using
       inst: => K0.CoproductInstances[ProductDecoder, A],

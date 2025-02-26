@@ -28,17 +28,24 @@ trait GenericEncoderInstances {
       )
     }
 
-  given product[A: Labelling](using inst: => ProductInstances[BsonEncoder, A], options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()): GenericEncoder[A] = ProductEncoder.product
+  given product[A: Labelling](using
+      inst: => ProductInstances[BsonEncoder, A],
+      options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
+  ): GenericEncoder[A] = ProductEncoder.product
 }
 
 private trait ProductEncoder[A] extends GenericEncoder[A]
 
 private object ProductEncoder {
-  given product[A](using inst: => ProductInstances[BsonEncoder, A], labelling: Labelling[A], options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()): ProductEncoder[A] = (value: A) =>
-      BsonDocument(
-        labelling.elemLabels.zipWithIndex.map((label, i) =>
-          val fieldName = options.transformKeys(label)
-          fieldName -> inst.project(value)(i)([t] => (encoder: BsonEncoder[t], pt: t) => encoder.encode(pt))
-        )
+  given product[A](using
+      inst: => ProductInstances[BsonEncoder, A],
+      labelling: Labelling[A],
+      options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
+  ): ProductEncoder[A] = (value: A) =>
+    BsonDocument(
+      labelling.elemLabels.zipWithIndex.map((label, i) =>
+        val fieldName = options.transformKeys(label)
+        fieldName -> inst.project(value)(i)([t] => (encoder: BsonEncoder[t], pt: t) => encoder.encode(pt))
       )
+    )
 }
