@@ -16,7 +16,7 @@ private[medeia] trait GenericEncoderInstances {
       inst: => K0.CoproductInstances[ProductEncoder, A],
       labelling: Labelling[A],
       mirror: Mirror.SumOf[A],
-      options: SealedTraitDerivationOptions[A] = SealedTraitDerivationOptions[A]()
+      options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
   ): GenericEncoder[A] =
     (value: A) => {
       inst.fold(value)(

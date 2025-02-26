@@ -11,7 +11,7 @@ private[medeia] trait CoproductEncoderInstances {
       witness: Witness.Aux[K],
       hEncoder: GenericEncoder[H],
       tEncoder: ShapelessEncoder[Base, T],
-      options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
+      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()
   ): ShapelessEncoder[Base, FieldType[K, H] :+: T] = {
     case (Inl(head), _) =>
       hEncoder.encode(head).append(options.discriminatorKey, BsonString(options.transformDiscriminator(witness.value.name)))

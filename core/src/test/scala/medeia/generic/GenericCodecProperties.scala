@@ -1,5 +1,6 @@
-package medeia.generic
+package medesdfsdfa.generic
 
+import medeia.generic.*
 import medeia.codec.{BsonCodec, BsonDocumentCodec}
 import org.scalacheck.{Gen, Prop, Properties}
 
@@ -55,8 +56,8 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     case class A(stringField: String) extends Trait
     case class B(int: Int) extends Trait
 
-    implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
-      SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
+    implicit val coproductDerivationOptions: GenericDerivationOptions[Trait] =
+      GenericDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
     val codec: BsonCodec[Trait] = BsonDocumentCodec.derived
   }
 

@@ -66,8 +66,8 @@ class GenericEncoderSpec extends MedeiaSpec {
 
   // prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
-    implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
-      SealedTraitDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
+    implicit val coproductDerivationOptions: GenericDerivationOptions[Trait] =
+      GenericDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
     implicit val encoderA: BsonDocumentEncoder[A] = BsonDocumentEncoder.derived
     implicit val encoderB: BsonDocumentEncoder[B.type] = BsonDocumentEncoder.derived
     implicit val encoder: BsonDocumentEncoder[Trait] = BsonDocumentEncoder.derived
