@@ -5,7 +5,7 @@ import medeia.decoder.BsonDecoderError.TypeMismatch
 import org.bson.BsonType
 import shapeless.LabelledGeneric
 
-trait GenericDecoderInstances {
+private[medeia] trait GenericDecoderInstances {
   implicit def genericDecoder[Base, H](implicit
       generic: LabelledGeneric.Aux[Base, H],
       hDecoder: => ShapelessDecoder[Base, H]

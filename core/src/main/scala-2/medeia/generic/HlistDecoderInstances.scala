@@ -9,7 +9,7 @@ import medeia.decoder.StackFrame.Attr
 import shapeless.labelled.{FieldType, field}
 import shapeless.{::, HList, HNil, Witness}
 
-trait HlistDecoderInstances {
+private[medeia] trait HlistDecoderInstances {
   implicit def hnilDecoder[Base]: ShapelessDecoder[Base, HNil] = _ => Right(HNil)
 
   implicit def hlistObjectDecoder[Base, K <: Symbol, H, T <: HList](implicit
