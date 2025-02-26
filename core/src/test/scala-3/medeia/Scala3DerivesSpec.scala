@@ -30,8 +30,8 @@ class Scala3DerivesSpec extends MedeiaSpec {
   case class B(int: Int) extends Trait
 
   object Trait {
-    implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
-      SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
+    implicit val coproductDerivationOptions: GenericDerivationOptions[Trait] =
+      GenericDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
   }
   object A {
     implicit val genericDerivationOptionsA: GenericDerivationOptions[A] = GenericDerivationOptions { case a => a.toLowerCase() }
@@ -58,8 +58,8 @@ class Scala3DerivesSpec extends MedeiaSpec {
     case B2(int: Int)
 
   object TestEnum {
-    given SealedTraitDerivationOptions[TestEnum] =
-      SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
+    given GenericDerivationOptions[TestEnum] =
+      GenericDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
     given GenericDerivationOptions[A1] = GenericDerivationOptions { case a => a.toLowerCase() }
     given GenericDerivationOptions[B2] = GenericDerivationOptions { case a => a.toUpperCase() }
     given BsonDocumentCodec[A1] = BsonDocumentCodec.derived
