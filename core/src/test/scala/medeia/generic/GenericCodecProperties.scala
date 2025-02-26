@@ -40,9 +40,6 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
     val bGen = Gen.posNum[Int].map(B.apply)
     val traitGen = Gen.oneOf[Trait](aGen, bGen, Gen.const(C))
 
-    implicit val codecA: BsonDocumentCodec[A] = BsonDocumentCodec.derived
-    implicit val codecB: BsonDocumentCodec[B] = BsonDocumentCodec.derived
-    implicit val codecC: BsonDocumentCodec[C.type] = BsonDocumentCodec.derived
     val codec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 
     Prop.forAll(traitGen) { origin =>
@@ -60,10 +57,6 @@ class GenericCodecProperties extends Properties("GenericEncoding") {
 
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
-    implicit val genericDerivationOptionsA: GenericDerivationOptions[A] = GenericDerivationOptions { case a => a.toLowerCase() }
-    implicit val genericDerivationOptionsB: GenericDerivationOptions[B] = GenericDerivationOptions { case a => a.toUpperCase() }
-    implicit val codecA: BsonDocumentCodec[A] = BsonDocumentCodec.derived
-    implicit val codecB: BsonDocumentCodec[B] = BsonDocumentCodec.derived
     val codec: BsonCodec[Trait] = BsonDocumentCodec.derived
   }
 

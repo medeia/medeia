@@ -4,10 +4,10 @@ import shapeless3.deriving.K0.*
 import shapeless3.deriving.*
 import org.mongodb.scala.bson.*
 import scala.compiletime.*
-import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
+import medeia.encoder.BsonEncoder
 import scala.deriving.Mirror
 
-trait GenericEncoderInstances {
+private[medeia] trait GenericEncoderInstances {
   inline def apply[A]: GenericEncoder[A] =
     summonInline[GenericEncoder[A]]
 

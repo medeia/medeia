@@ -6,14 +6,13 @@ import shapeless3.deriving.K0.*
 import shapeless3.deriving.*
 import org.mongodb.scala.bson.*
 import scala.compiletime.*
-import scala.deriving.Mirror
 import medeia.decoder.BsonDecoderError.*
 import medeia.decoder.BsonDecoderError
 import medeia.decoder.BsonDecoder
 import medeia.decoder.StackFrame.*
 import medeia.syntax.*
 
-trait GenericDecoderInstances {
+private[medeia] trait GenericDecoderInstances {
   inline def apply[A]: GenericDecoder[A] =
     summonInline[GenericDecoder[A]]
 
@@ -74,7 +73,7 @@ private object ProductDecoder {
     )
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Null"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],

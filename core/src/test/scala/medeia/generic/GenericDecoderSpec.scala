@@ -51,8 +51,6 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "decode sealed trait hierarchies" in {
-    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
-    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
     implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> "B",
@@ -67,8 +65,6 @@ class GenericDecoderSpec extends MedeiaSpec {
   object ForSealedTraitWithTransformationTest {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
       SealedTraitDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
-    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
-    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
     implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
   }
 
@@ -84,8 +80,6 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on unknown discriminator" in {
-    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
-    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
     implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> "Z",
@@ -97,8 +91,6 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on missing discriminator" in {
-    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
-    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
     implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "int" -> 1
@@ -109,8 +101,6 @@ class GenericDecoderSpec extends MedeiaSpec {
   }
 
   it should "fail on invalid discriminator key" in {
-    implicit val decoderA: BsonDecoder[A] = BsonDecoder.derived
-    implicit val decoderB: BsonDecoder[B] = BsonDecoder.derived
     implicit val decoder: BsonDecoder[Trait] = BsonDecoder.derived
     val original = BsonDocument(
       "type" -> 5,
@@ -128,7 +118,6 @@ class GenericDecoderSpec extends MedeiaSpec {
     sealed trait Baz
     case class Qux(answer: Int) extends Baz
 
-    implicit val quxdecoder: BsonDecoder[Qux] = BsonDecoder.derived
     implicit val bazdecoder: BsonDecoder[Baz] = BsonDecoder.derived
     implicit val bardecoder: BsonDecoder[Bar] = BsonDecoder.derived
     implicit val fooBardecoder: BsonDecoder[FooBar] = BsonDecoder.derived
