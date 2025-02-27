@@ -63,28 +63,19 @@ private object ProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
-  private case class Accumulator(labels: IndexedSeq[String], error: Option[BsonDecoderError]) {
-    def discardLabel(): Accumulator = this.copy(labels.tail)
-    def error(error: BsonDecoderError): Accumulator = this.copy(
-      labels = labels.tail,
-      error = Some(error)
-    )
-  }
-
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.OptionPartial"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
       options: GenericDerivationOptions[A]
   ): Either[BsonDecoderError, A] = {
-    val (acc, result) = inst.unfold[Accumulator](Accumulator(labelling.elemLabels, None))(
+    val (acc, result) = inst.unfold[Either[BsonDecoderError, Int]](Right(0))(
       [t] =>
-        (acc: Accumulator, rt: BsonDecoder[t]) =>
-          val label =
-            acc.labels.headOption
+        (acc: Either[BsonDecoderError, Int], rt: BsonDecoder[t]) =>
+          val index = acc.toOption.get // guaranteed to be right because Left stops the unfold
+          val label = labelling.elemLabels.lift(index)
               .map(options.transformKeys)
-              .getOrElse(throw new RuntimeException("Bug in derivation logic, accumulator has no labels!"))
+              .get // guaranteed by shapeless to be present
 
           val decoded = Option(bsonDocument.get(label)) match {
             case Some(headField) => rt.decode(headField).leftMap(_.push(Attr(label)))
@@ -92,14 +83,14 @@ private object ProductDecoder {
           }
 
           decoded match {
-            case Left(e)      => (acc.error(e), None)
-            case Right(value) => (acc.discardLabel(), Some(value))
+            case Left(e)     => (Left(e), None)
+            case Right(value) => (Right(index + 1), Some(value))
         }
     )
 
     (acc, result) match {
-      case (Accumulator(Seq(), None), Some(r)) => Right(r)
-      case (Accumulator(_, Some(es)), _)       => Left(es)
+      case (Left(e), _)       => Left(e)
+      case (_, Some(r)) => Right(r)
       case (acc, r)                            => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
     }
   }
