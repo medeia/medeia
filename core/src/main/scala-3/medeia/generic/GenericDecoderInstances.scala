@@ -63,7 +63,7 @@ private object ProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.OptionPartial"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.OptionPartial", "org.wartremover.warts.SeqApply"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
@@ -73,9 +73,7 @@ private object ProductDecoder {
       [t] =>
         (acc: Either[BsonDecoderError, Int], rt: BsonDecoder[t]) =>
           val index = acc.toOption.get // guaranteed to be right because Left stops the unfold
-          val label = labelling.elemLabels.lift(index)
-              .map(options.transformKeys)
-              .get // guaranteed by shapeless to be present
+          val label = options.transformKeys(labelling.elemLabels(index)) // guaranteed to be present
 
           val decoded = Option(bsonDocument.get(label)) match {
             case Some(headField) => rt.decode(headField).leftMap(_.push(Attr(label)))
@@ -83,15 +81,15 @@ private object ProductDecoder {
           }
 
           decoded match {
-            case Left(e)     => (Left(e), None)
+            case Left(e)      => (Left(e), None)
             case Right(value) => (Right(index + 1), Some(value))
         }
     )
 
     (acc, result) match {
-      case (Left(e), _)       => Left(e)
+      case (Left(e), _) => Left(e)
       case (_, Some(r)) => Right(r)
-      case (acc, r)                            => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
+      case (acc, r)     => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
     }
   }
 }
