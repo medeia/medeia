@@ -47,5 +47,5 @@ trait DefaultBsonKeyDecoderInstances {
     Either
       .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(key).build())
       .leftMap(FieldParseError("Cannot parse locale", _))
-      
+
 }

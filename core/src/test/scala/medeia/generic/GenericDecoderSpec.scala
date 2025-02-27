@@ -131,8 +131,7 @@ class GenericDecoderSpec extends MedeiaSpec {
 
     val result = doc.fromBson[FooBar]
 
-    result.left.value.stack should  ===(
-      ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))))
+    result.left.value.stack should ===(ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))))
   }
 
   it should "decode case objects" in {

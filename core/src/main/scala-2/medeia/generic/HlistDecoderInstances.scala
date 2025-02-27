@@ -26,6 +26,6 @@ private[medeia] trait HlistDecoderInstances {
         }
         tail <- tDecoder.decode(bsonDocument)
 
-      } yield (head:: tail)
+      } yield (head :: tail)
     }
 }

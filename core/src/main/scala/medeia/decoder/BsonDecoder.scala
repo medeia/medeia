@@ -107,7 +107,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       Either
         .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(string).build())
         .leftMap(FieldParseError("Cannot parse locale", _))
-        
+
     }
 
   implicit val uriDecoder: BsonDecoder[URI] = bson =>
@@ -230,7 +230,7 @@ trait BsonIterableDecoder {
 
           bson.asArray.getValues.forEach { b =>
             val decoded = BsonDecoder[A].decode(b).leftMap(_.push(Index(i)))
-            elems = elems.flatMap(builder => decoded.map(dec => builder += dec))         
+            elems = elems.flatMap(builder => decoded.map(dec => builder += dec))
             i += 1
           }
 
