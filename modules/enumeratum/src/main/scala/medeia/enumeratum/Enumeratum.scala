@@ -1,6 +1,5 @@
 package medeia.enumeratum
 
-import cats.data.EitherNec
 import cats.syntax.either._
 import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import enumeratum.{Enum, EnumEntry}
@@ -33,13 +32,13 @@ object Enumeratum {
     BsonDecoder[ValueType]
       .decode(bson)
       .flatMap(value =>
-        Either.catchNonFatal(enumInstance.withValue(value)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
+        Either.catchNonFatal(enumInstance.withValue(value)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e))
       )
 
   def valueEnumCodec[ValueType: BsonCodec, EntryType <: ValueEnumEntry[ValueType]](
       enumInstance: ValueEnum[ValueType, EntryType]
   ): BsonCodec[EntryType] = BsonCodec.fromEncoderAndDecoder(valueEnumEncoder, valueEnumDecoder(enumInstance))
 
-  private[this] def stringToEnum[A <: EnumEntry](enumInstance: Enum[A])(string: String): EitherNec[BsonDecoderError, A] =
-    Either.catchNonFatal(enumInstance.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e)).toEitherNec
+  private[this] def stringToEnum[A <: EnumEntry](enumInstance: Enum[A])(string: String): Either[BsonDecoderError, A] =
+    Either.catchNonFatal(enumInstance.withName(string)).leftMap(e => FieldParseError(s"Exception in enumeratum: ${e.getMessage}", e))
 }

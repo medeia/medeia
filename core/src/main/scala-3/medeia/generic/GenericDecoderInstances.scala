@@ -42,7 +42,7 @@ private[medeia] trait GenericDecoderInstances {
     labelling.elemLabels.zipWithIndex
       .map { case (label, index) =>
         Option.when(discriminatorKey == options.transformDiscriminator(label)) {
-          inst.inject[EitherNec[BsonDecoderError, A]](index)(
+          inst.inject[Either[BsonDecoderError, A]](index)(
             [t <: A] => (rt: ProductDecoder[t]) => rt.decode(value).leftMap(_.map(_.push(Case(discriminatorKey))))
           )
         }
@@ -78,7 +78,7 @@ private object ProductDecoder {
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
       options: GenericDerivationOptions[A]
-  ): EitherNec[BsonDecoderError, A] = {
+  ): Either[BsonDecoderError, A] = {
     val (acc, result) = inst.unfold[Accumulator](Accumulator(labelling.elemLabels, None))(
       [t] =>
         (acc: Accumulator, rt: BsonDecoder[t]) =>

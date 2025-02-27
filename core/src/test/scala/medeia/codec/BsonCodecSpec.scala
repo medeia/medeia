@@ -1,6 +1,5 @@
 package medeia.codec
 
-import cats.syntax.either._
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoderError
 import medeia.decoder.BsonDecoderError.GenericDecoderError
@@ -39,6 +38,6 @@ class BsonCodecSpec extends MedeiaSpec {
 
     val result = iemappedCodec.decode(iemappedCodec.encode("42"))
 
-    result should ===(Left[BsonDecoderError, String](GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, String](GenericDecoderError(error)))
   }
 }

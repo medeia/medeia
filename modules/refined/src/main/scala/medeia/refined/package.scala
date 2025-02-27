@@ -12,5 +12,5 @@ package object refined {
     innerEncoder.contramap(_.value)
 
   implicit def decoder[T, P](implicit innerDecoder: BsonDecoder[T], validate: Validate[T, P]): BsonDecoder[Refined[T, P]] =
-    bson => innerDecoder.decode(bson).flatMap(t => refineV[P](t).leftMap(error => GenericDecoderError(error)).toEitherNec)
+    bson => innerDecoder.decode(bson).flatMap(t => refineV[P](t).leftMap(error => GenericDecoderError(error)))
 }

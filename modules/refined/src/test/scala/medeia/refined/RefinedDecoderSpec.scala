@@ -14,6 +14,6 @@ class RefinedDecoderSpec extends AnyFlatSpecLike with Matchers with EitherValues
 
   it should "fail gracefully on failed refinement" in {
     val incorrectString = BsonString("No UUID at all")
-    BsonDecoder[Refined[String, Uuid]].decode(incorrectString).left.value.head shouldBe a[GenericDecoderError]
+    BsonDecoder[Refined[String, Uuid]].decode(incorrectString).left.value shouldBe a[GenericDecoderError]
   }
 }

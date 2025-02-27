@@ -1,6 +1,5 @@
 package medeia.codec
 
-import cats.syntax.either._
 import medeia.MedeiaSpec
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.decoder.BsonDecoderError.GenericDecoderError
@@ -42,7 +41,7 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
 
     val result = emappedDecoder.decode(new BsonDocument("answer", new BsonInt32(42)))
 
-    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)))
   }
 
   it should "support iemap" in {
@@ -65,6 +64,6 @@ class BsonDocumentCodecSpec extends MedeiaSpec {
 
     val result = iemappedCodec.decode(iemappedCodec.encode(42))
 
-    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)).toEitherNec)
+    result should ===(Left[BsonDecoderError, Int](GenericDecoderError(error)))
   }
 }

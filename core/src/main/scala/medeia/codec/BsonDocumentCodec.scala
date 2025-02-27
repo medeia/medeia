@@ -1,7 +1,6 @@
 package medeia.codec
 
 import cats.Invariant
-import cats.data.EitherNec
 import medeia.codec.BsonDocumentCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.BsonDocumentEncoder
@@ -20,7 +19,7 @@ object BsonDocumentCodec extends BsonDocumentCodecVersionSpecific {
     new BsonDocumentCodec[A] {
       override def encode(a: A): BsonDocument = encoder.encode(a)
 
-      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, A] =
+      override def decode(bson: BsonValue): Either[BsonDecoderError, A] =
         decoder.decode(bson)
     }
 
