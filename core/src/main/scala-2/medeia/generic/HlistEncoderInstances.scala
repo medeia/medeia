@@ -4,7 +4,7 @@ import medeia.encoder.BsonEncoder
 import shapeless.labelled.FieldType
 import shapeless.{::, HList, HNil, Witness}
 
-trait HlistEncoderInstances {
+private[medeia] trait HlistEncoderInstances {
   implicit def hnilEncoder[Base]: ShapelessEncoder[Base, HNil] =
     (_, doc) => doc
 

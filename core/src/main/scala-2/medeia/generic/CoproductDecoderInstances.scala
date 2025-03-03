@@ -5,12 +5,12 @@ import cats.syntax.eq._
 import cats.syntax.either._
 import medeia.decoder.BsonDecoderError.InvalidTypeTag
 import medeia.decoder.StackFrame.Case
-import medeia.decoder.{BsonDecoder, BsonDecoderError}
+import medeia.decoder.BsonDecoderError
 import medeia.syntax._
 import shapeless.labelled.{FieldType, field}
 import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 
-trait CoproductDecoderInstances {
+private[medeia] trait CoproductDecoderInstances {
   implicit def cnilDecoder[Base](implicit
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessDecoder[Base, CNil] = { bsonDocument =>
@@ -23,7 +23,7 @@ trait CoproductDecoderInstances {
 
   implicit def coproductDecoder[Base, K <: Symbol, H, T <: Coproduct](implicit
       witness: Witness.Aux[K],
-      hInstance: BsonDecoder[H],
+      hInstance: GenericDecoder[H],
       tInstance: ShapelessDecoder[Base, T],
       options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>

@@ -18,7 +18,7 @@ class Scala3DerivesSpec extends MedeiaSpec {
   }
 
   it should "be able to derive case class Encoder and Decoder" in {
-    case class Foo(a: String, b: Int) derives BsonDocumentEncoder, BsonDecoder
+    case class Foo(a: String, b: Int) derives BsonDocumentCodec
     val input = Foo("a", 1)
     val result = input.toBson.fromBson[Foo]
 
@@ -26,8 +26,8 @@ class Scala3DerivesSpec extends MedeiaSpec {
   }
 
   sealed trait Trait derives BsonDocumentCodec
-  case class A(stringField: String) extends Trait derives BsonDocumentCodec
-  case class B(int: Int) extends Trait derives BsonDocumentCodec
+  case class A(stringField: String) extends Trait
+  case class B(int: Int) extends Trait
 
   object Trait {
     implicit val coproductDerivationOptions: SealedTraitDerivationOptions[Trait] =
