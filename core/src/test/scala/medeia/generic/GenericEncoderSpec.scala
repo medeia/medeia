@@ -67,7 +67,7 @@ class GenericEncoderSpec extends MedeiaSpec {
     implicit val traitDerivationOptions: GenericDerivationOptions[Trait] =
       GenericDerivationOptions(
         discriminatorTransformation = { case d => d.toLowerCase() },
-        discriminatorKey = "otherType",
+        discriminatorKey = "otherType"
       )
     implicit val caseClassDerivationOptions: GenericDerivationOptions[A] =
       GenericDerivationOptions(
