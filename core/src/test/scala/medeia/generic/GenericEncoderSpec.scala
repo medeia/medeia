@@ -17,8 +17,6 @@ class GenericEncoderSpec extends MedeiaSpec {
   case class Simple(int: Int, string: String)
 
   object DefaultTraitEncoders {
-    implicit val encoderA: BsonDocumentEncoder[A] = BsonDocumentEncoder.derived
-    implicit val encoderB: BsonDocumentEncoder[B.type] = BsonDocumentEncoder.derived
     implicit val encoder: BsonDocumentEncoder[Trait] = BsonDocumentEncoder.derived
   }
 
@@ -66,10 +64,15 @@ class GenericEncoderSpec extends MedeiaSpec {
 
   // prevents unused field warnings
   object ForSealedTraitWithTransformationTest {
-    implicit val coproductDerivationOptions: GenericDerivationOptions[Trait] =
-      GenericDerivationOptions(discriminatorTransformation = { case d => d.toLowerCase() }, discriminatorKey = "otherType")
-    implicit val encoderA: BsonDocumentEncoder[A] = BsonDocumentEncoder.derived
-    implicit val encoderB: BsonDocumentEncoder[B.type] = BsonDocumentEncoder.derived
+    implicit val traitDerivationOptions: GenericDerivationOptions[Trait] =
+      GenericDerivationOptions(
+        discriminatorTransformation = { case d => d.toLowerCase() },
+        discriminatorKey = "otherType",
+      )
+    implicit val caseClassDerivationOptions: GenericDerivationOptions[A] =
+      GenericDerivationOptions(
+        keyTransformation = { case d => d.toUpperCase() }
+      )
     implicit val encoder: BsonDocumentEncoder[Trait] = BsonDocumentEncoder.derived
   }
 
@@ -80,7 +83,7 @@ class GenericEncoderSpec extends MedeiaSpec {
     document should ===(
       BsonDocument(
         "otherType" -> "a",
-        "string" -> "1"
+        "STRING" -> "1"
       )
     )
   }
