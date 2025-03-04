@@ -53,17 +53,16 @@ class Scala3DerivesSpec extends MedeiaSpec {
     result should ===(Right(input))
   }
 
-  enum TestEnum derives BsonDocumentCodec:
+  enum TestEnum derives BsonDocumentCodec {
     case A1(stringField: String)
     case B2(int: Int)
+  }
 
   object TestEnum {
     given GenericDerivationOptions[TestEnum] =
       GenericDerivationOptions(discriminatorTransformation = { case a => a.toLowerCase() }, discriminatorKey = "otherType")
     given GenericDerivationOptions[A1] = GenericDerivationOptions { case a => a.toLowerCase() }
     given GenericDerivationOptions[B2] = GenericDerivationOptions { case a => a.toUpperCase() }
-    given BsonDocumentCodec[A1] = BsonDocumentCodec.derived
-    given BsonDocumentCodec[B2] = BsonDocumentCodec.derived
   }
 
   it should "be able to derive Enum Codec" in {
