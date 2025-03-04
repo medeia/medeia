@@ -17,9 +17,6 @@ inThisBuild(
   )
 )
 
-ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
-ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.Equals(Ref.Branch("main")), RefPredicate.StartsWith(Ref.Tag("v")))
-
 val PrimaryOS = "ubuntu-latest"
 val MacOS = "macos-latest"
 ThisBuild / githubWorkflowJavaVersions := Seq(
@@ -30,7 +27,6 @@ ThisBuild / githubWorkflowOSes := Seq(PrimaryOS, MacOS)
 
 ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeLegacy
-ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
 
