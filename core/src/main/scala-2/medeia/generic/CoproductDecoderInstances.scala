@@ -11,7 +11,7 @@ import shapeless.{:+:, CNil, Coproduct, Inl, Inr, Witness}
 
 private[medeia] trait CoproductDecoderInstances {
   implicit def cnilDecoder[Base](implicit
-      options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
+      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()
   ): ShapelessDecoder[Base, CNil] = { bsonDocument =>
     val typeTag = bsonDocument.getSafe(options.discriminatorKey).flatMap(_.fromBson[String])
     typeTag match {
@@ -24,7 +24,7 @@ private[medeia] trait CoproductDecoderInstances {
       witness: Witness.Aux[K],
       hInstance: GenericDecoder[H],
       tInstance: ShapelessDecoder[Base, T],
-      options: SealedTraitDerivationOptions[Base] = SealedTraitDerivationOptions[Base]()
+      options: GenericDerivationOptions[Base] = GenericDerivationOptions[Base]()
   ): ShapelessDecoder[Base, FieldType[K, H] :+: T] = { bsonDocument =>
     val instanceDiscriminator = options.transformDiscriminator(witness.value.name)
 

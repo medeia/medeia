@@ -18,7 +18,7 @@ private[medeia] trait GenericDecoderInstances {
   given coproduct[A](using
       inst: => K0.CoproductInstances[ProductDecoder, A],
       labelling: Labelling[A],
-      options: SealedTraitDerivationOptions[A] = SealedTraitDerivationOptions[A]()
+      options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
   ): GenericDecoder[A] = { value =>
     for {
       document <- value.fromBson[BsonDocument]
@@ -36,7 +36,7 @@ private[medeia] trait GenericDecoderInstances {
   private def doDecode[A](discriminatorKey: String, value: BsonValue)(using
       inst: => K0.CoproductInstances[ProductDecoder, A],
       labelling: Labelling[A],
-      options: SealedTraitDerivationOptions[A]
+      options: GenericDerivationOptions[A]
   ) = {
     labelling.elemLabels.zipWithIndex
       .map { case (label, index) =>
