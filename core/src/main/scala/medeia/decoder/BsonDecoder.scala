@@ -1,8 +1,7 @@
 package medeia.decoder
 
 import cats.data._
-import cats.syntax.either._
-import cats.syntax.parallel._
+import cats.syntax.all._
 import cats.{Functor, Order}
 import medeia.decoder.BsonDecoderError.{FieldParseError, GenericDecoderError, TypeMismatch}
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
@@ -39,19 +38,19 @@ import java.util.IllformedLocaleException
 @FunctionalInterface
 trait BsonDecoder[A] { self =>
 
-  def decode(bson: BsonValue): EitherNec[BsonDecoderError, A]
+  def decode(bson: BsonValue): Either[BsonDecoderError, A]
   def defaultValue: Option[A] = None
 
   def map[B](f: A => B): BsonDecoder[B] = x => self.decode(x).map(f(_))
 
   def emap[B](f: A => Either[String, B]): BsonDecoder[B] =
-    x => self.decode(x).flatMap(f(_).leftMap(GenericDecoderError(_)).toEitherNec)
+    x => self.decode(x).flatMap(f(_).leftMap(GenericDecoderError(_)))
 }
 
 object BsonDecoder extends DefaultBsonDecoderInstances with BsonDecoderVersionSpecific {
   def apply[A: BsonDecoder]: BsonDecoder[A] = implicitly
 
-  def decode[A: BsonDecoder](bson: BsonValue): EitherNec[BsonDecoderError, A] = {
+  def decode[A: BsonDecoder](bson: BsonValue): Either[BsonDecoderError, A] = {
     BsonDecoder[A].decode(bson)
   }
 
@@ -73,8 +72,8 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val instantDecoder: BsonDecoder[Instant] = bson =>
     bson.getBsonType match {
-      case BsonType.DATE_TIME => Either.rightNec(Instant.ofEpochMilli(bson.asDateTime().getValue))
-      case t                  => Either.leftNec(TypeMismatch(t, BsonType.DATE_TIME))
+      case BsonType.DATE_TIME => Right(Instant.ofEpochMilli(bson.asDateTime().getValue))
+      case t                  => Left(TypeMismatch(t, BsonType.DATE_TIME))
     }
 
   implicit val dateDecoder: BsonDecoder[Date] = instantDecoder.map(Date.from)
@@ -83,16 +82,16 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val symbolDecoder: BsonDecoder[Symbol] = bson =>
     bson.getBsonType match {
-      case BsonType.SYMBOL => Either.rightNec(Symbol(bson.asSymbol().getSymbol))
-      case t               => Either.leftNec(TypeMismatch(t, BsonType.SYMBOL))
+      case BsonType.SYMBOL => Right(Symbol(bson.asSymbol().getSymbol))
+      case t               => Left(TypeMismatch(t, BsonType.SYMBOL))
     }
 
   implicit def optionDecoder[A: BsonDecoder]: BsonDecoder[Option[A]] =
     new BsonDecoder[Option[A]] {
-      override def decode(bson: BsonValue): EitherNec[BsonDecoderError, Option[A]] =
+      override def decode(bson: BsonValue): Either[BsonDecoderError, Option[A]] =
         bson.getBsonType match {
-          case BsonType.NULL => Either.rightNec(None)
-          case _             => BsonDecoder[A].decode(bson).map(Some(_)).leftMap(_.map(_.push(Case("Some"))))
+          case BsonType.NULL => Right(None)
+          case _             => BsonDecoder[A].decode(bson).map(Some(_)).leftMap(_.push(Case("Some")))
         }
 
       override def defaultValue: Option[Option[A]] = Some(None)
@@ -100,7 +99,7 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val uuidDecoder: BsonDecoder[UUID] = bson =>
     stringDecoder.decode(bson).flatMap { string =>
-      Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError("Cannot parse UUID", _)).toEitherNec
+      Either.catchOnly[IllegalArgumentException](UUID.fromString(string)).leftMap(FieldParseError("Cannot parse UUID", _))
     }
 
   implicit val localeDecoder: BsonDecoder[Locale] = bson =>
@@ -108,12 +107,12 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       Either
         .catchOnly[IllformedLocaleException](new Locale.Builder().setLanguageTag(string).build())
         .leftMap(FieldParseError("Cannot parse locale", _))
-        .toEitherNec
+
     }
 
   implicit val uriDecoder: BsonDecoder[URI] = bson =>
     stringDecoder.decode(bson).flatMap { string =>
-      Either.catchOnly[IllegalArgumentException](URI.create(string)).leftMap(FieldParseError("Cannot parse URI", _)).toEitherNec
+      Either.catchOnly[IllegalArgumentException](URI.create(string)).leftMap(FieldParseError("Cannot parse URI", _))
     }
 
   implicit def listDecoder[A: BsonDecoder]: BsonDecoder[List[A]] = iterableDecoder
@@ -131,10 +130,11 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
       val document = bsonDocumentDecoder.decode(bson)
       document.flatMap { (doc: BsonDocument) =>
         doc.asScala.toList
-          .parTraverse { case (k, v) =>
-            val key = BsonKeyDecoder[K].decode(k)
-            val value = BsonDecoder[A].decode(v)
-            (key, value).parMapN((k, v) => k -> v).leftMap(_.map(_.push(MapKey(k))))
+          .traverse { case (k, v) =>
+            (for {
+              key <- BsonKeyDecoder[K].decode(k)
+              value <- BsonDecoder[A].decode(v)
+            } yield key -> value).leftMap(_.push(MapKey(k)))
           }
           .map(_.toMap)
       }
@@ -144,29 +144,29 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
     bson =>
       listDecoder[A]
         .decode(bson)
-        .flatMap(list => NonEmptyList.fromList(list).toRight(FieldParseError("NonEmptyList may not be empty")).toEitherNec)
+        .flatMap(list => NonEmptyList.fromList(list).toRight(FieldParseError("NonEmptyList may not be empty")))
 
   implicit def nonEmptyChainDecoder[A: BsonDecoder]: BsonDecoder[NonEmptyChain[A]] =
     bson =>
       chainDecoder[A]
         .decode(bson)
-        .flatMap(chain => NonEmptyChain.fromChain(chain).toRight(FieldParseError("NonEmptyChain may not be empty")).toEitherNec)
+        .flatMap(chain => NonEmptyChain.fromChain(chain).toRight(FieldParseError("NonEmptyChain may not be empty")))
 
   implicit def nonEmptySetDecoder[A: BsonDecoder: Order]: BsonDecoder[NonEmptySet[A]] = {
     import Order.catsKernelOrderingForOrder
     bson =>
       sortedSetDecoder[A]
         .decode(bson)
-        .flatMap(sortedSet => NonEmptySet.fromSet(sortedSet).toRight(FieldParseError("NonEmptySet may not be empty")).toEitherNec)
+        .flatMap(sortedSet => NonEmptySet.fromSet(sortedSet).toRight(FieldParseError("NonEmptySet may not be empty")))
   }
 
   implicit def nonEmptyMapDecoder[K: BsonKeyDecoder: Ordering, A: BsonDecoder]: BsonDecoder[NonEmptyMap[K, A]] =
     bson =>
       mapDecoder[K, A]
         .decode(bson)
-        .flatMap(map => NonEmptyMap.fromMap(SortedMap.from(map)).toRight(FieldParseError("NonEmptyMap may not be empty")).toEitherNec)
+        .flatMap(map => NonEmptyMap.fromMap(SortedMap.from(map)).toRight(FieldParseError("NonEmptyMap may not be empty")))
 
-  implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Either.rightNec[BsonDecoderError, BsonValue](_)
+  implicit val bsonValueDecoder: BsonDecoder[BsonValue] = Right[BsonDecoderError, BsonValue](_)
 
   implicit val bsonArrayDecoder: BsonDecoder[BsonArray] = withType(BsonType.ARRAY)(_.asArray)
 
@@ -207,10 +207,10 @@ trait DefaultBsonDecoderInstances extends BsonIterableDecoder {
 
   implicit val mutableDocumentDecoder: BsonDecoder[mutable.Document] = withType(BsonType.DOCUMENT)(b => mutable.Document(b.asDocument))
 
-  private[this] def withType[A](expectedType: BsonType)(f: BsonValue => A)(bson: BsonValue): EitherNec[BsonDecoderError, A] =
+  private[this] def withType[A](expectedType: BsonType)(f: BsonValue => A)(bson: BsonValue): Either[BsonDecoderError, A] =
     bson.getBsonType match {
-      case `expectedType` => Either.rightNec(f(bson))
-      case _              => Either.leftNec(TypeMismatch(bson.getBsonType, expectedType))
+      case `expectedType` => Right(f(bson))
+      case _              => Left(TypeMismatch(bson.getBsonType, expectedType))
 
     }
 }
@@ -224,17 +224,17 @@ trait BsonIterableDecoder {
           type BuilderType = scala.collection.mutable.Builder[A, C[A]]
           val builder: BuilderType = factory.newBuilder
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
-          var elems = Either.rightNec[BsonDecoderError, BuilderType](builder)
+          var elems: Either[BsonDecoderError, BuilderType] = Right(builder)
           @SuppressWarnings(Array("org.wartremover.warts.Var"))
           var i = 0
 
           bson.asArray.getValues.forEach { b =>
-            val decoded = BsonDecoder[A].decode(b).leftMap(_.map(_.push(Index(i))))
-            elems = (elems, decoded).parMapN((builder, dec) => builder += dec)
+            val decoded = BsonDecoder[A].decode(b).leftMap(_.push(Index(i)))
+            elems = elems.flatMap(builder => decoded.map(dec => builder += dec))
             i += 1
           }
 
           elems.map(_.result())
-        case t => Either.leftNec(TypeMismatch(t, BsonType.ARRAY))
+        case t => Left(TypeMismatch(t, BsonType.ARRAY))
       }
 }

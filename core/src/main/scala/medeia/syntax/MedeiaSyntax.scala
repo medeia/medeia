@@ -1,7 +1,5 @@
 package medeia.syntax
 
-import cats.data.EitherNec
-import cats.data.NonEmptyChain
 import medeia.decoder.BsonDecoderError.KeyNotFound
 import medeia.decoder.{BsonDecoder, BsonDecoderError}
 import medeia.encoder.{BsonDocumentEncoder, BsonEncoder}
@@ -16,18 +14,18 @@ trait MedeiaSyntax {
   }
 
   implicit class BsonDecoderOps(bsonValue: BsonValue) {
-    def fromBson[A: BsonDecoder]: EitherNec[BsonDecoderError, A] = BsonDecoder.decode(bsonValue)
+    def fromBson[A: BsonDecoder]: Either[BsonDecoderError, A] = BsonDecoder.decode(bsonValue)
   }
 
   implicit class BsonDecoderOpsForDocument(document: Document) {
-    def fromBson[A: BsonDecoder]: EitherNec[BsonDecoderError, A] = BsonDecoder.decode(document.toBsonDocument)
+    def fromBson[A: BsonDecoder]: Either[BsonDecoderError, A] = BsonDecoder.decode(document.toBsonDocument)
   }
 
   implicit class GetSafeOpsForDocument(document: Document) {
-    def getSafe(key: String): EitherNec[BsonDecoderError, BsonValue] = document.get(key).toRight(NonEmptyChain(KeyNotFound(key)))
+    def getSafe(key: String): Either[BsonDecoderError, BsonValue] = document.get(key).toRight(KeyNotFound(key))
   }
 
   implicit class GetSafeOpsForBsonDocument(document: BsonDocument) {
-    def getSafe(key: String): EitherNec[BsonDecoderError, BsonValue] = Option(document.get(key)).toRight(NonEmptyChain(KeyNotFound(key)))
+    def getSafe(key: String): Either[BsonDecoderError, BsonValue] = Option(document.get(key)).toRight(KeyNotFound(key))
   }
 }

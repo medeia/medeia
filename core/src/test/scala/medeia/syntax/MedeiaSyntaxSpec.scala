@@ -1,6 +1,5 @@
 package medeia.syntax
 
-import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
 import medeia.codec.BsonDocumentCodec
 import medeia.decoder.BsonDecoderError.KeyNotFound
@@ -38,11 +37,11 @@ class MedeiaSyntaxSpec extends MedeiaSpec {
 
   it should "support getSafe for Document" in {
     Document("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
-    Document().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
+    Document().getSafe("nonexisting") should ===(Left(KeyNotFound("nonexisting")))
   }
 
   it should "support getSafe for BsonDocument" in {
     BsonDocument("existing" -> "foo").getSafe("existing") should ===(Right(BsonString("foo")))
-    BsonDocument().getSafe("nonexisting") should ===(Left(NonEmptyChain(KeyNotFound("nonexisting"))))
+    BsonDocument().getSafe("nonexisting") should ===(Left(KeyNotFound("nonexisting")))
   }
 }

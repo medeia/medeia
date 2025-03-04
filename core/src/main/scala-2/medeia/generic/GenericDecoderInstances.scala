@@ -1,6 +1,5 @@
 package medeia.generic
 
-import cats.syntax.either._
 import medeia.decoder.BsonDecoderError.TypeMismatch
 import org.bson.BsonType
 import shapeless.LabelledGeneric
@@ -12,7 +11,7 @@ private[medeia] trait GenericDecoderInstances {
   ): GenericDecoder[Base] = { bson =>
     bson.getBsonType match {
       case BsonType.DOCUMENT => hDecoder.decode(bson.asDocument()).map(generic.from)
-      case t                 => Either.leftNec(TypeMismatch(t, BsonType.DOCUMENT))
+      case t                 => Left(TypeMismatch(t, BsonType.DOCUMENT))
     }
   }
 }

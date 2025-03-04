@@ -13,12 +13,12 @@ class EnumeratumDecoderSpec extends AnyFlatSpecLike with TypeCheckedTripleEquals
   it should "Enum: fail gracefully on unknown entry" in {
     val unknown = "unknown"
 
-    Enumeratum.decoder(TestEnum).decode(BsonString(unknown)).left.value.head shouldBe a[FieldParseError]
+    Enumeratum.decoder(TestEnum).decode(BsonString(unknown)).left.value shouldBe a[FieldParseError]
   }
 
   it should "IntEnum: fail gracefully on unknown entry" in {
     val unknown = 42
 
-    Enumeratum.valueEnumDecoder(TestIntEnum).decode(BsonInt32(unknown)).left.value.head shouldBe a[FieldParseError]
+    Enumeratum.valueEnumDecoder(TestIntEnum).decode(BsonInt32(unknown)).left.value shouldBe a[FieldParseError]
   }
 }

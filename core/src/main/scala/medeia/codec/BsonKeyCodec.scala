@@ -1,7 +1,6 @@
 package medeia.codec
 
 import cats.Invariant
-import cats.data.EitherNec
 import medeia.codec.BsonKeyCodec.fromEncoderAndDecoder
 import medeia.decoder.{BsonDecoderError, BsonKeyDecoder}
 import medeia.encoder.BsonKeyEncoder
@@ -19,7 +18,7 @@ object BsonKeyCodec {
     new BsonKeyCodec[A] {
       override def encode(a: A): String = encoder.encode(a)
 
-      override def decode(string: String): EitherNec[BsonDecoderError, A] =
+      override def decode(string: String): Either[BsonDecoderError, A] =
         decoder.decode(string)
     }
 

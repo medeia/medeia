@@ -1,6 +1,5 @@
 package medeia.generic
 
-import cats.data.NonEmptyChain
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoder
 import medeia.decoder.BsonDecoderError.{InvalidTypeTag, KeyNotFound, TypeMismatch}
@@ -20,7 +19,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     case class Simple(int: Int, string: String)
     implicit val decoder: BsonDecoder[Simple] = BsonDecoder.derived
     val doc = BsonDocument()
-    doc.fromBson[Simple] should ===(Left(NonEmptyChain(KeyNotFound("int"), KeyNotFound("string"))))
+    doc.fromBson[Simple] should ===(Left(KeyNotFound("int")))
   }
 
   it should "decode empty values to None" in {
@@ -36,7 +35,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     case class Outer(inner: Inner)
     implicit val outerdecoder: BsonDecoder[Outer] = BsonDecoder.derived
     val doc = BsonDocument(List("inner" -> BsonNull()))
-    doc.fromBson[Outer] should ===(Left(NonEmptyChain(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT, ErrorStack(List(Attr("inner")))))))
+    doc.fromBson[Outer] should ===(Left(TypeMismatch(BsonType.NULL, BsonType.DOCUMENT, ErrorStack(List(Attr("inner"))))))
   }
 
   it should "allow for key transformation" in {
@@ -87,7 +86,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result should ===(Left(NonEmptyChain(InvalidTypeTag("Z"))))
+    result should ===(Left(InvalidTypeTag("Z")))
   }
 
   it should "fail on missing discriminator" in {
@@ -97,7 +96,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result should ===(Left(NonEmptyChain(KeyNotFound("type"))))
+    result should ===(Left(KeyNotFound("type")))
   }
 
   it should "fail on invalid discriminator key" in {
@@ -108,7 +107,7 @@ class GenericDecoderSpec extends MedeiaSpec {
     )
 
     val result = original.fromBson[Trait]
-    result should ===(Left(NonEmptyChain(TypeMismatch(BsonType.INT32, BsonType.STRING))))
+    result should ===(Left(TypeMismatch(BsonType.INT32, BsonType.STRING)))
   }
 
   it should "fail with an error stack" in {
@@ -132,10 +131,7 @@ class GenericDecoderSpec extends MedeiaSpec {
 
     val result = doc.fromBson[FooBar]
 
-    result.left.value.map(_.stack).toChain.toList should contain theSameElementsAs List(
-      ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))),
-      ErrorStack(List(Attr("bar"), Attr("baz"), Index(1), Case("Qux"), Attr("answer")))
-    )
+    result.left.value.stack should ===(ErrorStack(List(Attr("bar"), Attr("baz"), Index(0), Case("Qux"))))
   }
 
   it should "decode case objects" in {

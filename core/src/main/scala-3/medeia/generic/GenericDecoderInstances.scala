@@ -1,6 +1,5 @@
 package medeia.generic
 
-import cats.data.*
 import cats.syntax.either.*
 import shapeless3.deriving.K0.*
 import shapeless3.deriving.*
@@ -42,13 +41,13 @@ private[medeia] trait GenericDecoderInstances {
     labelling.elemLabels.zipWithIndex
       .map { case (label, index) =>
         Option.when(discriminatorKey == options.transformDiscriminator(label)) {
-          inst.inject[EitherNec[BsonDecoderError, A]](index)(
-            [t <: A] => (rt: ProductDecoder[t]) => rt.decode(value).leftMap(_.map(_.push(Case(discriminatorKey))))
+          inst.inject[Either[BsonDecoderError, A]](index)(
+            [t <: A] => (rt: ProductDecoder[t]) => rt.decode(value).leftMap(_.push(Case(discriminatorKey)))
           )
         }
       }
       .collectFirst { case Some(x) => x }
-      .getOrElse(Left(NonEmptyChain(InvalidTypeTag(discriminatorKey))))
+      .getOrElse(Left(InvalidTypeTag(discriminatorKey)))
   }
 
 }
@@ -64,44 +63,33 @@ private object ProductDecoder {
     value.fromBson[BsonDocument].flatMap(doDecode)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
-  private case class Accumulator(labels: IndexedSeq[String], errors: Option[NonEmptyChain[BsonDecoderError]]) {
-    def discardLabel(): Accumulator = this.copy(labels.tail)
-    def addErrors(errors: NonEmptyChain[BsonDecoderError]): Accumulator = this.copy(
-      labels = labels.tail,
-      errors = this.errors.fold(Some(errors))(es => Some(es ++ errors))
-    )
-  }
-
-  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.AsInstanceOf", "org.wartremover.warts.Null"))
+  @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.OptionPartial", "org.wartremover.warts.SeqApply"))
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
       options: GenericDerivationOptions[A]
-  ): EitherNec[BsonDecoderError, A] = {
-    val (acc, result) = inst.unfold[Accumulator](Accumulator(labelling.elemLabels, None))(
+  ): Either[BsonDecoderError, A] = {
+    val (acc, result) = inst.unfold[Either[BsonDecoderError, Int]](Right(0))(
       [t] =>
-        (acc: Accumulator, rt: BsonDecoder[t]) =>
-          val label =
-            acc.labels.headOption
-              .map(options.transformKeys)
-              .getOrElse(throw new RuntimeException("Bug in derivation logic, accumulator has no labels!"))
+        (acc: Either[BsonDecoderError, Int], rt: BsonDecoder[t]) =>
+          val index = acc.toOption.get // guaranteed to be right because Left stops the unfold
+          val label = options.transformKeys(labelling.elemLabels(index)) // guaranteed to be present
 
           val decoded = Option(bsonDocument.get(label)) match {
-            case Some(headField) => rt.decode(headField).leftMap(_.map(_.push(Attr(label))))
-            case None            => rt.defaultValue.toRight(NonEmptyChain(KeyNotFound(label)))
+            case Some(headField) => rt.decode(headField).leftMap(_.push(Attr(label)))
+            case None            => rt.defaultValue.toRight(KeyNotFound(label))
           }
 
           decoded match {
-            case Left(es)     => (acc.addErrors(es), Some(null.asInstanceOf[t])) // we have to avoid stopping the unfold via None
-            case Right(value) => (acc.discardLabel(), Some(value))
+            case Left(e)      => (Left(e), None)
+            case Right(value) => (Right(index + 1), Some(value))
         }
     )
 
     (acc, result) match {
-      case (Accumulator(Seq(), None), Some(r)) => Right(r)
-      case (Accumulator(Seq(), Some(es)), _)   => Left(es)
-      case (acc, r)                            => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
+      case (Left(e), _) => Left(e)
+      case (_, Some(r)) => Right(r)
+      case (acc, r)     => throw new IllegalStateException(s"Bug in derivation logic: acc=$acc, result=$r")
     }
   }
 }

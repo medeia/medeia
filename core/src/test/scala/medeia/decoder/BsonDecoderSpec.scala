@@ -1,6 +1,5 @@
 package medeia.decoder
 
-import cats.data.{EitherNec, NonEmptyChain}
 import medeia.MedeiaSpec
 import medeia.decoder.BsonDecoderError.GenericDecoderError
 import medeia.decoder.StackFrame.{Case, Index, MapKey}
@@ -43,7 +42,7 @@ class BsonDecoderSpec extends MedeiaSpec {
 
     val result = BsonDecoder[Map[String, Int]].decode(doc)
 
-    result.left.value.head.stack should ===(ErrorStack(List(MapKey(key))))
+    result.left.value.stack should ===(ErrorStack(List(MapKey(key))))
   }
 
   it should "provide index info when failing to decode an iterable" in {
@@ -51,7 +50,7 @@ class BsonDecoderSpec extends MedeiaSpec {
 
     val result = BsonDecoder[List[String]].decode(bsonValue)
 
-    result.left.value.map(_.stack) should ===(NonEmptyChain.of(ErrorStack(List(Index(1))), ErrorStack(List(Index(3)))))
+    result.left.value.stack should ===(ErrorStack(List(Index(1))))
   }
 
   it should "provide an error stack when decoding an Option in the Some case" in {
@@ -59,7 +58,7 @@ class BsonDecoderSpec extends MedeiaSpec {
 
     val result = BsonDecoder[Option[Int]].decode(bsonValue)
 
-    result.left.value.head.stack.frames should ===(List(Case("Some")))
+    result.left.value.stack.frames should ===(List(Case("Some")))
   }
 
   it should "provide an error stack when decoding an iterable" in {
@@ -68,7 +67,7 @@ class BsonDecoderSpec extends MedeiaSpec {
 
     val result = decoder.decode(bsonValue)
 
-    result.left.value.head.stack.frames should ===(List(Index(0)))
+    result.left.value.stack.frames should ===(List(Index(0)))
   }
 
   it should "provide an error stack when decoding a map" in {
@@ -77,7 +76,7 @@ class BsonDecoderSpec extends MedeiaSpec {
 
     val result = BsonDecoder[Map[String, Int]].decode(bsonValue)
 
-    result.left.value.head.stack.frames should ===(List(MapKey(keyname)))
+    result.left.value.stack.frames should ===(List(MapKey(keyname)))
   }
 
   it should "support map" in {
@@ -100,8 +99,8 @@ class BsonDecoderSpec extends MedeiaSpec {
     val doc = new BsonInt32(42)
 
     val error = "oops"
-    val result: EitherNec[BsonDecoderError, String] = BsonDecoder[Int].emap[String](_ => Left(error)).decode(doc)
+    val result: Either[BsonDecoderError, String] = BsonDecoder[Int].emap[String](_ => Left(error)).decode(doc)
 
-    result should ===(Left(NonEmptyChain.of(GenericDecoderError(error))))
+    result should ===(Left(GenericDecoderError(error)))
   }
 }
