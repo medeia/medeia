@@ -9,14 +9,14 @@ medeia is a BSON library for Scala.
 
 The goal of medeia is to make bson decoding / encoding as easy and fun as JSON decoding / encoding is with circe or argonaut.
 
-medeia includes decoders and encoders for common data structures as well as automatic derivation of decoders and encoders for case classes using shapeless.
+medeia includes decoders and encoders for common data structures as well as automatic derivation of decoders and encoders.
 
 ## Quickstart
 
 ### Add to sbt
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia" % "0.14.0"
+  libraryDependencies += "de.megaera" %% "medeia" % "1.0.0"
 ```
 
 Currently no complete documentation is present, additional examples(including Scala 3 derives syntax) can be found in the test suites.
@@ -37,8 +37,51 @@ If you have questions: don't hesitate to ask via github issues.
   // Right(List(a,b)
 ```
 
-### automatic derivation example for case classes and sealed trait hierarchies:
+### automatic derivation examples for case classes, sealed traits and Scala 3 enums:
 
+#### Scala 3
+```scala
+  import org.mongodb.scala.bson.*
+
+  import medeia.codec.*
+  import medeia.syntax.*
+
+  case class Simple(int: Int, string: Option[String]) derives BsonDocumentCodec
+  val encoded = Simple(1, Some("a")).toBson
+  // {"string": "a", "int": 1}
+
+  val doc = BsonDocument("int" -> 1, "string" -> "string")
+  val decoded = doc.fromBson[Simple]
+  // Right(Simple(1,Some(string)))
+
+  enum Enum derives BsonDocumentCodec:
+    case Foo(answer: Int)
+    case Bar(bar: String)
+
+  val e = Enum.Foo(42)
+  val encodedEnum = e.toBson
+  // {"answer": 42, "type": "Foo"}
+```
+
+A transformation function for keynames can be provided as follows:
+
+```scala
+  import medeia.codec.*
+  import medeia.generic.GenericDerivationOptions
+  import medeia.syntax.*
+
+  case class Simple(fieldInScala: Int) derives BsonDocumentCodec
+  object Simple:
+    given GenericDerivationOptions[Simple] =
+      GenericDerivationOptions { case "fieldInScala" => "fieldInBson" }
+  val encoded = Simple(1).toBson
+  // {"fieldInBson": 1}
+```
+
+GenericDerivationOptions works for encoding and decoding.
+If the provided partial function is not defined for a key no transformation is used.
+
+#### Scala 2
 ```scala
   import org.mongodb.scala.bson._
 
@@ -61,8 +104,6 @@ If you have questions: don't hesitate to ask via github issues.
   case class Foo(answer: Int) extends Trait
   case class Bar(bar: String) extends Trait
 
-  implicit val fooCodec: BsonDocumentCodec[Foo] = BsonDocumentCodec.derived
-  implicit val barCodec: BsonDocumentCodec[Bar] = BsonDocumentCodec.derived
   implicit val traitCodec: BsonDocumentCodec[Trait] = BsonDocumentCodec.derived
 
   val encoded = Foo(42).toBson
@@ -94,7 +135,7 @@ A separate module exists for encoding and decoding [enumeratum](https://github.c
 #### Add sbt dependency
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "0.14.0"
+  libraryDependencies += "de.megaera" %% "medeia-enumeratum" % "1.0.0"
 ```
 
 #### Usage
@@ -131,21 +172,21 @@ BsonEncoder/BsonDecoder for `eu.timepit:refined` can be found in the `medeia-ref
 #### Add sbt dependency
 
 ```sbt
-  libraryDependencies += "de.megaera" %% "medeia-refined" % "0.14.0"
+  libraryDependencies += "de.megaera" %% "medeia-refined" % "1.0.0"
 ```
 
 #### Usage
 
 ```scala
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.auto._
-import eu.timepit.refined.collection._
-import medeia.syntax._
-import medeia.refined._
+  import eu.timepit.refined.api.Refined
+  import eu.timepit.refined.auto._
+  import eu.timepit.refined.collection._
+  import medeia.syntax._
+  import medeia.refined._
 
-val refinedString: String Refined NonEmpty = "test"
-refinedString.toBson
-// BsonString{value='test'}
+  val refinedString: String Refined NonEmpty = "test"
+  refinedString.toBson
+  // BsonString{value='test'}
 ```
 
 ## License
