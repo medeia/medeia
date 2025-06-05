@@ -26,7 +26,6 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
 ThisBuild / githubWorkflowOSes := Seq(PrimaryOS, MacOS)
 
 ThisBuild / tlBaseVersion := "1.0"
-ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeLegacy
 ThisBuild / tlCiScalafixCheck := true
 ThisBuild / tlCiHeaderCheck := false
 
