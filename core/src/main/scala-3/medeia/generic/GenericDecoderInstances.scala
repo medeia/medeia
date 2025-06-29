@@ -41,8 +41,8 @@ private[medeia] trait GenericDecoderInstances {
     labelling.elemLabels.zipWithIndex
       .map { case (label, index) =>
         Option.when(discriminatorKey == options.transformDiscriminator(label)) {
-          inst.inject[Either[BsonDecoderError, A]](index)(
-            [t <: A] => (rt: ProductDecoder[t]) => rt.decode(value).leftMap(_.push(Case(discriminatorKey)))
+          inst.inject[Either[BsonDecoderError, A]](index)([t <: A] =>
+            (rt: ProductDecoder[t]) => rt.decode(value).leftMap(_.push(Case(discriminatorKey)))
           )
         }
       }
@@ -69,20 +69,19 @@ private object ProductDecoder {
       labelling: Labelling[A],
       options: GenericDerivationOptions[A]
   ): Either[BsonDecoderError, A] = {
-    val (acc, result) = inst.unfold[Either[BsonDecoderError, Int]](Right(0))(
-      [t] =>
-        (acc: Either[BsonDecoderError, Int], rt: BsonDecoder[t]) =>
-          val index = acc.toOption.get // guaranteed to be right because Left stops the unfold
-          val label = options.transformKeys(labelling.elemLabels(index)) // guaranteed to be present
+    val (acc, result) = inst.unfold[Either[BsonDecoderError, Int]](Right(0))([t] =>
+      (acc: Either[BsonDecoderError, Int], rt: BsonDecoder[t]) =>
+        val index = acc.toOption.get // guaranteed to be right because Left stops the unfold
+        val label = options.transformKeys(labelling.elemLabels(index)) // guaranteed to be present
 
-          val decoded = Option(bsonDocument.get(label)) match {
-            case Some(headField) => rt.decode(headField).leftMap(_.push(Attr(label)))
-            case None            => rt.defaultValue.toRight(KeyNotFound(label))
-          }
+        val decoded = Option(bsonDocument.get(label)) match {
+          case Some(headField) => rt.decode(headField).leftMap(_.push(Attr(label)))
+          case None            => rt.defaultValue.toRight(KeyNotFound(label))
+        }
 
-          decoded match {
-            case Left(e)      => (Left(e), None)
-            case Right(value) => (Right(index + 1), Some(value))
+        decoded match {
+          case Left(e)      => (Left(e), None)
+          case Right(value) => (Right(index + 1), Some(value))
         }
     )
 

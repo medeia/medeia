@@ -19,12 +19,11 @@ private[medeia] trait GenericEncoderInstances {
       options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
   ): GenericEncoder[A] =
     (value: A) => {
-      inst.fold(value)(
-        [t] =>
-          (st: ProductEncoder[t], t: t) =>
-            val original: BsonDocument = st.encode(t).asDocument()
-            val label = labelling.elemLabels(mirror.ordinal(value))
-            original.append(options.discriminatorKey, BsonString(options.transformDiscriminator(label)))
+      inst.fold(value)([t] =>
+        (st: ProductEncoder[t], t: t) =>
+          val original: BsonDocument = st.encode(t).asDocument()
+          val label = labelling.elemLabels(mirror.ordinal(value))
+          original.append(options.discriminatorKey, BsonString(options.transformDiscriminator(label)))
       )
     }
 
