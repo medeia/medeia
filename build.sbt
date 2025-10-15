@@ -3,7 +3,7 @@ val scala2_13 = "2.13.17"
 inThisBuild(
   List(
     scalaVersion := scala2_13,
-    crossScalaVersions := List(scala2_13, "3.3.6"),
+    crossScalaVersions := List(scala2_13, "3.3.7"),
     organization := "de.megaera",
     homepage := Some(url("https://github.com/medeia/medeia")),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
