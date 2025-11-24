@@ -9,8 +9,8 @@ object Dependencies {
     val scalaCheck = "1.19.0"
     val shapeless2 = "2.3.13"
     val shapeless3 = "3.5.0"
-    val enumeratumVersion = "1.9.0"
-    val enumeratumScalacheckVersion = "1.9.0"
+    val enumeratumVersion = "1.9.1"
+    val enumeratumScalacheckVersion = "1.9.1"
     val refinedVersion = "0.11.3"
   }
 
