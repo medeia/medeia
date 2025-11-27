@@ -5,6 +5,7 @@ import shapeless3.deriving.K0.*
 import shapeless3.deriving.*
 import org.mongodb.scala.bson.*
 import scala.compiletime.*
+import scala.annotation.nowarn
 import medeia.decoder.BsonDecoderError.*
 import medeia.decoder.BsonDecoderError
 import medeia.decoder.BsonDecoder
@@ -33,6 +34,7 @@ private[medeia] trait GenericDecoderInstances {
       options: GenericDerivationOptions[A] = GenericDerivationOptions[A]()
   ): GenericDecoder[A] = ProductDecoder.product
 
+  @nowarn("msg=unused")
   private def doDecode[A](discriminatorKey: String, value: BsonValue)(using
       inst: => K0.CoproductInstances[ProductDecoder, A],
       labelling: Labelling[A],
@@ -64,6 +66,7 @@ private object ProductDecoder {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw", "org.wartremover.warts.OptionPartial", "org.wartremover.warts.SeqApply"))
+  @nowarn("msg=unused")
   private def doDecode[A](bsonDocument: BsonDocument)(using
       inst: => K0.ProductInstances[BsonDecoder, A],
       labelling: Labelling[A],
