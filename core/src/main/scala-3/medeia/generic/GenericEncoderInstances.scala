@@ -6,12 +6,14 @@ import org.mongodb.scala.bson.*
 import scala.compiletime.*
 import medeia.encoder.BsonEncoder
 import scala.deriving.Mirror
+import scala.annotation.nowarn
 
 private[medeia] trait GenericEncoderInstances {
   inline def apply[A]: GenericEncoder[A] =
     summonInline[GenericEncoder[A]]
 
   @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
+  @nowarn("msg=unused")
   given coproduct[A](using
       inst: => K0.CoproductInstances[ProductEncoder, A],
       labelling: Labelling[A],
@@ -35,6 +37,7 @@ private[medeia] trait GenericEncoderInstances {
 
 private trait ProductEncoder[A] extends GenericEncoder[A]
 
+@nowarn("msg=unused")
 private object ProductEncoder {
   given product[A](using
       inst: => ProductInstances[BsonEncoder, A],
