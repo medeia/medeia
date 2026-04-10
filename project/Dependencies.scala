@@ -4,7 +4,7 @@ import sbt._
 object Dependencies {
   object Versions {
     val scalaTest = "3.2.20"
-    val mongoScalaBson = "5.6.4"
+    val mongoScalaBson = "5.6.5"
     val cats = "2.13.0"
     val scalaCheck = "1.19.0"
     val shapeless2 = "2.3.13"
