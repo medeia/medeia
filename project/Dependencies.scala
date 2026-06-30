@@ -11,7 +11,7 @@ object Dependencies {
     val shapeless3 = "3.5.0"
     val enumeratumVersion = "1.9.7"
     val enumeratumScalacheckVersion = "1.9.7"
-    val refinedVersion = "0.11.3"
+    val refinedVersion = "0.11.4"
   }
 
   lazy val Libraries: Vector[ModuleID] = Vector(
